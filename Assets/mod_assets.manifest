@@ -1,0 +1,63 @@
+ManifestFileVersion: 0
+CRC: 1140814026
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 604025293c9e5c040ddc0726a5c69332
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 66faf13bf4e1b9535375fbe10988283e
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 604025293c9e5c040ddc0726a5c69332
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 82
+  Script: {instanceID: 0}
+- Class: 83
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 65d3fcb39dd67306e9bb17a603308070, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3c36d0a92cbb1f26a39169ef0eae393a, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 6d7127b8f98ca8ec9896b384a71d39a2, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers:
+- AssemblyName: Assembly-CSharp
+  ClassName: NavSizeLimit
+Assets:
+- Assets/ModAssets/SCP-956/956.prefab
+- Assets/ModAssets/SCP-956/Audio/paper-rip.mp3
+- Assets/ModAssets/SCP-956/Textures/scp-956_MetallicSmoothness.png
+- Assets/ModAssets/SCP-956/scp956.asset
+- Assets/ModAssets/SCP-956/Models/956.fbx
+- Assets/ModAssets/SCP-956/Materials/scp956.mat
+- Assets/ModAssets/SCP-956/Audio/papers-flapping.mp3
+- Assets/ModAssets/SCP-956/Models/956obj.obj
+- Assets/ModAssets/SCP-956/Textures/scp-956_Normal.png
+- Assets/ModAssets/SCP-956/Textures/scp-956_AlbedoTransparency.png
+Dependencies: []
