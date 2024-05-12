@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <!-- BepInEx Properties -->
     <PropertyGroup>
@@ -74,4 +74,8 @@
         <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
       </Reference>
     </ItemGroup>
+
+    <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+      <Exec Command="xcopy &quot;C:\Users\snowl\source\repos\SCP956\Assets\mod_assets&quot; &quot;C:\Users\snowl\source\repos\1Lethal Company Debugging\BepInEx\plugins&quot; /Y" />
+    </Target>
 </Project>

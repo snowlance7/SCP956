@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1140814026
+CRC: 1156807121
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 604025293c9e5c040ddc0726a5c69332
+    Hash: 4963f41c567248a1b5cc5d854f94796b
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 66faf13bf4e1b9535375fbe10988283e
+    Hash: 1e285037d66a52fdb205938cd2a42440
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 604025293c9e5c040ddc0726a5c69332
+    Hash: 4963f41c567248a1b5cc5d854f94796b
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -44,20 +44,21 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 3c36d0a92cbb1f26a39169ef0eae393a, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 6d7127b8f98ca8ec9896b384a71d39a2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+- Class: 114
+  Script: {fileID: -581893392, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 195
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
+  ClassName: AISearchRoutine
+- AssemblyName: Assembly-CSharp
+  ClassName: EnemyBehaviourState
+- AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
 Assets:
-- Assets/ModAssets/SCP-956/956.prefab
-- Assets/ModAssets/SCP-956/Audio/paper-rip.mp3
-- Assets/ModAssets/SCP-956/Textures/scp-956_MetallicSmoothness.png
-- Assets/ModAssets/SCP-956/scp956.asset
-- Assets/ModAssets/SCP-956/Models/956.fbx
-- Assets/ModAssets/SCP-956/Materials/scp956.mat
-- Assets/ModAssets/SCP-956/Audio/papers-flapping.mp3
-- Assets/ModAssets/SCP-956/Models/956obj.obj
-- Assets/ModAssets/SCP-956/Textures/scp-956_Normal.png
-- Assets/ModAssets/SCP-956/Textures/scp-956_AlbedoTransparency.png
+- Assets/ModAssets/SCP-956/956.asset
 Dependencies: []
