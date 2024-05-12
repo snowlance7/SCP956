@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace SCP956
 {
@@ -24,7 +25,8 @@ namespace SCP956
 
         public static AssetBundle? ModAssets;
 
-        // Rarity Configs
+        // SCP-956 Configs
+        // Rarity Configs || ONLY WORKS WITH BIRTHDAYMODE AND RANDOM AGE GAMEMODES
         public static ConfigEntry<int> configExperimentationLevelRarity;
         public static ConfigEntry<int> configAssuranceLevelRarity;
         public static ConfigEntry<int> configVowLevelRarity;
@@ -36,7 +38,23 @@ namespace SCP956
         public static ConfigEntry<int> configModdedLevelRarity;
         public static ConfigEntry<int> configOtherLevelRarity;
 
-        
+        // General Configs
+        public static ConfigEntry<int> configGamemode;
+        public static ConfigEntry<int> configRadius;
+        public static ConfigEntry<int> configAgeNeeded;
+
+
+        // SCP-956-1 Configs
+        public static ConfigEntry<int> config9561Rarity;
+        public static ConfigEntry<int> config9561Value;
+        public static ConfigEntry<int> config9561Behavior;
+
+        // SCP-559 Configs
+        public static ConfigEntry<int> config559Rarity;
+        public static ConfigEntry<int> config559Value;
+
+        // SCP-330 Configs
+        public static ConfigEntry<int> config330Rarity;
 
         private void Awake()
         {
@@ -76,6 +94,34 @@ namespace SCP956
                 return;
             }
             LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "mod_assets")}");
+
+            // Getting Cake
+            Item SCP559 = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
+            if (SCP559 == null) { LoggerInstance.LogError("Error: Couldnt get cake from assets"); return; }
+            LoggerInstance.LogDebug($"Got Cake prefab");
+
+            SCP559Behavior SCP559BehaviorScript = SCP559.spawnPrefab.AddComponent<SCP559Behavior>();
+
+            SCP559BehaviorScript.grabbable = true;
+            SCP559BehaviorScript.itemProperties = SCP559;
+
+            NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
+            Utilities.FixMixerGroups(SCP559.spawnPrefab);
+            Items.RegisterScrap(SCP559, 500, Levels.LevelTypes.All);
+
+            // Getting Candy
+            Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
+            if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyPink prefab");
+
+            CandyBehavior candyPinkBehaviorScript = CandyPink.spawnPrefab.AddComponent<CandyBehavior>();
+
+            candyPinkBehaviorScript.grabbable = true;
+            candyPinkBehaviorScript.itemProperties = CandyPink;
+
+            NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
+            Utilities.FixMixerGroups(CandyPink.spawnPrefab);
+            Items.RegisterScrap(CandyPink, 500, Levels.LevelTypes.All);
 
             // Getting enemy
             EnemyType SCP956 = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/SCP-956/956.asset"); // TODO: Wont let me change rotation or anything in the unity editor

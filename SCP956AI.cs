@@ -33,6 +33,7 @@ namespace SCP956
 
         public override void Start()
         {
+            
             logger.LogDebug("Start()");
             logger.LogDebug("Pinata spawned!");
             transform.rotation = Quaternion.Euler(270, 0, 0); // TODO: THIS ONLY WORKS SOMETIMES IDK WHY TF IT DOES THIS FUCK THIS SHIT I AM BEYOND IRRITATED, only works in certain areas????
@@ -48,14 +49,12 @@ namespace SCP956
             // We make the enemy start searching. This will make it start wandering around.
             StartSearch(transform.position);*/
         }
-
+        
         public override void Update()
         {
-
+            return;
             //transform.rotation = Quaternion.Euler(270, 0, 0); // this fucking works of course, what the fuck
-            return;
             base.Update();
-            return;
             if (isEnemyDead)
             {
                 // For some weird reason I can't get an RPC to get called from HitEnemy() (works from other methods), so we do this workaround. We just want the enemy to stop playing the song.
@@ -85,7 +84,6 @@ namespace SCP956
 
         public override void DoAIInterval()
         {
-            return;
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {
