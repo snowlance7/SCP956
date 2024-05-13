@@ -66,10 +66,12 @@
     <ItemGroup>
       <Folder Include="Assets\" />
       <Folder Include="ThunderStore\" />
-      <Folder Include="Patches\" />
     </ItemGroup>
 
     <ItemGroup>
+      <Reference Include="0Harmony">
+        <HintPath>..\1Resources\1Dependencies\0Harmony.dll</HintPath>
+      </Reference>
       <Reference Include="LethalLib">
         <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
       </Reference>

@@ -14,7 +14,9 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-
+                SCP956.PlayerAge = 10;
+                //playerHeldBy. // TODO: reference little company and find out how to shrink players
+                Destroy(this); // TODO: Figure out how to do this properly
             }
         }
     }

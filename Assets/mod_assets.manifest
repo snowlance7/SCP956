@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3335264853
+CRC: 3145503690
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d559d5c68fb4dfbb334ea6021fc0996a
+    Hash: 44fc8a4232222ed7dbfed0f7f55e25e3
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 4ea5ed7cf2d8e7da0c3022073fa806f8
+    Hash: 1b47a9dd2ba0e78978cfcd54b9bf4f9c
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: d559d5c68fb4dfbb334ea6021fc0996a
+    Hash: 44fc8a4232222ed7dbfed0f7f55e25e3
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -49,7 +49,11 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 6d7127b8f98ca8ec9896b384a71d39a2, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 0e80ae96b3eb9177eea5c8f9dadbcda1, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 137
@@ -72,7 +76,12 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
 Assets:
-- Assets/ModAssets/SCP-559/559Item.asset
-- Assets/ModAssets/SCP-956/956.asset
+- Assets/ModAssets/Candy/CandyYellowItem.asset
+- Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
+- Assets/ModAssets/Candy/CandyPurpleItem.asset
+- Assets/ModAssets/Cake/CakeItem.asset
+- Assets/ModAssets/Pinata/Pinata.asset
+- Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
+- Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 Dependencies: []

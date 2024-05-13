@@ -24,6 +24,8 @@ namespace SCP956
         private Vector3 positionRandomness;
         private System.Random enemyRandom;
         private bool isDeadAnimationDone;
+        public static int ActivationRadius;
+        public static int Behavior;
 
         enum State
         {
