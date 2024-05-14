@@ -13,6 +13,7 @@ namespace SCP956
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
+    [BepInDependency(LethalNetworkAPI.MyPluginInfo.PLUGIN_GUID)]
     public class SCP956 : BaseUnityPlugin
     {
         private const string modGUID = "Snowlance.Pinata";
@@ -45,6 +46,7 @@ namespace SCP956
         // General Configs
         public static ConfigEntry<int> config956Behavior;
         public static ConfigEntry<int> config956Radius;
+        public static ConfigEntry<int> configMaxAge;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> config9561MinValue;
@@ -69,6 +71,7 @@ namespace SCP956
 
             harmony.PatchAll();
 
+            NetworkHandler.Init();
             InitializeNetworkBehaviours();
 
             // Configs
@@ -93,6 +96,7 @@ namespace SCP956
                 "4 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "5 - All: 956 targets all players.");
             config956Radius = Config.Bind("General", "ActivationRadius", 5, "The radius around 956 that will activate 956."); // TEMP
+            configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
 
             // SCP-956-1 Configs
             config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");

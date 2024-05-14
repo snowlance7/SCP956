@@ -29,8 +29,8 @@ namespace SCP956
 
         enum State
         {
-            SearchingForPlayer,
-            AttackingPlayers
+            Dormant,
+            Activated
         }
 
         public override void Start()
@@ -38,7 +38,7 @@ namespace SCP956
             
             logger.LogDebug("Start()");
             logger.LogDebug("Pinata spawned!");
-            transform.rotation = Quaternion.Euler(270, 0, 0); // TODO: THIS ONLY WORKS SOMETIMES IDK WHY TF IT DOES THIS FUCK THIS SHIT I AM BEYOND IRRITATED, only works in certain areas????
+            //transform.rotation = Quaternion.Euler(270, 0, 0); // TODO: THIS ONLY WORKS SOMETIMES IDK WHY TF IT DOES THIS FUCK THIS SHIT I AM BEYOND IRRITATED, only works in certain areas????
             base.Start();
 
             /*timeSinceHittingLocalPlayer = 0;

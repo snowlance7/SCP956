@@ -22,15 +22,22 @@ namespace SCP956.Patches
 
             if (firstDay)
             {
+                logger.LogDebug("In StartPatch first day");
                 if (SCP956.config956Behavior.Value == 4)
                 {
-                    SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, 20);
+                    SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, SCP956.configMaxAge.Value);
+
+                    if (SCP956.PlayerAge < 12)
+                    {
+                        NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
+                    }
                 }
                 else
                 {
-                    SCP956.PlayerAge = SCP956.PluginInstance.random.Next(20, 50);
+                    SCP956.PlayerAge = SCP956.PluginInstance.random.Next(18, SCP956.configMaxAge.Value);
                 }
 
+                logger.LogDebug($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {SCP956.PlayerAge}");
                 firstDay = false;
             }
 
@@ -39,6 +46,8 @@ namespace SCP956.Patches
                 if (SCP956.PluginInstance.random.Next(0, 100) < 50)
                 {
                     SCP956.PlayerBirthday = true;
+                    HUDManager.Instance.DisplayTip("Happy Birthday!", "Its your birthday today! The company would like to wish you a happy birthday!");
+                    logger.LogDebug($"Its {StartOfRound.Instance.localPlayerController.playerUsername}'s birthday!");
                 }
             }
         }

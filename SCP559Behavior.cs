@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 namespace SCP956
 {
@@ -14,10 +15,15 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
+                logger.LogDebug("In ItemActivate()");
                 SCP956.PlayerAge = 10;
-                //playerHeldBy. // TODO: reference little company and find out how to shrink players
-                Destroy(this); // TODO: Figure out how to do this properly
+
+                NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
+                playerHeldBy.DespawnHeldObject();
             }
         }
     }
 }
+// TODO: Add tooltips in hud for blowing out candles
+// TODO: Add more candles to the cake so it equals 10
+// TODO: Make it so when you blow out the candles, the fire on the candles go out

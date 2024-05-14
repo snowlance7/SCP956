@@ -19,14 +19,17 @@ namespace SCP956
             {
                 if (PlayerAge >= 12)
                 {
-                    if (PluginInstance.random.Next(0, 100) < 35)
+                    if (PluginInstance.random != null)
                     {
-                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
-                    }
+                        if (PluginInstance.random.Next(0, 100) < 35)
+                        {
+                            playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
+                        }
 
-                    if (config956Behavior.Value == 2)
-                    {
-                        // TODO: Create random effect like in secret lab
+                        if (config956Behavior.Value == 2)
+                        {
+                            // TODO: Create random effect like in secret lab
+                        }
                     }
                 }
                 else
@@ -34,7 +37,7 @@ namespace SCP956
                     // TODO: Turn player into SCP956
                 }
 
-                Destroy(this); // TODO: Figure out how to do this properly
+                playerHeldBy.DespawnHeldObject();
             }
         }
     }
