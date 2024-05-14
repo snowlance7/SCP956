@@ -9,13 +9,15 @@ using System.Diagnostics;
 using GameNetcodeStuff;
 using Unity.Netcode;
 using UnityEngine;
+using Steamworks.Data;
+using static SCP956.SCP956;
 
 namespace SCP956
 {
     public class SCP956AI : EnemyAI
     {
         //#pragma warning disable 0649
-        //public Transform turnCompass = null!;
+        public Transform turnCompass = null!;
         //public Transform attackArea = null!;
         //#pragma warning restore 0649
 
@@ -33,30 +35,38 @@ namespace SCP956
             Activated
         }
 
+        public void HeadbuttPlayer()
+        {
+            logger.LogDebug("In AttackPlayer()");
+
+            
+        }
+
+
+
         public override void Start()
         {
             
             logger.LogDebug("Start()");
             logger.LogDebug("Pinata spawned!");
-            //transform.rotation = Quaternion.Euler(270, 0, 0); // TODO: THIS ONLY WORKS SOMETIMES IDK WHY TF IT DOES THIS FUCK THIS SHIT I AM BEYOND IRRITATED, only works in certain areas????
             base.Start();
 
-            /*timeSinceHittingLocalPlayer = 0;
+            timeSinceHittingLocalPlayer = 0;
             positionRandomness = new Vector3(0, 0, 0);
             enemyRandom = new System.Random(StartOfRound.Instance.randomMapSeed + thisEnemyIndex);
             isDeadAnimationDone = false;
             // NOTE: Add your behavior states in your enemy script in Unity, where you can configure fun stuff
             // like a voice clip or an sfx clip to play when changing to that specific behavior state.
-            ////currentBehaviourStateIndex = (int)State.SearchingForPlayer;
+            currentBehaviourStateIndex = (int)State.Dormant;
             // We make the enemy start searching. This will make it start wandering around.
-            StartSearch(transform.position);*/
+            ////StartSearch(transform.position);
+            
         }
         
         public override void Update()
         {
-            return;
-            //transform.rotation = Quaternion.Euler(270, 0, 0); // this fucking works of course, what the fuck
             base.Update();
+
             if (isEnemyDead)
             {
                 // For some weird reason I can't get an RPC to get called from HitEnemy() (works from other methods), so we do this workaround. We just want the enemy to stop playing the song.
@@ -124,10 +134,37 @@ namespace SCP956
             }*/
         }
 
+        bool FoundClosestPlayerInRange(float range, float senseRange)
+        {
+            TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: true);
+            if (targetPlayer == null)
+            {
+                // Couldn't see a player, so we check if a player is in sensing distance instead
+                TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: false);
+                range = senseRange;
+            }
+            return targetPlayer != null && Vector3.Distance(transform.position, targetPlayer.transform.position) < range;
+        }
+
+        bool TargetClosestPlayerInAnyCase()
+        {
+            mostOptimalDistance = 2000f;
+            targetPlayer = null;
+            for (int i = 0; i < StartOfRound.Instance.connectedPlayersAmount + 1; i++)
+            {
+                tempDist = Vector3.Distance(transform.position, StartOfRound.Instance.allPlayerScripts[i].transform.position);
+                if (tempDist < mostOptimalDistance)
+                {
+                    mostOptimalDistance = tempDist;
+                    targetPlayer = StartOfRound.Instance.allPlayerScripts[i];
+                }
+            }
+            if (targetPlayer == null) return false;
+            return true;
+        }
+
         public override void OnCollideWithPlayer(Collider other)
         {
-            logger.LogDebug("OnCollideWithPlayer");
-            return;
             if (timeSinceHittingLocalPlayer < 1f)
             {
                 return;
@@ -141,14 +178,15 @@ namespace SCP956
             }
         }
 
-        public override void HitEnemy(int force = 1, PlayerControllerB? playerWhoHit = null, bool playHitSFX = false, int hitID = -1)
+        public override void HitEnemy(int force = 1, PlayerControllerB? playerWhoHit = null, bool playHitSFX = false, int hitID = -1) // TODO: May be unneeded
         {
             base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
             if (isEnemyDead)
             {
                 return;
             }
-            enemyHP -= force;
+
+            //enemyHP -= force;
             if (IsOwner)
             {
                 if (enemyHP <= 0 && !isEnemyDead)
@@ -159,10 +197,11 @@ namespace SCP956
 
                     ////StopCoroutine(SwingAttack());
                     // We need to stop our search coroutine, because the game does not do that by default.
-                    StopCoroutine(searchCoroutine);
+                    ////StopCoroutine(searchCoroutine);
                     KillEnemyOnOwnerClient();
                 }
             }
         }
     }
 }
+// TODO: Make the pinata die from explosions only
