@@ -1,11 +1,14 @@
 using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using GameNetcodeStuff;
 using HarmonyLib;
 using LethalLib.Modules;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -24,11 +27,12 @@ namespace SCP956
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;
-        public static bool PlayerBirthday = false;
         public System.Random random;
 
 
         public static AssetBundle? ModAssets;
+
+        public static AudioClip? WarningSoundsfx;
 
         // SCP-956 Configs
         // Rarity Configs || ONLY WORKS WITH BIRTHDAYMODE AND RANDOM AGE GAMEMODES
@@ -45,8 +49,11 @@ namespace SCP956
 
         // General Configs
         public static ConfigEntry<int> config956Behavior;
-        public static ConfigEntry<int> config956Radius;
+        public static ConfigEntry<float> config956Radius;
         public static ConfigEntry<int> configMaxAge;
+        public static ConfigEntry<bool> configPlayWarningSound;
+        public static ConfigEntry<float> configActivationTime;
+        public static ConfigEntry<float> configActivationTimeCandy;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> config9561MinValue;
@@ -89,14 +96,14 @@ namespace SCP956
 
             // General Configs
 
-            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 1, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
+            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" + // TEMP
                 "1 - Default: Kills players under the age of 12.\n" +
                 "2 - Secret Lab: Candy causes random effects but 956 targets players holding candy and under the age of 12. Candy spawns naturally.\n" +
-                "3 - Birthday: 956 will target a random person whos birthday is chosen at the beginning of each round.\n" +
-                "4 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
-                "5 - All: 956 targets all players.");
-            config956Radius = Config.Bind("General", "ActivationRadius", 5, "The radius around 956 that will activate 956."); // TEMP
+                "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
+                "4 - All: 956 targets all players.");
+            config956Radius = Config.Bind("General", "ActivationRadius", 5f, "The radius around 956 that will activate 956."); // TEMP
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
+            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
 
             // SCP-956-1 Configs
             config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");
@@ -214,10 +221,53 @@ namespace SCP956
             LoggerInstance.LogDebug("Registering enemy network prefab...");
             NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
             LoggerInstance.LogDebug("Registering enemy...");
-            Enemies.RegisterEnemy(Pinata, SCP956LevelRarities, null, PinataTN, PinataTK);
+            Enemies.RegisterEnemy(Pinata, SCP956LevelRarities/*, null, PinataTN, PinataTK*/);
             
             // Finished
             Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+        }
+
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        {
+            foreach (GrabbableObject item in player.ItemSlots)
+            {
+                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool PlayerMeetsConditions(PlayerControllerB player)
+        {
+            if (PlayerAge < 12 || (SCP956AI.Behavior == 4) || (SCP956AI.Behavior == 2 && IsPlayerHoldingCandy(player)))
+            {
+                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
+                {
+                    if (scp.PlayerIsTargetable(player) && Vector3.Distance(scp.transform.position, player.transform.position) <= config956Radius.Value)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public static List<SpawnableEnemyWithRarity> GetEnemies()
+        {
+            LoggerInstance.LogDebug("Getting enemies");
+            List<SpawnableEnemyWithRarity> enemies = new List<SpawnableEnemyWithRarity>();
+            enemies = GameObject.Find("Terminal")
+                .GetComponentInChildren<Terminal>()
+                .moonsCatalogueList
+                .SelectMany(x => x.Enemies.Concat(x.DaytimeEnemies).Concat(x.OutsideEnemies))
+                .Where(x => x != null && x.enemyType != null && x.enemyType.name != null)
+                .GroupBy(x => x.enemyType.name, (k, v) => v.First())
+                .ToList();
+
+            LoggerInstance.LogDebug($"Enemy types: {enemies.Count}");
+            return enemies;
         }
 
         private static void InitializeNetworkBehaviours()

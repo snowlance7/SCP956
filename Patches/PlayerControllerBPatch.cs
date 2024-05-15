@@ -1,28 +1,74 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
+using static SCP956.SCP956;
 
 namespace SCP956.Patches
 {
     [HarmonyPatch(typeof(PlayerControllerB))]
     internal class PlayerControllerBPatch
     {
+        private static float timeSinceLastCheck = 0f;
+        private static bool warningStarted = false;
+        public static bool playerFrozen = false;
+        
+
         [HarmonyPostfix]
         [HarmonyPatch("Update")]
-        private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
+        private static void UpdatePatch(PlayerControllerB __instance, ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
+            if (playerFrozen)
             {
-                ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
-                ___fallValue = 0f;
+                StartOfRound.Instance.localPlayerUsingController = false;
+                IngamePlayerSettings.Instance.playerInput.DeactivateInput();
+                __instance.disableLookInput = true;
+                return;
+            }
+
+            timeSinceLastCheck += Time.deltaTime;
+            if (timeSinceLastCheck > 1f)
+            {
+                timeSinceLastCheck = 0f;
+
+                if (PlayerMeetsConditions(__instance))
+                {
+                    if (!warningStarted)
+                    {
+                        __instance.movementAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
+                        float pitch;
+
+                        if (IsPlayerHoldingCandy(__instance) && SCP956AI.Behavior == 2) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
+                        __instance.movementAudio.pitch = pitch;
+                        __instance.movementAudio.Play();
+
+                        if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; }
+                        warningStarted = true;
+                    }
+
+                    if (!__instance.movementAudio.isPlaying)
+                    {
+                        // Freeze player
+
+                        warningStarted = false;
+                        playerFrozen = true;
+                        NetworkHandler.UnfortunatePlayers.Value.Add(__instance.actualClientId);
+                    }
+                }
             }
         }
 
-        [HarmonyPatch("SpawnDeadBody")]
+        /*if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
+        {
+            ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
+            ___fallValue = 0f;
+        }*/
+
         [HarmonyPrefix]
+        [HarmonyPatch("SpawnDeadBody")]
         private static void DeadPlayer(ref DeadBodyInfo ___deadBody)
         {
             if (SCP956.PlayerAge < 12)

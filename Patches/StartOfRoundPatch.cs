@@ -18,12 +18,13 @@ namespace SCP956.Patches
         {
             logger.LogDebug("In StartPatch");
             SCP956.PluginInstance.random = new Random(StartOfRound.Instance.randomMapSeed);
-            SCP956.PlayerBirthday = false;
+            PlayerControllerBPatch.playerFrozen = false;
+            NetworkHandler.UnfortunatePlayers.Value = new List<ulong>();
 
-            if (firstDay)
+            /*if (firstDay)
             {
                 logger.LogDebug("In StartPatch first day");
-                if (SCP956.config956Behavior.Value == 4)
+                if (SCP956.config956Behavior.Value == 3)
                 {
                     SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, SCP956.configMaxAge.Value);
 
@@ -39,17 +40,7 @@ namespace SCP956.Patches
 
                 logger.LogDebug($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {SCP956.PlayerAge}");
                 firstDay = false;
-            }
-
-            if (SCP956.config956Behavior.Value == 3)
-            {
-                if (SCP956.PluginInstance.random.Next(0, 100) < 50)
-                {
-                    SCP956.PlayerBirthday = true;
-                    HUDManager.Instance.DisplayTip("Happy Birthday!", "Its your birthday today! The company would like to wish you a happy birthday!");
-                    logger.LogDebug($"Its {StartOfRound.Instance.localPlayerController.playerUsername}'s birthday!");
-                }
-            }
+            }*/
         }
 
         [HarmonyPostfix]
@@ -58,6 +49,13 @@ namespace SCP956.Patches
         {
             logger.LogDebug("In firstDayAnimationPatch");
             firstDay = true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("ReviveDeadPlayers")]
+        public static void ReviveDeadPlayersPatch()
+        {
+            PlayerControllerBPatch.playerFrozen = false;
         }
     }
 }
