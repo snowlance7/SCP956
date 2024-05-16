@@ -8,6 +8,8 @@ using SCP956;
 using Unity.Netcode;
 using UnityEngine;
 using static SCP956.SCP956;
+using static SCP956.NetworkHandler;
+using LethalNetworkAPI;
 
 namespace SCP956
 {
@@ -76,13 +78,13 @@ namespace SCP956
             timeSinceHittingLocalPlayer += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
-            if (targetPlayer != null && (state == (int)State.MovingTowardsPlayer || state == (int)State.HeadButtAttackInProgress))
+            if (targetPlayer != null && (state == (int)State.MovingTowardsPlayer/* || state == (int)State.HeadButtAttackInProgress*/))
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 1f * Time.deltaTime);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
             }
         }
-
+        
         public override void DoAIInterval()
         {
             base.DoAIInterval();
@@ -90,40 +92,53 @@ namespace SCP956
             {
                 return;
             };
-
+            
             switch (currentBehaviourStateIndex)
             {
                 case (int)State.Dormant:
-                    agent.speed = 0f;
-                    List<ulong> PlayersToKill = NetworkHandler.UnfortunatePlayers.Value;
+                    logger.LogDebug("Dormant");
+                    agent.speed = 3f;
+                    /*List<ulong> PlayersToKill = NetworkHandler.UnfortunatePlayers.Value;
                     if (PlayersToKill.Count > 0)
                     {
                         //if (PlayersToKill) // TODO: Continue here
                         logger.LogDebug("Start Killing Players");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
+                    }*/
+                    if (FoundClosestPlayerInRange(5f)) // Testing
+                    {
+                        logger.LogDebug("Start Target Player");
+                        SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                     }
                     break;
 
-                /*case (int)State.MovingTowardsPlayer:
+                case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area?
                     agent.speed = 3f;
                     // Keep targeting closest player, unless they are over 20 units away and we can't see them.
-                    if (!TargetClosestPlayerInAnyCase() || (Vector3.Distance(transform.position, targetPlayer.transform.position) > 20 && !CheckLineOfSightForPosition(targetPlayer.transform.position)))
+                    if (!FoundClosestPlayerInRange(5f))
+                    {
+                        logger.LogDebug("Stop Target Player");
+                        SwitchToBehaviourClientRpc((int)State.Dormant);
+                        return;
+                    }
+                    /*if (!TargetClosestPlayerInAnyCase() || (Vector3.Distance(transform.position, targetPlayer.transform.position) > 20 && !CheckLineOfSightForPosition(targetPlayer.transform.position)))
                     {
                         logger.LogDebug("Stop Target Player");
                         StartSearch(transform.position);
                         SwitchToBehaviourClientRpc((int)State.SearchingForPlayer);
                         return;
-                    }
-                    StickingInFrontOfPlayer();
+                    }*/
+                    //StickingInFrontOfPlayer();
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
+                    agent.speed = 10f;
                     // We don't care about doing anything here
                     break;
 
                 default:
                     logger.LogDebug("This Behavior State doesn't exist!");
-                    break;*/
+                    break;
             }
         }
 
@@ -134,17 +149,28 @@ namespace SCP956
             agent.Warp(teleportPos);
             SyncPositionToClients();
         }
+        
+        bool TargetFrozenPlayerInRange(float range)
+        {
+            targetPlayer = null;
+            if (UnfortunatePlayers.Value.Count > 0)
+            {
+                foreach (ulong id in UnfortunatePlayers.Value)
+                {
+                    PlayerControllerB player = id.GetPlayerFromId();
+                    if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
+                    {
+                        targetPlayer = player;
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
 
         bool FoundClosestPlayerInRange(float range)
         {
-            
             TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: false);
-            /*if (targetPlayer == null)
-            {
-                // Couldn't see a player, so we check if a player is in sensing distance instead
-                TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: false);
-                range = senseRange;
-            }*/
             return targetPlayer != null && Vector3.Distance(transform.position, targetPlayer.transform.position) < range;
         }
 
