@@ -30,11 +30,11 @@ namespace SCP956
         public Transform attackArea = null!;
         #pragma warning restore 0649
         float timeSinceHittingLocalPlayer;
-        //Vector3 positionRandomness;
-        //Vector3 StalkPos;
+        Vector3 positionRandomness;
+        Vector3 StalkPos;
         System.Random enemyRandom = null!;
         bool isDeadAnimationDone;
-        //List<PlayerControllerB> playersToDie = new List<PlayerControllerB>();
+        float timeSinceNewRandPos;
 
         public static int Behavior;
         public static float ActivationRadius;
@@ -52,6 +52,7 @@ namespace SCP956
             // TODO: figure out how to tell if enemy spawned from a vent or not
             logger.LogDebug("SCP-956 Spawned");
             timeSinceHittingLocalPlayer = 0;
+            timeSinceNewRandPos = 0;
             enemyRandom = new System.Random(StartOfRound.Instance.randomMapSeed + thisEnemyIndex);
             //isDeadAnimationDone = false;
             // NOTE: Add your behavior states in your enemy script in Unity, where you can configure fun stuff
@@ -76,6 +77,7 @@ namespace SCP956
                 return;
             }
             timeSinceHittingLocalPlayer += Time.deltaTime;
+            timeSinceNewRandPos += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
             if (targetPlayer != null && (state == (int)State.MovingTowardsPlayer/* || state == (int)State.HeadButtAttackInProgress*/))
@@ -110,7 +112,7 @@ namespace SCP956
                     {
                         logger.LogDebug("Start Target Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
-                        movingTowardsTargetPlayer = true;
+                        //movingTowardsTargetPlayer = true;
                         return;
                     }
                     break;
@@ -123,13 +125,6 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
-                    if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
-                    {
-                        logger.LogDebug("Switch to Headbutt Attack");
-                        movingTowardsTargetPlayer = false; // TODO: FIGURE OUT WHY THIS DOESNT WORK WTF IS THIS BS FUCK THIS GAME BRO WHY
-                        SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
-                        return;
-                    }
                     /*if (!TargetClosestPlayerInAnyCase() || (Vector3.Distance(transform.position, targetPlayer.transform.position) > 20 && !CheckLineOfSightForPosition(targetPlayer.transform.position)))
                     {
                         logger.LogDebug("Stop Target Player");
@@ -137,18 +132,13 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.SearchingForPlayer);
                         return;
                     }*/
-                    //StickingInFrontOfPlayer();
+                    MoveToPlayer();
+                    
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
-                    logger.LogDebug("Headbutt Attack In Progress");
-                    agent.speed = 1f;
-                    if (Vector3.Distance(transform.position, targetPlayer.transform.position) > 3f)
-                    {
-                        logger.LogDebug("Stop Headbutt Attack");
-                        SwitchToBehaviourClientRpc((int)State.Dormant);
-                        return;
-                    }
+                    //logger.LogDebug("Headbutt Attack In Progress");
+                    agent.speed = 10f;
                     // We don't care about doing anything here
                     break;
 
@@ -158,18 +148,28 @@ namespace SCP956
             }
         }
 
-        public void HeadbuttAttack()
+        public IEnumerator HeadbuttAttack()
         {
+            SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
             Vector3 initialPos = transform.position;
-            
-        }
-
-        public void Teleport(Vector3 teleportPos)
-        {
-            serverPosition = teleportPos;
-            transform.position = teleportPos;
-            agent.Warp(teleportPos);
-            SyncPositionToClients();
+            StalkPos = targetPlayer.transform.position;
+            yield return new WaitForSeconds(5f);
+            SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false);
+            yield return new WaitForSeconds(3f);
+            SetDestinationToPosition(initialPos, checkForPath: false);
+            /*if (isEnemyDead)
+            {
+                yield break;
+            }*/
+            //DoAnimationClientRpc("swingAttack");
+            yield return new WaitForSeconds(3f);
+            //SwingAttackHitClientRpc();
+            // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
+            /*if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
+            {
+                yield break;
+            }*/
+            SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
         }
         
         bool TargetFrozenPlayerInRange(float range)
@@ -196,73 +196,28 @@ namespace SCP956
             return targetPlayer != null && Vector3.Distance(transform.position, targetPlayer.transform.position) < range;
         }
 
-        bool TargetClosestPlayerInAnyCase()
+        void MoveToPlayer()
         {
-            mostOptimalDistance = 2000f;
-            targetPlayer = null;
-            for (int i = 0; i < StartOfRound.Instance.connectedPlayersAmount + 1; i++)
-            {
-                tempDist = Vector3.Distance(transform.position, StartOfRound.Instance.allPlayerScripts[i].transform.position);
-                if (tempDist < mostOptimalDistance)
-                {
-                    mostOptimalDistance = tempDist;
-                    targetPlayer = StartOfRound.Instance.allPlayerScripts[i];
-                }
-            }
-            if (targetPlayer == null) return false;
-            return true;
-        }
-
-        void StickingInFrontOfPlayer()
-        {
-            // We only run this method for the host because I'm paranoid about randomness not syncing I guess
-            // This is fine because the game does sync the position of the enemy.
-            // Also the attack is a ClientRpc so it should always sync
-            /*if (targetPlayer == null || !IsOwner)
+            if (targetPlayer == null || !IsOwner)
             {
                 return;
             }
-            if (timeSinceNewRandPos > 0.7f)
+            if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
+            {
+                logger.LogDebug("Headbutt Attack");
+                StartCoroutine(HeadbuttAttack());
+                return;
+            }
+            if (timeSinceNewRandPos > 1f)
             {
                 timeSinceNewRandPos = 0;
-                if (enemyRandom.Next(0, 5) == 0)
-                {
-                    // Attack
-                    StartCoroutine(SwingAttack());
-                }
-                else
-                {
-                    // Go in front of player
-                    positionRandomness = new Vector3(enemyRandom.Next(-2, 2), 0, enemyRandom.Next(-2, 2));
-                    StalkPos = targetPlayer.transform.position - Vector3.Scale(new Vector3(-5, 0, -5), targetPlayer.transform.forward) + positionRandomness;
-                }
-                SetDestinationToPosition(StalkPos, checkForPath: false);
-            }*/
+                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false);
+            }
         }
-
-        /*IEnumerator SwingAttack()
-        {
-            SwitchToBehaviourClientRpc((int)State.HeadSwingAttackInProgress);
-            StalkPos = targetPlayer.transform.position;
-            SetDestinationToPosition(StalkPos);
-            yield return new WaitForSeconds(0.5f);
-            if (isEnemyDead)
-            {
-                yield break;
-            }
-            DoAnimationClientRpc("swingAttack");
-            yield return new WaitForSeconds(0.35f);
-            SwingAttackHitClientRpc();
-            // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
-            if (currentBehaviourStateIndex != (int)State.HeadSwingAttackInProgress)
-            {
-                yield break;
-            }
-            SwitchToBehaviourClientRpc((int)State.StickingInFrontOfPlayer);
-        }*/
 
         public override void OnCollideWithPlayer(Collider other)
         {
+            return;
             if (timeSinceHittingLocalPlayer < 1f)
             {
                 return;
@@ -270,7 +225,7 @@ namespace SCP956
             PlayerControllerB playerControllerB = MeetsStandardPlayerCollisionConditions(other);
             if (playerControllerB != null)
             {
-                logger.LogDebug("Example Enemy Collision with Player!");
+                logger.LogDebug("Collision with Player!");
                 timeSinceHittingLocalPlayer = 0f;
                 playerControllerB.DamagePlayer(20);
             }
@@ -298,6 +253,14 @@ namespace SCP956
                     KillEnemyOnOwnerClient();
                 }
             }
+        }
+
+        public void Teleport(Vector3 teleportPos)
+        {
+            serverPosition = teleportPos;
+            transform.position = teleportPos;
+            agent.Warp(teleportPos);
+            SyncPositionToClients();
         }
     }
 }
