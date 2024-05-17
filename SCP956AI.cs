@@ -87,17 +87,18 @@ namespace SCP956
         
         public override void DoAIInterval()
         {
+            logger.LogDebug("In DoAIInterval()");
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {
                 return;
             };
-            
+            logger.LogDebug("Start switch");
             switch (currentBehaviourStateIndex)
             {
                 case (int)State.Dormant:
-                    logger.LogDebug("Dormant");
-                    agent.speed = 3f;
+                    //logger.LogDebug("Dormant");
+                    agent.speed = 0f;
                     /*List<ulong> PlayersToKill = NetworkHandler.UnfortunatePlayers.Value;
                     if (PlayersToKill.Count > 0)
                     {
@@ -105,20 +106,28 @@ namespace SCP956
                         logger.LogDebug("Start Killing Players");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                     }*/
-                    if (FoundClosestPlayerInRange(5f)) // Testing
+                    if (FoundClosestPlayerInRange(10f)) // Testing
                     {
                         logger.LogDebug("Start Target Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
+                        movingTowardsTargetPlayer = true;
+                        return;
                     }
                     break;
 
-                case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area?
-                    agent.speed = 3f;
-                    // Keep targeting closest player, unless they are over 20 units away and we can't see them.
-                    if (!FoundClosestPlayerInRange(5f))
+                case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area? USE WHEN DISTANCE IS EQUAL TO A CERTAIN POINT NEAR PLAYER THATS HOW
+                    agent.speed = 1f;
+                    if (!FoundClosestPlayerInRange(10f))
                     {
                         logger.LogDebug("Stop Target Player");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
+                        return;
+                    }
+                    if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
+                    {
+                        logger.LogDebug("Switch to Headbutt Attack");
+                        movingTowardsTargetPlayer = false; // TODO: FIGURE OUT WHY THIS DOESNT WORK WTF IS THIS BS FUCK THIS GAME BRO WHY
+                        SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
                         return;
                     }
                     /*if (!TargetClosestPlayerInAnyCase() || (Vector3.Distance(transform.position, targetPlayer.transform.position) > 20 && !CheckLineOfSightForPosition(targetPlayer.transform.position)))
@@ -132,7 +141,14 @@ namespace SCP956
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
-                    agent.speed = 10f;
+                    logger.LogDebug("Headbutt Attack In Progress");
+                    agent.speed = 1f;
+                    if (Vector3.Distance(transform.position, targetPlayer.transform.position) > 3f)
+                    {
+                        logger.LogDebug("Stop Headbutt Attack");
+                        SwitchToBehaviourClientRpc((int)State.Dormant);
+                        return;
+                    }
                     // We don't care about doing anything here
                     break;
 
@@ -140,6 +156,12 @@ namespace SCP956
                     logger.LogDebug("This Behavior State doesn't exist!");
                     break;
             }
+        }
+
+        public void HeadbuttAttack()
+        {
+            Vector3 initialPos = transform.position;
+            
         }
 
         public void Teleport(Vector3 teleportPos)
