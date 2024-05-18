@@ -89,13 +89,12 @@ namespace SCP956
         
         public override void DoAIInterval()
         {
-            logger.LogDebug("In DoAIInterval()");
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {
                 return;
-            };
-            logger.LogDebug("Start switch");
+            }
+
             switch (currentBehaviourStateIndex)
             {
                 case (int)State.Dormant:
@@ -110,9 +109,7 @@ namespace SCP956
                     }*/
                     if (FoundClosestPlayerInRange(10f)) // Testing
                     {
-                        logger.LogDebug("Start Target Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
-                        //movingTowardsTargetPlayer = true;
                         return;
                     }
                     break;
@@ -121,7 +118,6 @@ namespace SCP956
                     agent.speed = 1f;
                     if (!FoundClosestPlayerInRange(10f))
                     {
-                        logger.LogDebug("Stop Target Player");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
@@ -133,7 +129,6 @@ namespace SCP956
                         return;
                     }*/
                     MoveToPlayer();
-                    
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
@@ -150,19 +145,13 @@ namespace SCP956
 
         public IEnumerator HeadbuttAttack()
         {
-            SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
-            Vector3 initialPos = transform.position;
-            StalkPos = targetPlayer.transform.position;
-            yield return new WaitForSeconds(5f);
-            SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false);
-            yield return new WaitForSeconds(3f);
-            SetDestinationToPosition(initialPos, checkForPath: false);
+            creatureAnimator.SetTrigger("956objAction");
             /*if (isEnemyDead)
             {
                 yield break;
             }*/
             //DoAnimationClientRpc("swingAttack");
-            yield return new WaitForSeconds(3f);
+            yield return new WaitForSeconds(3);
             //SwingAttackHitClientRpc();
             // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
             /*if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
