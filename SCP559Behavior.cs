@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
+using static SCP956.SCP956;
 
 namespace SCP956
 {
@@ -15,7 +16,7 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                logger.LogDebug("In ItemActivate()");
+                base.gameObject.GetComponent<AudioSource>().PlayOneShot(CandleBlowsfx); // TODO: This no works
                 SCP956.PlayerAge = 10;
 
                 NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
@@ -27,3 +28,4 @@ namespace SCP956
 // TODO: Add tooltips in hud for blowing out candles
 // TODO: Add more candles to the cake so it equals 10
 // TODO: Make it so when you blow out the candles, the fire on the candles go out
+// TODO: Make the pitch go up when you blow out the candles

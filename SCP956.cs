@@ -4,6 +4,7 @@ using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using LethalLib.Modules;
+using Steamworks.Data;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -33,8 +34,11 @@ namespace SCP956
         public static AssetBundle? ModAssets;
 
         public static AudioClip? WarningSoundsfx;
-        public static AudioClip? BoneCracksfx;
-        public static AudioClip? Attacksfx;
+        public static AudioClip? PlayerDeathsfx;
+        public static AudioClip? CandyCrunchsfx;
+        public static AudioClip? CandleBlowsfx;
+
+
 
         
 
@@ -87,7 +91,7 @@ namespace SCP956
 
             // Configs
             // Rarity
-            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ExperimentationLevelRarity", 500, "Experimentation Level Rarity"); // TEMP
+            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ExperimentationLevelRarity", 30, "Experimentation Level Rarity"); // TEMP
             configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "AssuranceLevelRarity", 40, "Assurance Level Rarity");
             configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "VowLevelRarity", 20, "Vow Level Rarity");
             configOffenseLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OffenseLevelRarity", 30, "Offense Level Rarity");
@@ -107,17 +111,18 @@ namespace SCP956
                 "4 - All: 956 targets all players.");
             config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956."); // TEMP
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
-            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
+            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met.");
+            configActivationTime = Config.Bind("General", "Activation Time", 6f, "How long it takes for 956 to activate.");
+            configActivationTimeCandy = Config.Bind("General", "Activation Time Candy", 20f, "How long it takes for 956 to activate when holding candy. Only used when behavior is 2.");
 
             // SCP-956-1 Configs
             config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");
             config9561MaxValue = Config.Bind("SCP-956-1", "SCP-956-1 Max Value", 15, "The maximum scrap value of the candy");
 
-
             // SCP-559 Configs
 
-            config559Rarity = Config.Bind("SCP-559", "Rarity", 100, "How often SCP-559 will spawn."); // TEMP
-            config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 100, "The minimum scrap value of SCP-559.");
+            config559Rarity = Config.Bind("SCP-559", "Rarity", 40, "How often SCP-559 will spawn."); // TEMP
+            config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 100, "The minimum scrap value of SCP-559."); // TODO: Make sure all configs are added and work
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
 
             // TODO: Add NULL checks
@@ -138,6 +143,17 @@ namespace SCP956
 
             // Getting Audio
 
+            WarningSoundsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");
+            if (WarningSoundsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
+
+            PlayerDeathsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3");
+            if (PlayerDeathsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
+
+            CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
+            if (CandyCrunchsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
+
+            CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
+            if (CandleBlowsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
 
             // Getting Cake
             Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");

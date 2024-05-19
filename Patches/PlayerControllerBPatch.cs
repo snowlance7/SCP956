@@ -38,14 +38,14 @@ namespace SCP956.Patches
                 {
                     if (!warningStarted)
                     {
-                        __instance.movementAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
+                        __instance.statusEffectAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
                         float pitch;
-
-                        if (IsPlayerHoldingCandy(__instance) && SCP956AI.Behavior == 2) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
-                        __instance.movementAudio.pitch = pitch;
-                        __instance.movementAudio.Play();
-
+                        // TODO: This dont work
+                        if (IsPlayerHoldingCandy(__instance) && SCP956AI.Behavior == 2) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; } // TODO: Make sure this works correctly
+                        __instance.statusEffectAudio.pitch = pitch;
                         if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; }
+                        __instance.statusEffectAudio.Play();
+
                         warningStarted = true;
                     }
 
@@ -53,8 +53,8 @@ namespace SCP956.Patches
                     {
                         // Freeze player
 
-                        warningStarted = false;
                         playerFrozen = true;
+                        warningStarted = false;
                         NetworkHandler.UnfortunatePlayers.Value.Add(__instance.actualClientId);
                     }
                 }

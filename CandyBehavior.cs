@@ -19,13 +19,7 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                //Vector3 tempPos = playerHeldBy.transform.position;
-                playerHeldBy.KillPlayer(new Vector3(), false, CauseOfDeath.Unknown, 0);
-
-                int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
-                RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index); // TODO: TEST
-                playerHeldBy.DespawnHeldObject();
-                return;
+                base.gameObject.GetComponent<AudioSource>().PlayOneShot(CandyCrunchsfx); // TODO: this no work
 
                 if (PlayerAge >= 12)
                 {
@@ -45,11 +39,9 @@ namespace SCP956
                 else
                 {
                     // TODO: Animation for player turning into SCP956 and bones crunching sound effects. Maybe spawn in as scavenger model and play animation to turn into scp956!
-                    /*Vector3 tempPos = playerHeldBy.transform.position;
                     playerHeldBy.KillPlayer(new Vector3(), false, CauseOfDeath.Unknown, 0);
-
                     int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
-                    RoundManager.Instance.SpawnEnemyOnServer(tempPos, playerHeldBy.previousYRot, index);*/
+                    RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }
 
                 playerHeldBy.DespawnHeldObject();

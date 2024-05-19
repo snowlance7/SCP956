@@ -100,12 +100,11 @@ namespace SCP956
                 case (int)State.Dormant:
                     //logger.LogDebug("Dormant");
                     agent.speed = 0f;
-                    /*List<ulong> PlayersToKill = NetworkHandler.UnfortunatePlayers.Value;
-                    if (PlayersToKill.Count > 0)
+                    /*if (TargetFrozenPlayerInRange(ActivationRadius))
                     {
-                        //if (PlayersToKill) // TODO: Continue here
                         logger.LogDebug("Start Killing Players");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
+                        return;
                     }*/
                     if (FoundClosestPlayerInRange(ActivationRadius)) // Testing
                     {
@@ -116,8 +115,9 @@ namespace SCP956
 
                 case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area? USE WHEN DISTANCE IS EQUAL TO A CERTAIN POINT NEAR PLAYER THATS HOW
                     agent.speed = 1f;
-                    if (!FoundClosestPlayerInRange(ActivationRadius))
+                    if (!TargetFrozenPlayerInRange(ActivationRadius))
                     {
+                        logger.LogDebug("Stop Killing Players");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
@@ -148,6 +148,7 @@ namespace SCP956
         {
             yield return new WaitForSeconds(3f);
             creatureAnimator.SetTrigger("headButt");
+            targetPlayer.DamagePlayer(50, true, true, CauseOfDeath.Unknown, 0);
             /*if (isEnemyDead)
             {
                 yield break;
@@ -156,19 +157,20 @@ namespace SCP956
             yield return new WaitForSeconds(1f);
             //SwingAttackHitClientRpc();
             // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
-            /*if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
+            if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
             {
                 yield break;
-            }*/
+            }
             SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
         }
         
         bool TargetFrozenPlayerInRange(float range)
         {
             targetPlayer = null;
-            if (UnfortunatePlayers.Value.Count > 0)
+            List<ulong> PlayersToDie = UnfortunatePlayers.Value;
+            if (PlayersToDie.Count > 0)
             {
-                foreach (ulong id in UnfortunatePlayers.Value)
+                foreach (ulong id in PlayersToDie)
                 {
                     PlayerControllerB player = id.GetPlayerFromId();
                     if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
