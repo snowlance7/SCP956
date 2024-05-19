@@ -107,7 +107,7 @@ namespace SCP956
                         logger.LogDebug("Start Killing Players");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                     }*/
-                    if (FoundClosestPlayerInRange(10f)) // Testing
+                    if (FoundClosestPlayerInRange(ActivationRadius)) // Testing
                     {
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
@@ -116,7 +116,7 @@ namespace SCP956
 
                 case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area? USE WHEN DISTANCE IS EQUAL TO A CERTAIN POINT NEAR PLAYER THATS HOW
                     agent.speed = 1f;
-                    if (!FoundClosestPlayerInRange(10f))
+                    if (!FoundClosestPlayerInRange(ActivationRadius))
                     {
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
@@ -133,10 +133,11 @@ namespace SCP956
 
                 case (int)State.HeadButtAttackInProgress:
                     //logger.LogDebug("Headbutt Attack In Progress");
-                    agent.speed = 10f;
+                    agent.speed = 0f;
+                    
                     // We don't care about doing anything here
                     break;
-
+                    
                 default:
                     logger.LogDebug("This Behavior State doesn't exist!");
                     break;
@@ -145,13 +146,14 @@ namespace SCP956
 
         public IEnumerator HeadbuttAttack()
         {
-            creatureAnimator.SetTrigger("956objAction");
+            yield return new WaitForSeconds(3f);
+            creatureAnimator.SetTrigger("headButt");
             /*if (isEnemyDead)
             {
                 yield break;
             }*/
             //DoAnimationClientRpc("swingAttack");
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(1f);
             //SwingAttackHitClientRpc();
             // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
             /*if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
@@ -194,6 +196,8 @@ namespace SCP956
             if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
             {
                 logger.LogDebug("Headbutt Attack");
+                agent.speed = 0f;
+                SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
                 StartCoroutine(HeadbuttAttack());
                 return;
             }
@@ -220,28 +224,9 @@ namespace SCP956
             }
         }
 
-        public override void HitEnemy(int force = 1, PlayerControllerB? playerWhoHit = null, bool playHitSFX = false, int hitID = -1)
+        public override void HitEnemy(int force = 0, PlayerControllerB? playerWhoHit = null, bool playHitSFX = true, int hitID = -1)
         {
             base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
-            if (isEnemyDead)
-            {
-                return;
-            }
-            enemyHP -= force;
-            if (IsOwner)
-            {
-                if (enemyHP <= 0 && !isEnemyDead)
-                {
-                    // Our death sound will be played through creatureVoice when KillEnemy() is called.
-                    // KillEnemy() will also attempt to call creatureAnimator.SetTrigger("KillEnemy"),
-                    // so we don't need to call a death animation ourselves.
-
-                    //StopCoroutine(SwingAttack());
-                    // We need to stop our search coroutine, because the game does not do that by default.
-                    StopCoroutine(searchCoroutine);
-                    KillEnemyOnOwnerClient();
-                }
-            }
         }
 
         public void Teleport(Vector3 teleportPos)

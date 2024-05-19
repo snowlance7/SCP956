@@ -33,6 +33,10 @@ namespace SCP956
         public static AssetBundle? ModAssets;
 
         public static AudioClip? WarningSoundsfx;
+        public static AudioClip? BoneCracksfx;
+        public static AudioClip? Attacksfx;
+
+        
 
         // SCP-956 Configs
         // Rarity Configs || ONLY WORKS WITH BIRTHDAYMODE AND RANDOM AGE GAMEMODES
@@ -101,7 +105,7 @@ namespace SCP956
                 "2 - Secret Lab: Candy causes random effects but 956 targets players holding candy and under the age of 12. Candy spawns naturally.\n" +
                 "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "4 - All: 956 targets all players.");
-            config956Radius = Config.Bind("General", "ActivationRadius", 5f, "The radius around 956 that will activate 956."); // TEMP
+            config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956."); // TEMP
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
             configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
 
@@ -131,6 +135,9 @@ namespace SCP956
                 return;
             }
             LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "mod_assets")}");
+
+            // Getting Audio
+
 
             // Getting Cake
             Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
