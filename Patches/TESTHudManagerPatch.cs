@@ -24,6 +24,10 @@ namespace SCP956.Patches
         public static void PingScan_performedPostFix()
         {
             logger.LogDebug("In PingScan_performedPostFix");
+            foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
+            {
+                logger.LogDebug(enemy.enemyType.enemyName);
+            }
             //RoundManager.Instance.SpawnEnemyOnServer(StartOfRound.Instance.localPlayerController.transform.position, 0f, 2);
             //RoundManager.Instance.SpawnEnemyGameObject(StartOfRound.Instance.localPlayerController.transform.position, 0f, -1, GetEnemies().Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault().enemyType);
         }

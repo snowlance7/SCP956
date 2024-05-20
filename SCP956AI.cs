@@ -10,6 +10,7 @@ using UnityEngine;
 using static SCP956.SCP956;
 using static SCP956.NetworkHandler;
 using LethalNetworkAPI;
+using UnityEngine.UI;
 
 namespace SCP956
 {
@@ -27,17 +28,12 @@ namespace SCP956
         // Field 'field' is never assigned to, and will always have its default value 'value'
         #pragma warning disable 0649
         public Transform turnCompass = null!;
-        public Transform attackArea = null!;
         #pragma warning restore 0649
-        float timeSinceHittingLocalPlayer;
-        Vector3 positionRandomness;
-        Vector3 StalkPos;
+        //Vector3 positionRandomness;
+        //Vector3 StalkPos;
         System.Random enemyRandom = null!;
         bool isDeadAnimationDone;
         float timeSinceNewRandPos;
-
-        public static int Behavior;
-        public static float ActivationRadius;
 
         enum State
         {
@@ -49,16 +45,13 @@ namespace SCP956
         public override void Start()
         {
             base.Start();
-            // TODO: figure out how to tell if enemy spawned from a vent or not
             logger.LogDebug("SCP-956 Spawned");
-            timeSinceHittingLocalPlayer = 0;
-            timeSinceNewRandPos = 0;
+            //timeSinceHittingLocalPlayer = 0;
+            //timeSinceNewRandPos = 0;
             enemyRandom = new System.Random(StartOfRound.Instance.randomMapSeed + thisEnemyIndex);
             //isDeadAnimationDone = false;
-            // NOTE: Add your behavior states in your enemy script in Unity, where you can configure fun stuff
-            // like a voice clip or an sfx clip to play when changing to that specific behavior state.
             currentBehaviourStateIndex = (int)State.Dormant;
-            // We make the enemy start searching. This will make it start wandering around.
+            RoundManager.Instance.SpawnedEnemies.Add(this);
         }
 
         public override void Update()
@@ -76,14 +69,23 @@ namespace SCP956
                 }
                 return;
             }
-            timeSinceHittingLocalPlayer += Time.deltaTime;
+            //timeSinceHittingLocalPlayer += Time.deltaTime;
             timeSinceNewRandPos += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
-            if (targetPlayer != null && (state == (int)State.MovingTowardsPlayer/* || state == (int)State.HeadButtAttackInProgress*/))
+            if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
+                targetPlayer.turnCompass.LookAt(transform.position);
+                targetPlayer.transform.rotation = Quaternion.Lerp(targetPlayer.transform.rotation, Quaternion.Euler(new Vector3(0f, targetPlayer.turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
+            }
+            if (state == (int)State.HeadButtAttackInProgress)
+            {
+                turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 3f * Time.deltaTime);
+                targetPlayer.turnCompass.LookAt(transform.position);
+                targetPlayer.transform.rotation = Quaternion.Lerp(targetPlayer.transform.rotation, Quaternion.Euler(new Vector3(0f, targetPlayer.turnCompass.eulerAngles.y, 0f)), 3f * Time.deltaTime);
             }
         }
         
@@ -97,8 +99,7 @@ namespace SCP956
 
             switch (currentBehaviourStateIndex)
             {
-                case (int)State.Dormant:
-                    //logger.LogDebug("Dormant");
+                case 0:
                     agent.speed = 0f;
                     /*if (TargetFrozenPlayerInRange(ActivationRadius))
                     {
@@ -106,57 +107,49 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }*/
-                    if (FoundClosestPlayerInRange(ActivationRadius)) // Testing
+                    /*if (FoundClosestPlayerInRange(config956Radius.Value)) // Testing
                     {
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
-                    }
+                    }*/
                     break;
 
-                case (int)State.MovingTowardsPlayer: // TODO: Figure out how to make enemy move to in front of the player to perform the headbutt attack, use attack area? USE WHEN DISTANCE IS EQUAL TO A CERTAIN POINT NEAR PLAYER THATS HOW
+                case 1:
                     agent.speed = 1f;
-                    if (!TargetFrozenPlayerInRange(ActivationRadius))
+                    if (!TargetFrozenPlayerInRange(config956Radius.Value))
                     {
                         logger.LogDebug("Stop Killing Players");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
-                    /*if (!TargetClosestPlayerInAnyCase() || (Vector3.Distance(transform.position, targetPlayer.transform.position) > 20 && !CheckLineOfSightForPosition(targetPlayer.transform.position)))
+                    /*if (!FoundClosestPlayerInRange(config956Radius.Value))
                     {
-                        logger.LogDebug("Stop Target Player");
-                        StartSearch(transform.position);
-                        SwitchToBehaviourClientRpc((int)State.SearchingForPlayer);
+                        logger.LogDebug("Stop Killing Players");
+                        SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }*/
                     MoveToPlayer();
                     break;
 
-                case (int)State.HeadButtAttackInProgress:
-                    //logger.LogDebug("Headbutt Attack In Progress");
-                    agent.speed = 0f;
-                    
-                    // We don't care about doing anything here
-                    break;
-                    
-                default:
-                    logger.LogDebug("This Behavior State doesn't exist!");
+                case 2:
+                    logger.LogDebug("In HeadButtAttackInProgress Behaviour State");
+                    //agent.speed = 0f;
                     break;
             }
         }
 
         public IEnumerator HeadbuttAttack()
         {
+            SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
+            
             yield return new WaitForSeconds(3f);
+            logger.LogDebug("Headbutting");
             creatureAnimator.SetTrigger("headButt");
-            targetPlayer.DamagePlayer(50, true, true, CauseOfDeath.Unknown, 0);
-            /*if (isEnemyDead)
-            {
-                yield break;
-            }*/
-            //DoAnimationClientRpc("swingAttack");
-            yield return new WaitForSeconds(1f);
-            //SwingAttackHitClientRpc();
-            // In case the player has already gone away, we just yield break (basically same as return, but for IEnumerator)
+            
+            yield return new WaitForSeconds(0.4f);
+            targetPlayer.DamagePlayer(50, hasDamageSFX: true, callRPC: true, CauseOfDeath.Unknown, 0);
+            if (targetPlayer.isPlayerDead && config956Behavior.Value == 2) { targetPlayer = null; creatureVoice.PlayOneShot(PlayerDeathsfx); } else { targetPlayer.movementAudio.PlayOneShot(BoneCracksfx); }
+            //yield return new WaitForSeconds(1f);
             if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
             {
                 yield break;
@@ -168,6 +161,7 @@ namespace SCP956
         {
             targetPlayer = null;
             List<ulong> PlayersToDie = UnfortunatePlayers.Value;
+            if (PlayersToDie == null || !IsOwner) { return false; }
             if (PlayersToDie.Count > 0)
             {
                 foreach (ulong id in PlayersToDie)
@@ -185,6 +179,7 @@ namespace SCP956
 
         bool FoundClosestPlayerInRange(float range)
         {
+            if (!IsOwner) { return false; }
             TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: false);
             return targetPlayer != null && Vector3.Distance(transform.position, targetPlayer.transform.position) < range;
         }
@@ -198,32 +193,23 @@ namespace SCP956
             if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
             {
                 logger.LogDebug("Headbutt Attack");
-                agent.speed = 0f;
-                SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
+                //moveTowardsDestination = false; // TODO: Find a better way to do this
                 StartCoroutine(HeadbuttAttack());
-                return;
+                //return;
             }
-            if (timeSinceNewRandPos > 1f)
+
+            if (timeSinceNewRandPos > 1.5f)
             {
                 timeSinceNewRandPos = 0;
-                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false);
+                Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.8f) + targetPlayer.transform.position;
+                SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
             }
+            //agent.isStopped = true;;
         }
 
         public override void OnCollideWithPlayer(Collider other)
         {
             return;
-            if (timeSinceHittingLocalPlayer < 1f)
-            {
-                return;
-            }
-            PlayerControllerB playerControllerB = MeetsStandardPlayerCollisionConditions(other);
-            if (playerControllerB != null)
-            {
-                logger.LogDebug("Collision with Player!");
-                timeSinceHittingLocalPlayer = 0f;
-                playerControllerB.DamagePlayer(20);
-            }
         }
 
         public override void HitEnemy(int force = 0, PlayerControllerB? playerWhoHit = null, bool playHitSFX = true, int hitID = -1)

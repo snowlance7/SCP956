@@ -21,7 +21,7 @@ namespace SCP956.Patches
             {
                 if (vent.enemyType.enemyName == "SCP-956")
                 {
-                    Vector3 position = RoundManager.Instance.GetRandomNavMeshPositionInRadius(vent.floorNode.position, 10); // TODO: TEST THIS figure out radius
+                    Vector3 position = RoundManager.Instance.GetRandomNavMeshPositionInRadius(vent.floorNode.position, 5); // TODO: TEST THIS figure out radius
                     RoundManager.Instance.SpawnEnemyOnServer(position, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
                     Debug.Log("Spawned enemy from vent");
                     vent.OpenVentClientRpc();
@@ -30,6 +30,14 @@ namespace SCP956.Patches
                 }
             }
             return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("GenerateNewFloor")]
+        public static void StartPatch()
+        {
+            logger.LogDebug("In GenerateNewFloorPatch");
+            SCP956.PluginInstance.random = new System.Random(StartOfRound.Instance.randomMapSeed);
         }
     }
 }

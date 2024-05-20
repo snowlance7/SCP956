@@ -34,6 +34,7 @@ namespace SCP956
         public static AssetBundle? ModAssets;
 
         public static AudioClip? WarningSoundsfx;
+        public static AudioClip? BoneCracksfx;
         public static AudioClip? PlayerDeathsfx;
         public static AudioClip? CandyCrunchsfx;
         public static AudioClip? CandleBlowsfx;
@@ -127,9 +128,6 @@ namespace SCP956
 
             // TODO: Add NULL checks
 
-            SCP956AI.Behavior = config956Behavior.Value;
-            SCP956AI.ActivationRadius = config956Radius.Value;
-
             // Loading Assets
             string sAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -143,15 +141,14 @@ namespace SCP956
 
             // Getting Audio
 
-            WarningSoundsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");
+            WarningSoundsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.wav");
             if (WarningSoundsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
-
+            BoneCracksfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/bone-crack.mp3");
+            if (BoneCracksfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
             PlayerDeathsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3");
             if (PlayerDeathsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
-
             CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
             if (CandyCrunchsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
-
             CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
             if (CandleBlowsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
 
@@ -248,33 +245,6 @@ namespace SCP956
             
             // Finished
             Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
-        }
-
-        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
-        {
-            foreach (GrabbableObject item in player.ItemSlots)
-            {
-                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple")
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool PlayerMeetsConditions(PlayerControllerB player)
-        {
-            if (PlayerAge < 12 || (SCP956AI.Behavior == 4) || (SCP956AI.Behavior == 2 && IsPlayerHoldingCandy(player)))
-            {
-                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
-                {
-                    if (scp.PlayerIsTargetable(player) && Vector3.Distance(scp.transform.position, player.transform.position) <= config956Radius.Value)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
 
         public static List<SpawnableEnemyWithRarity> GetEnemies()

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
@@ -15,36 +16,38 @@ namespace SCP956.Patches
         private static float timeSinceLastCheck = 0f;
         private static bool warningStarted = false;
         public static bool playerFrozen = false;
-        
+
+        private static ManualLogSource logger = LoggerInstance;
 
         [HarmonyPostfix]
         [HarmonyPatch("Update")]
-        private static void UpdatePatch(PlayerControllerB __instance, ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
+        private static void UpdatePatch()
         {
+            if (StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
+            PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
+            if (!__instance.isPlayerControlled) { return; }
             if (playerFrozen)
             {
-                StartOfRound.Instance.localPlayerUsingController = false;
                 IngamePlayerSettings.Instance.playerInput.DeactivateInput();
                 __instance.disableLookInput = true;
+                if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
                 return;
             }
 
             timeSinceLastCheck += Time.deltaTime;
-            if (timeSinceLastCheck > 1f)
+            if (timeSinceLastCheck > 0.3f)
             {
                 timeSinceLastCheck = 0f;
-
                 if (PlayerMeetsConditions(__instance))
                 {
                     if (!warningStarted)
                     {
-                        __instance.statusEffectAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
+                        __instance.movementAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
                         float pitch;
-                        // TODO: This dont work
-                        if (IsPlayerHoldingCandy(__instance) && SCP956AI.Behavior == 2) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; } // TODO: Make sure this works correctly
-                        __instance.statusEffectAudio.pitch = pitch;
-                        if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; }
-                        __instance.statusEffectAudio.Play();
+                        if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(__instance)) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
+                        __instance.movementAudio.pitch = pitch;
+                        if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; } else { __instance.movementAudio.volume = 1f; }
+                        __instance.movementAudio.Play();
 
                         warningStarted = true;
                     }
@@ -52,11 +55,15 @@ namespace SCP956.Patches
                     if (!__instance.movementAudio.isPlaying)
                     {
                         // Freeze player
-
                         playerFrozen = true;
                         warningStarted = false;
                         NetworkHandler.UnfortunatePlayers.Value.Add(__instance.actualClientId);
                     }
+                }
+                else if (warningStarted)
+                {
+                    warningStarted = false;
+                    __instance.movementAudio.Stop();
                 }
             }
         }
@@ -75,6 +82,36 @@ namespace SCP956.Patches
             {
                 ___deadBody.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
             }
+        }
+
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        {
+            logger.LogDebug(player.ItemSlots);
+            logger.LogDebug(player.ItemSlots.Count());
+            foreach (GrabbableObject item in player.ItemSlots)
+            {
+                if (item == null) { continue; }
+                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple")
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool PlayerMeetsConditions(PlayerControllerB player)
+        {
+            if (PlayerAge < 12 || (config956Behavior.Value == 4) || (config956Behavior.Value == 2 && IsPlayerHoldingCandy(player)))
+            {
+                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
+                {
+                    if (scp.PlayerIsTargetable(player) && Vector3.Distance(scp.transform.position, player.transform.position) <= config956Radius.Value)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
