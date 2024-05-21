@@ -24,19 +24,19 @@ namespace SCP956
 
         public static LethalClientEvent clientEventShrinkPlayer = new LethalClientEvent(identifier: "shrinkPlayer");
 
-        public static LethalClientMessage<Vector3> clientMessageSpawnEnemy = new LethalClientMessage<Vector3>(identifier: "spawnEnemy");
-        public static LethalServerMessage<Vector3> serverMessageSpawnEnemy = new LethalServerMessage<Vector3>(identifier: "spawnEnemy");
+        public static LethalClientEvent clientEventAddToList = new LethalClientEvent(identifier: "addToList");
+        private static LethalServerEvent serverEventAddToList = new LethalServerEvent(identifier: "addToList");
 
         public static void Init()
         {
             UnfortunatePlayers.Value = new List<ulong>();
             clientEventShrinkPlayer.OnReceivedFromClient += ReceivedFromClientShrinkPlayer;
-            serverMessageSpawnEnemy.OnReceived += ReceivedFromClientSpawnEnemy;
+            serverEventAddToList.OnReceived += RecievedFromClientAddToList;
         }
 
-        private static void ReceivedFromClientSpawnEnemy(Vector3 position, ulong clientid)
+        private static void RecievedFromClientAddToList(ulong clientid)
         {
-            throw new NotImplementedException(); // TODO: Finish this
+            UnfortunatePlayers.Value.Add(clientid);
         }
 
         private static void ReceivedFromClientShrinkPlayer(ulong clientid)

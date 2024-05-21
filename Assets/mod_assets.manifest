@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1505138422
+CRC: 2673133862
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: af759d5d03205d4cfc743c59df564f89
+    Hash: 181c35d3f846d8c72350cb55bc90ec9f
   TypeTreeHash:
     serializedVersion: 2
     Hash: 9f3d36926b905be5897865de1bcdfe3e
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: af759d5d03205d4cfc743c59df564f89
+    Hash: 181c35d3f846d8c72350cb55bc90ec9f
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -97,4 +97,5 @@ Assets:
 - Assets/ModAssets/Cake/Audio/cake_candle_blow.wav
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 - Assets/ModAssets/Pinata/Audio/956WarningShort.wav
+- Assets/ModAssets/Cake/Audio/cake_appear.wav
 Dependencies: []

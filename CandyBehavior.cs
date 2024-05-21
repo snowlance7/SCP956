@@ -19,27 +19,25 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                base.gameObject.GetComponent<AudioSource>().PlayOneShot(CandyCrunchsfx); // TODO: this no work
+                // TODO: Set up tooltips
+                playerHeldBy.movementAudio.PlayOneShot(CandyCrunchsfx);
 
                 if (PlayerAge >= 12)
                 {
-                    if (PluginInstance.random != null)
+                    if ((int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
                     {
-                        if (PluginInstance.random.Next(0, 100) < 35)
-                        {
-                            playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
-                        }
+                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3); // TODO: Make this always do seizure animation but kill when chance is met
+                    }
 
-                        if (config956Behavior.Value == 2)
-                        {
-                            // TODO: Create random effect like in secret lab
-                        }
+                    if (config956Behavior.Value == 2)
+                    {
+                        // TODO: Create random effect like in secret lab
                     }
                 }
                 else
                 {
                     // TODO: Animation for player turning into SCP956 and bones crunching sound effects. Maybe spawn in as scavenger model and play animation to turn into scp956!
-                    playerHeldBy.KillPlayer(new Vector3(), false, CauseOfDeath.Unknown, 0);
+                    playerHeldBy.KillPlayer(new Vector3(), false, CauseOfDeath.Unknown, 3);
                     int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
                     RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }

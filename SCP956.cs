@@ -28,7 +28,7 @@ namespace SCP956
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;
-        public System.Random random;
+        //public System.Random random;
 
 
         public static AssetBundle? ModAssets;
@@ -38,6 +38,7 @@ namespace SCP956
         public static AudioClip? PlayerDeathsfx;
         public static AudioClip? CandyCrunchsfx;
         public static AudioClip? CandleBlowsfx;
+        public static AudioClip? CakeAppearsfx;
 
 
 
@@ -67,6 +68,9 @@ namespace SCP956
         // SCP0956-1 Configs
         public static ConfigEntry<int> config9561MinValue;
         public static ConfigEntry<int> config9561MaxValue;
+        public static ConfigEntry<int> config9561MinSpawn;
+        public static ConfigEntry<int> config9561MaxSpawn;
+        public static ConfigEntry<int> config9561DeathChance;
 
         // SCP-559 Configs
         public static ConfigEntry<int> config559Rarity;
@@ -84,6 +88,7 @@ namespace SCP956
             }
 
             LoggerInstance = PluginInstance.Logger;
+            //random = new System.Random();
 
             harmony.PatchAll();
 
@@ -92,14 +97,14 @@ namespace SCP956
 
             // Configs
             // Rarity
-            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ExperimentationLevelRarity", 30, "Experimentation Level Rarity"); // TEMP
-            configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "AssuranceLevelRarity", 40, "Assurance Level Rarity");
-            configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "VowLevelRarity", 20, "Vow Level Rarity");
+            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
+            configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
+            configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "VowLevelRarity", 10, "Vow Level Rarity");
             configOffenseLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OffenseLevelRarity", 30, "Offense Level Rarity");
-            configMarchLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "MarchLevelRarity", 20, "March Level Rarity");
+            configMarchLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "MarchLevelRarity", 50, "March Level Rarity");
             configRendLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "RendLevelRarity", 50, "Rend Level Rarity");
-            configDineLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "DineLevelRarity", 25, "Dine Level Rarity");
-            configTitanLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "TitanLevelRarity", 33, "Titan Level Rarity");
+            configDineLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "DineLevelRarity", 50, "Dine Level Rarity");
+            configTitanLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "TitanLevelRarity", 80, "Titan Level Rarity");
             configModdedLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ModdedLevelRarity", 30, "Modded Level Rarity");
             configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OtherLevelRarity", 30, "Other Level Rarity");
 
@@ -107,19 +112,21 @@ namespace SCP956
 
             config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" + // TEMP
                 "1 - Default: Kills players under the age of 12.\n" +
-                "2 - Secret Lab: Candy causes random effects but 956 targets players holding candy and under the age of 12. Candy spawns naturally.\n" +
+                "2 - Secret Lab: Candy causes random effects but 956 targets players holding candy and under the age of 12.\n" +
                 "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "4 - All: 956 targets all players.");
             config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956."); // TEMP
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
-            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met.");
+            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met."); // TEMP
             configActivationTime = Config.Bind("General", "Activation Time", 6f, "How long it takes for 956 to activate.");
             configActivationTimeCandy = Config.Bind("General", "Activation Time Candy", 20f, "How long it takes for 956 to activate when holding candy. Only used when behavior is 2.");
 
             // SCP-956-1 Configs
             config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");
             config9561MaxValue = Config.Bind("SCP-956-1", "SCP-956-1 Max Value", 15, "The maximum scrap value of the candy");
-
+            config9561MinSpawn = Config.Bind("SCP-956-1", "Min Candy Spawn", 5, "The minimum amount of SCP-956-1 to spawn when player dies to SCP-956");
+            config9561MaxSpawn = Config.Bind("SCP-956-1", "Max Candy Spawn", 20, "The maximum amount of SCP-956-1 to spawn when player dies to SCP-956");
+            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 5, "The chance of the Player being killed by SCP-956-1");
             // SCP-559 Configs
 
             config559Rarity = Config.Bind("SCP-559", "Rarity", 40, "How often SCP-559 will spawn."); // TEMP
@@ -151,6 +158,8 @@ namespace SCP956
             if (CandyCrunchsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
             CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
             if (CandleBlowsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
+            CakeAppearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_appear.wav");
+            if (CakeAppearsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
 
             // Getting Cake
             Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
@@ -181,40 +190,36 @@ namespace SCP956
             candyScript.itemProperties = CandyPink;
             CandyPink.minValue = config9561MinValue.Value;
             CandyPink.maxValue = config9561MaxValue.Value;
-            if (config956Behavior.Value == 2) { CandyPink.itemSpawnsOnGround = true; }
             NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
             Utilities.FixMixerGroups(CandyPink.spawnPrefab);
-            Items.RegisterItem(CandyPink);
+            Items.RegisterScrap(CandyPink);
 
             candyScript = CandyPurple.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
             candyScript.itemProperties = CandyPurple;
             CandyPurple.minValue = config9561MinValue.Value;
             CandyPurple.maxValue = config9561MaxValue.Value;
-            if (config956Behavior.Value == 2) { CandyPurple.itemSpawnsOnGround = true; }
             NetworkPrefabs.RegisterNetworkPrefab(CandyPurple.spawnPrefab);
             Utilities.FixMixerGroups(CandyPurple.spawnPrefab);
-            Items.RegisterItem(CandyPurple);
+            Items.RegisterScrap(CandyPurple);
 
             candyScript = CandyRed.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
             candyScript.itemProperties = CandyRed;
             CandyRed.minValue = config9561MinValue.Value;
             CandyRed.maxValue = config9561MaxValue.Value;
-            if (config956Behavior.Value == 2) { CandyRed.itemSpawnsOnGround = true; }
             NetworkPrefabs.RegisterNetworkPrefab(CandyRed.spawnPrefab);
             Utilities.FixMixerGroups(CandyRed.spawnPrefab);
-            Items.RegisterItem(CandyRed);
+            Items.RegisterScrap(CandyRed);
 
             candyScript = CandyYellow.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
             candyScript.itemProperties = CandyYellow;
             CandyYellow.minValue = config9561MinValue.Value;
             CandyYellow.maxValue = config9561MaxValue.Value;
-            if (config956Behavior.Value == 2) { CandyYellow.itemSpawnsOnGround = true; }
             NetworkPrefabs.RegisterNetworkPrefab(CandyYellow.spawnPrefab);
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
-            Items.RegisterItem(CandyYellow);
+            Items.RegisterScrap(CandyYellow);
 
             // Getting enemy
             EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset"); // TODO: Wont let me change rotation or anything in the unity editor
@@ -241,7 +246,7 @@ namespace SCP956
             LoggerInstance.LogDebug("Registering enemy network prefab...");
             NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
             LoggerInstance.LogDebug("Registering enemy...");
-            Enemies.RegisterEnemy(Pinata, SCP956LevelRarities/*, null, PinataTN, PinataTK*/);
+            Enemies.RegisterEnemy(Pinata, SCP956LevelRarities, null, PinataTN, PinataTK);
             
             // Finished
             Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");

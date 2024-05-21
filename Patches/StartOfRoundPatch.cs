@@ -17,31 +17,17 @@ namespace SCP956.Patches
         public static void firstDayAnimationPatch()
         {
             logger.LogDebug("In firstDayAnimationPatch");
-
-            if (SCP956.config956Behavior.Value == 3) // TODO: Make sure this works, causes null reference exception, add logging
-            {
-                if (configMaxAge.Value < 5) { configMaxAge.Value = 5; } // TODO: Make sure this works
-                SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, SCP956.configMaxAge.Value);
-
-                if (SCP956.PlayerAge < 12)
-                {
-                    NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
-                }
-            }
-            else
-            {
-                if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
-                SCP956.PlayerAge = SCP956.PluginInstance.random.Next(18, SCP956.configMaxAge.Value);
-            }
-
-            logger.LogDebug($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {SCP956.PlayerAge}");
+            RoundManagerPatch.firstTime = true;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("ReviveDeadPlayers")]
         public static void ReviveDeadPlayersPatch()
         {
+            logger.LogDebug("In ReviveDeadPlayersPatch");
             PlayerControllerBPatch.playerFrozen = false;
+            IngamePlayerSettings.Instance.playerInput.ActivateInput();
+            StartOfRound.Instance.localPlayerController.disableLookInput = false;
             NetworkHandler.UnfortunatePlayers.Value = new List<ulong>();
         }
     }

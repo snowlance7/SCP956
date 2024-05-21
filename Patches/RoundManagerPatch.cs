@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static LethalLib.Modules.Enemies;
+using static SCP956.SCP956;
 
 namespace SCP956.Patches
 {
@@ -12,6 +13,7 @@ namespace SCP956.Patches
     internal class RoundManagerPatch
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
+        public static bool firstTime = true;
 
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
@@ -37,7 +39,32 @@ namespace SCP956.Patches
         public static void StartPatch()
         {
             logger.LogDebug("In GenerateNewFloorPatch");
-            SCP956.PluginInstance.random = new System.Random(StartOfRound.Instance.randomMapSeed);
+
+            //SCP956.PluginInstance.random = new System.Random(StartOfRound.Instance.randomMapSeed);
+
+            if (firstTime)
+            {
+                if (SCP956.config956Behavior.Value == 3)
+                {
+                    if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
+                    //SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, SCP956.configMaxAge.Value);
+                    PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
+
+                    if (PlayerAge < 12)
+                    {
+                        NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
+                    }
+                }
+                else
+                {
+                    if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
+                    //PlayerAge = PluginInstance.random.Next(18, configMaxAge.Value);
+                    PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
+                }
+
+                logger.LogDebug($"Age is {PlayerAge}");
+                firstTime = false;
+            }
         }
     }
 }

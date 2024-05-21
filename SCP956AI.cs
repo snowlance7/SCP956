@@ -11,27 +11,18 @@ using static SCP956.SCP956;
 using static SCP956.NetworkHandler;
 using LethalNetworkAPI;
 using UnityEngine.UI;
+using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace SCP956
 {
-
-    // You may be wondering, how does the Example Enemy know it is from class ExampleEnemyAI?
-    // Well, we give it a reference to to this class in the Unity project where we make the asset bundle.
-    // Asset bundles cannot contain scripts, so our script lives here. It is important to get the
-    // reference right, or else it will not find this file. See the guide for more information.
-
     class SCP956AI : EnemyAI
     {
         private ManualLogSource logger = LoggerInstance;
 
-        // We set these in our Asset Bundle, so we can disable warning CS0649:
-        // Field 'field' is never assigned to, and will always have its default value 'value'
         #pragma warning disable 0649
         public Transform turnCompass = null!;
         #pragma warning restore 0649
-        //Vector3 positionRandomness;
-        //Vector3 StalkPos;
-        System.Random enemyRandom = null!;
         bool isDeadAnimationDone;
         float timeSinceNewRandPos;
 
@@ -46,10 +37,7 @@ namespace SCP956
         {
             base.Start();
             logger.LogDebug("SCP-956 Spawned");
-            //timeSinceHittingLocalPlayer = 0;
-            //timeSinceNewRandPos = 0;
-            enemyRandom = new System.Random(StartOfRound.Instance.randomMapSeed + thisEnemyIndex);
-            //isDeadAnimationDone = false;
+            isDeadAnimationDone = false;
             currentBehaviourStateIndex = (int)State.Dormant;
             RoundManager.Instance.SpawnedEnemies.Add(this);
         }
@@ -59,7 +47,6 @@ namespace SCP956
             base.Update();
             if (isEnemyDead)
             {
-                // For some weird reason I can't get an RPC to get called from HitEnemy() (works from other methods), so we do this workaround. We just want the enemy to stop playing the song.
                 if (!isDeadAnimationDone)
                 {
                     logger.LogDebug("Stopping enemy voice with janky code.");
@@ -69,10 +56,10 @@ namespace SCP956
                 }
                 return;
             }
-            //timeSinceHittingLocalPlayer += Time.deltaTime;
             timeSinceNewRandPos += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
+
             if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
@@ -101,12 +88,12 @@ namespace SCP956
             {
                 case 0:
                     agent.speed = 0f;
-                    /*if (TargetFrozenPlayerInRange(ActivationRadius))
+                    if (TargetFrozenPlayerInRange(config956Radius.Value))
                     {
                         logger.LogDebug("Start Killing Players");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
-                    }*/
+                    }
                     /*if (FoundClosestPlayerInRange(config956Radius.Value)) // Testing
                     {
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
@@ -132,23 +119,44 @@ namespace SCP956
                     break;
 
                 case 2:
-                    logger.LogDebug("In HeadButtAttackInProgress Behaviour State");
-                    //agent.speed = 0f;
                     break;
             }
         }
 
-        public IEnumerator HeadbuttAttack()
+        public IEnumerator HeadbuttAttack() // TODO: Headbutt animation doesnt work on other players side alone with not causing damage. learn to use unity netcode patcher!
         {
             SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
             
             yield return new WaitForSeconds(3f);
             logger.LogDebug("Headbutting");
-            creatureAnimator.SetTrigger("headButt");
+            DoAnimationClientRpc("headButt");
             
-            yield return new WaitForSeconds(0.4f);
-            targetPlayer.DamagePlayer(50, hasDamageSFX: true, callRPC: true, CauseOfDeath.Unknown, 0);
-            if (targetPlayer.isPlayerDead && config956Behavior.Value == 2) { targetPlayer = null; creatureVoice.PlayOneShot(PlayerDeathsfx); } else { targetPlayer.movementAudio.PlayOneShot(BoneCracksfx); }
+            yield return new WaitForSeconds(0.5f); // TODO: Check this
+            targetPlayer.DamagePlayer(50);
+            if (targetPlayer.isPlayerDead) 
+            { 
+                creatureVoice.PlayOneShot(PlayerDeathsfx);
+
+                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple").ToList();
+                //int candiesCount = PluginInstance.random.Next(config9561MinSpawn.Value, config9561MaxSpawn.Value);
+                int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
+
+                for (int i = 0; i < candiesCount; i++)
+                {
+                    Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(targetPlayer.transform.position, 1.5f, RoundManager.Instance.navHit);
+                    GameObject obj = UnityEngine.Object.Instantiate(candies[UnityEngine.Random.Range(0, 4)].spawnPrefab, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), StartOfRound.Instance.propsContainer);
+                    int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
+                    obj.GetComponent<GrabbableObject>().SetScrapValue(scrapValue);
+                    obj.GetComponent<GrabbableObject>().fallTime = 0f;
+                    obj.GetComponent<NetworkObject>().Spawn();
+                }
+
+                targetPlayer = null;
+            }
+            else
+            {
+                targetPlayer.movementAudio.PlayOneShot(BoneCracksfx);
+            }
             //yield return new WaitForSeconds(1f);
             if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
             {
@@ -161,7 +169,7 @@ namespace SCP956
         {
             targetPlayer = null;
             List<ulong> PlayersToDie = UnfortunatePlayers.Value;
-            if (PlayersToDie == null || !IsOwner) { return false; }
+            if (PlayersToDie == null/* || !IsOwner*/) { return false; }
             if (PlayersToDie.Count > 0)
             {
                 foreach (ulong id in PlayersToDie)
@@ -186,7 +194,7 @@ namespace SCP956
 
         void MoveToPlayer()
         {
-            if (targetPlayer == null || !IsOwner)
+            if (targetPlayer == null/* || !IsOwner*/)
             {
                 return;
             }
@@ -223,6 +231,13 @@ namespace SCP956
             transform.position = teleportPos;
             agent.Warp(teleportPos);
             SyncPositionToClients();
+        }
+
+        [ClientRpc]
+        public void DoAnimationClientRpc(string animationName) // TODO: Might have to clone example enemy project or copy everything to this to enable networking. this wont play animation for other clients. watch xiaos tutorial video more
+        {
+            logger.LogDebug("Animation: " + animationName);
+            creatureAnimator.SetTrigger(animationName);
         }
     }
 }
