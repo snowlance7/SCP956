@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using BepInEx.Logging;
 using HarmonyLib;
+using Unity.Netcode;
 using static SCP956.SCP956;
 
 namespace SCP956.Patches
@@ -28,7 +29,11 @@ namespace SCP956.Patches
             PlayerControllerBPatch.playerFrozen = false;
             IngamePlayerSettings.Instance.playerInput.ActivateInput();
             StartOfRound.Instance.localPlayerController.disableLookInput = false;
-            NetworkHandler.UnfortunatePlayers.Value = new List<ulong>();
+
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                NetworkHandler.Instance.FrozenPlayers.Clear();
+            }
         }
     }
 }

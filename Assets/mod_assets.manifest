@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2673133862
+CRC: 825393225
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 181c35d3f846d8c72350cb55bc90ec9f
+    Hash: a8960f52870ddb768a4b0980f58e4bf7
   TypeTreeHash:
     serializedVersion: 2
     Hash: 9f3d36926b905be5897865de1bcdfe3e
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 181c35d3f846d8c72350cb55bc90ec9f
+    Hash: a8960f52870ddb768a4b0980f58e4bf7
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -90,6 +90,7 @@ Assets:
 - Assets/ModAssets/Cake/CakeItem.asset
 - Assets/ModAssets/Pinata/Pinata.asset
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
+- Assets/ModAssets/Pinata/NetworkHandler.prefab
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
 - Assets/ModAssets/Pinata/Audio/bone-crack.mp3

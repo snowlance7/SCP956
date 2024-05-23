@@ -19,7 +19,7 @@ namespace SCP956
                 playerHeldBy.movementAudio.PlayOneShot(CandleBlowsfx, 1f);
                 SCP956.PlayerAge = 10;
 
-                NetworkHandler.clientEventShrinkPlayer.InvokeAllClients(true);
+                NetworkHandler.Instance.ShrinkPlayer(StartOfRound.Instance.localPlayerController.actualClientId);
 
 
                 // Spawn cake somewhere else

@@ -12,7 +12,6 @@ using LethalLib;
 using static LethalLib.Modules.Enemies;
 using static UnityEngine.VFX.VisualEffectControlTrackController;
 using Unity.Netcode;
-using LethalNetworkAPI;
 using GameNetcodeStuff;
 
 namespace SCP956.Patches
@@ -27,13 +26,6 @@ namespace SCP956.Patches
         public static void PingScan_performedPostFix()
         {
             logger.LogDebug(PlayerAge);
-
-            foreach (ulong id in NetworkHandler.UnfortunatePlayers.Value)
-            {
-                PlayerControllerB player = id.GetPlayerFromId();
-                logger.LogDebug(player.playerUsername);
-                
-            }
             /*logger.LogDebug("In PingScan_performedPostFix");
             foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
             {

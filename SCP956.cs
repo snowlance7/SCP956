@@ -17,7 +17,6 @@ namespace SCP956
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
-    [BepInDependency(LethalNetworkAPI.MyPluginInfo.PLUGIN_GUID)]
     public class SCP956 : BaseUnityPlugin
     {
         private const string modGUID = "Snowlance.Pinata";
@@ -64,6 +63,7 @@ namespace SCP956
         public static ConfigEntry<bool> configPlayWarningSound;
         public static ConfigEntry<float> configActivationTime;
         public static ConfigEntry<float> configActivationTimeCandy;
+        public static ConfigEntry<int> configHeadbuttDamage;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> config9561MinValue;
@@ -92,7 +92,7 @@ namespace SCP956
 
             harmony.PatchAll();
 
-            NetworkHandler.Init();
+            //NetworkHandler.Init();
             InitializeNetworkBehaviours();
 
             // Configs
@@ -120,6 +120,7 @@ namespace SCP956
             configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met."); // TEMP
             configActivationTime = Config.Bind("General", "Activation Time", 6f, "How long it takes for 956 to activate.");
             configActivationTimeCandy = Config.Bind("General", "Activation Time Candy", 20f, "How long it takes for 956 to activate when holding candy. Only used when behavior is 2.");
+            configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
             // SCP-956-1 Configs
             config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");
@@ -284,6 +285,7 @@ namespace SCP956
                     }
                 }
             }
+            LoggerInstance.LogDebug("Finished initializing network behaviours");
         }
     }
 }

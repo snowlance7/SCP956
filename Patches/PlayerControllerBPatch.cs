@@ -23,21 +23,14 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
+            if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
+            PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
+            if (!__instance.isPlayerControlled) { return; }
+
             if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }
-
-            if (StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
-            PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
-            if (!__instance.isPlayerControlled) { return; }
-            if (playerFrozen)
-            {
-                /*IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                __instance.disableLookInput = true;
-                if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }*/
-                return;
             }
 
             timeSinceLastCheck += Time.deltaTime;
@@ -63,7 +56,7 @@ namespace SCP956.Patches
                         // Freeze player
                         playerFrozen = true;
                         warningStarted = false;
-                        NetworkHandler.clientEventAddToList.InvokeServer();
+                        NetworkHandler.Instance.AddToFrozenPlayersList(__instance.actualClientId);
 
                         IngamePlayerSettings.Instance.playerInput.DeactivateInput();
                         __instance.disableLookInput = true;

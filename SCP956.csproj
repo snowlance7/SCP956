@@ -75,10 +75,11 @@
       <Reference Include="LethalLib">
         <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
       </Reference>
-      <Reference Include="LethalNetworkAPI">
-        <HintPath>..\1Resources\1Dependencies\LethalNetworkAPI.dll</HintPath>
-      </Reference>
     </ItemGroup>
+
+  <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
+    <Exec Command="netcode-patch &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
+  </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
       <Exec Command="xcopy &quot;C:\Users\snowl\source\repos\SCP956\Assets\mod_assets&quot; &quot;C:\Users\snowl\source\repos\1Lethal Company Debugging\BepInEx\plugins&quot; /Y" />

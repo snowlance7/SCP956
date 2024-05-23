@@ -8,17 +8,16 @@ using SCP956;
 using Unity.Netcode;
 using UnityEngine;
 using static SCP956.SCP956;
-using static SCP956.NetworkHandler;
-using LethalNetworkAPI;
 using UnityEngine.UI;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using static Netcode.Transports.Facepunch.FacepunchTransport;
 
 namespace SCP956
 {
-    class SCP956AI : EnemyAI
+    class SCP956AI : EnemyAI // TODO: use unity logs to figure out additional errors
     {
-        private ManualLogSource logger = LoggerInstance;
+        private static ManualLogSource logger = LoggerInstance;
 
         #pragma warning disable 0649
         public Transform turnCompass = null!;
@@ -32,7 +31,7 @@ namespace SCP956
             MovingTowardsPlayer,
             HeadButtAttackInProgress
         }
-        // TODO: Figure out how all this works first before changing anything
+
         public override void Start()
         {
             base.Start();
@@ -67,7 +66,7 @@ namespace SCP956
                 targetPlayer.turnCompass.LookAt(transform.position);
                 targetPlayer.transform.rotation = Quaternion.Lerp(targetPlayer.transform.rotation, Quaternion.Euler(new Vector3(0f, targetPlayer.turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
             }
-            if (state == (int)State.HeadButtAttackInProgress)
+            if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 3f * Time.deltaTime);
@@ -121,9 +120,9 @@ namespace SCP956
                 case 2:
                     break;
             }
-        }
+        } // TODO: Remove all unneeded comments and todos before publishing
 
-        public IEnumerator HeadbuttAttack() // TODO: Headbutt animation doesnt work on other players side alone with not causing damage. learn to use unity netcode patcher!
+        public IEnumerator HeadbuttAttack()
         {
             SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
             
@@ -132,7 +131,8 @@ namespace SCP956
             DoAnimationClientRpc("headButt");
             
             yield return new WaitForSeconds(0.5f); // TODO: Check this
-            targetPlayer.DamagePlayer(50);
+            logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
+            targetPlayer.DamagePlayer(50); // TODO: Figure out why this is triggering
             if (targetPlayer.isPlayerDead) 
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
@@ -147,10 +147,10 @@ namespace SCP956
                     GameObject obj = UnityEngine.Object.Instantiate(candies[UnityEngine.Random.Range(0, 4)].spawnPrefab, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), StartOfRound.Instance.propsContainer);
                     int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
                     obj.GetComponent<GrabbableObject>().SetScrapValue(scrapValue);
-                    obj.GetComponent<GrabbableObject>().fallTime = 0f;
                     obj.GetComponent<NetworkObject>().Spawn();
                 }
 
+                NetworkHandler.Instance.FrozenPlayers.Remove(targetPlayer.actualClientId);
                 targetPlayer = null;
             }
             else
@@ -167,18 +167,24 @@ namespace SCP956
         
         bool TargetFrozenPlayerInRange(float range)
         {
-            targetPlayer = null;
-            List<ulong> PlayersToDie = UnfortunatePlayers.Value;
-            if (PlayersToDie == null/* || !IsOwner*/) { return false; }
-            if (PlayersToDie.Count > 0)
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                foreach (ulong id in PlayersToDie)
+                logger.LogDebug("Setting targetplayer to null");
+                targetPlayer = null;
+                //List<ulong> PlayersToDie = NetworkHandler.Instance.FrozenPlayers.ToList();
+                if (NetworkHandler.Instance.FrozenPlayers == null) { return false; }
+                if (NetworkHandler.Instance.FrozenPlayers.Count > 0)
                 {
-                    PlayerControllerB player = id.GetPlayerFromId();
-                    if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
+                    foreach (ulong id in NetworkHandler.Instance.FrozenPlayers)
                     {
-                        targetPlayer = player;
-                        return true;
+                        PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]];
+                        if (player == null) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
+                        if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
+                        {
+                            targetPlayer = player;
+                            logger.LogDebug(targetPlayer.playerUsername);
+                            return true;
+                        }
                     }
                 }
             }
@@ -194,7 +200,7 @@ namespace SCP956
 
         void MoveToPlayer()
         {
-            if (targetPlayer == null/* || !IsOwner*/)
+            if (targetPlayer == null)
             {
                 return;
             }
@@ -209,7 +215,7 @@ namespace SCP956
             if (timeSinceNewRandPos > 1.5f)
             {
                 timeSinceNewRandPos = 0;
-                Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.8f) + targetPlayer.transform.position;
+                Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
                 SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
             }
             //agent.isStopped = true;;
@@ -225,7 +231,7 @@ namespace SCP956
             base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
         }
 
-        public void Teleport(Vector3 teleportPos)
+        public void Teleport(Vector3 teleportPos) // Unneeded?
         {
             serverPosition = teleportPos;
             transform.position = teleportPos;
@@ -233,8 +239,10 @@ namespace SCP956
             SyncPositionToClients();
         }
 
+        // RPC's
+
         [ClientRpc]
-        public void DoAnimationClientRpc(string animationName) // TODO: Might have to clone example enemy project or copy everything to this to enable networking. this wont play animation for other clients. watch xiaos tutorial video more
+        private void DoAnimationClientRpc(string animationName) // TODO: Might have to clone example enemy project or copy everything to this to enable networking. this wont play animation for other clients. watch xiaos tutorial video more
         {
             logger.LogDebug("Animation: " + animationName);
             creatureAnimator.SetTrigger(animationName);
@@ -244,3 +252,4 @@ namespace SCP956
 // TODO: Make pinata die from explosions
 // TODO: Animation for pinata dying
 // TODO: Make pinata a scrap object that spawns but when conditions are met, it turns into an enemy??
+// TODO: Freezes all players in range....
