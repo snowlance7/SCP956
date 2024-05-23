@@ -16,28 +16,17 @@ namespace SCP956
         public static NetworkHandler Instance { get; private set; }
         public static PlayerControllerB CurrentClient { get { return StartOfRound.Instance.localPlayerController; } }
 
-        //public NetworkVariable<List<ulong>> FrozenPlayers = new NetworkVariable<List<ulong>>(new List<ulong>());
         public NetworkList<ulong> FrozenPlayers = new NetworkList<ulong>();
         public override void OnNetworkSpawn()
         {
-            logger.LogDebug("Entering OnNetworkSpawn");
-
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                logger.LogDebug("Despawning existing instance");
                 Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
             }
 
-            logger.LogDebug("Setting Instance to this");
             Instance = this;
-
-            logger.LogDebug("clearing FrozenPlayers list");
             FrozenPlayers.Clear();
-
-            logger.LogDebug("Calling base OnNetworkSpawn");
             base.OnNetworkSpawn();
-
-            logger.LogDebug("Exiting OnNetworkSpawn");
         }
 
         public void ShrinkPlayer(ulong clientId)
@@ -108,28 +97,20 @@ namespace SCP956
         {
             if (networkPrefab != null)
                 return;
-            logger.LogDebug("Started Init in NetworkObjectManager");
 
             networkPrefab = (GameObject)SCP956.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandler.prefab");
-            logger.LogDebug("Got asset");
             networkPrefab.AddComponent<NetworkHandler>();
-            logger.LogDebug("Added component");
 
             NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
-            logger.LogDebug("Added network prefab");
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
         static void SpawnNetworkHandler()
         {
-            logger.LogDebug("In SpawnNetworkHandler");
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                logger.LogDebug("is host and is server");
                 var networkHandlerHost = UnityEngine.Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
-                logger.LogDebug("instantiated");
                 networkHandlerHost.GetComponent<NetworkObject>().Spawn();
-                logger.LogDebug("Spawned");
             }
         }
     }

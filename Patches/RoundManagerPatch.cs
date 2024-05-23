@@ -47,7 +47,6 @@ namespace SCP956.Patches
                 if (SCP956.config956Behavior.Value == 3)
                 {
                     if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
-                    //SCP956.PlayerAge = SCP956.PluginInstance.random.Next(5, SCP956.configMaxAge.Value);
                     PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
 
                     if (PlayerAge < 12)
@@ -58,7 +57,6 @@ namespace SCP956.Patches
                 else
                 {
                     if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
-                    //PlayerAge = PluginInstance.random.Next(18, configMaxAge.Value);
                     PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
                 }
 

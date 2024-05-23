@@ -132,7 +132,7 @@ namespace SCP956
             
             yield return new WaitForSeconds(0.5f); // TODO: Check this
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
-            targetPlayer.DamagePlayer(50); // TODO: Figure out why this is triggering
+            targetPlayer.DamagePlayer(50); // TODO: Figure out why this isnt triggering
             if (targetPlayer.isPlayerDead) 
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
@@ -171,7 +171,6 @@ namespace SCP956
             {
                 logger.LogDebug("Setting targetplayer to null");
                 targetPlayer = null;
-                //List<ulong> PlayersToDie = NetworkHandler.Instance.FrozenPlayers.ToList();
                 if (NetworkHandler.Instance.FrozenPlayers == null) { return false; }
                 if (NetworkHandler.Instance.FrozenPlayers.Count > 0)
                 {
@@ -207,7 +206,6 @@ namespace SCP956
             if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
             {
                 logger.LogDebug("Headbutt Attack");
-                //moveTowardsDestination = false; // TODO: Find a better way to do this
                 StartCoroutine(HeadbuttAttack());
                 //return;
             }
@@ -218,7 +216,6 @@ namespace SCP956
                 Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
                 SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
             }
-            //agent.isStopped = true;;
         }
 
         public override void OnCollideWithPlayer(Collider other)
@@ -242,7 +239,7 @@ namespace SCP956
         // RPC's
 
         [ClientRpc]
-        private void DoAnimationClientRpc(string animationName) // TODO: Might have to clone example enemy project or copy everything to this to enable networking. this wont play animation for other clients. watch xiaos tutorial video more
+        private void DoAnimationClientRpc(string animationName)
         {
             logger.LogDebug("Animation: " + animationName);
             creatureAnimator.SetTrigger(animationName);
