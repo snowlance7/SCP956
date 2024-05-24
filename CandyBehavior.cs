@@ -32,6 +32,23 @@ namespace SCP956
                     if (config956Behavior.Value == 2)
                     {
                         // TODO: Create random effect like in secret lab
+                        // Blue:
+                        //      gives 30 hp and goes over max health limit
+                        // Green:
+                        //      Negate status effects for 30 seconds (time stackable)
+                        //      HP regeneration for for 80 seconds 1.5 hp per second 120 hp total
+                        // Purple:
+                        //      20% damage reduction for 15 seconds (time stackable)
+                        //      hp regeneration for 10 seconds 1.5 hp per second 15 hp total
+                        // Rainbow: not added yet
+                        // Red:
+                        //      HP regeneration for 5 seconds 9 hp per second 45 hp total
+                        // Yellow:
+                        //      Instantly restores 25% stamina
+                        //      Infinite sprint for 8 seconds
+                        //      movement speed increase for 8 seconds (effect and time stackable)
+                        // Pink:
+                        //      player instantly explodes
                     }
                 }
                 else

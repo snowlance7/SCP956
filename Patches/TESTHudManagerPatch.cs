@@ -26,6 +26,8 @@ namespace SCP956.Patches
         public static void PingScan_performedPostFix()
         {
             logger.LogDebug(PlayerAge);
+
+            
             /*logger.LogDebug("In PingScan_performedPostFix");
             foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
             {

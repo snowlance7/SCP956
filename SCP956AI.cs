@@ -12,6 +12,7 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using static Netcode.Transports.Facepunch.FacepunchTransport;
+using SCP956.Patches;
 
 namespace SCP956
 {
@@ -93,11 +94,6 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    /*if (FoundClosestPlayerInRange(config956Radius.Value)) // Testing
-                    {
-                        SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
-                        return;
-                    }*/
                     break;
 
                 case 1:
@@ -108,12 +104,6 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
-                    /*if (!FoundClosestPlayerInRange(config956Radius.Value))
-                    {
-                        logger.LogDebug("Stop Killing Players");
-                        SwitchToBehaviourClientRpc((int)State.Dormant);
-                        return;
-                    }*/
                     MoveToPlayer();
                     break;
 
@@ -132,18 +122,21 @@ namespace SCP956
             
             yield return new WaitForSeconds(0.5f); // TODO: Check this
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
-            targetPlayer.DamagePlayer(50); // TODO: Figure out why this isnt triggering
+            Vector3 playerPos = targetPlayer.transform.position;
+            DamageTargetPlayerClientRpc(targetPlayer.actualClientId);
+
+            //yield return new WaitForSeconds(0.5f); // TODO: Check this
+
             if (targetPlayer.isPlayerDead) 
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
 
-                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple").ToList();
-                //int candiesCount = PluginInstance.random.Next(config9561MinSpawn.Value, config9561MaxSpawn.Value);
+                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple" || x.itemName == "CandyGreen" || x.itemName == "CandyBlue").ToList();
                 int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
                 {
-                    Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(targetPlayer.transform.position, 1.5f, RoundManager.Instance.navHit);
+                    Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
                     GameObject obj = UnityEngine.Object.Instantiate(candies[UnityEngine.Random.Range(0, 4)].spawnPrefab, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), StartOfRound.Instance.propsContainer);
                     int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
                     obj.GetComponent<GrabbableObject>().SetScrapValue(scrapValue);
@@ -167,34 +160,23 @@ namespace SCP956
         
         bool TargetFrozenPlayerInRange(float range)
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            targetPlayer = null;
+            if (NetworkHandler.Instance.FrozenPlayers == null) { return false; }
+            if (NetworkHandler.Instance.FrozenPlayers.Count > 0)
             {
-                logger.LogDebug("Setting targetplayer to null");
-                targetPlayer = null;
-                if (NetworkHandler.Instance.FrozenPlayers == null) { return false; }
-                if (NetworkHandler.Instance.FrozenPlayers.Count > 0)
+                foreach (ulong id in NetworkHandler.Instance.FrozenPlayers)
                 {
-                    foreach (ulong id in NetworkHandler.Instance.FrozenPlayers)
+                    PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]];
+                    if (player == null || player.disconnectedMidGame || player.isPlayerDead) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
+                    if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
                     {
-                        PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]];
-                        if (player == null) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
-                        if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
-                        {
-                            targetPlayer = player;
-                            logger.LogDebug(targetPlayer.playerUsername);
-                            return true;
-                        }
+                        targetPlayer = player;
+                        logger.LogDebug(targetPlayer.playerUsername);
+                        return true;
                     }
                 }
             }
             return false;
-        }
-
-        bool FoundClosestPlayerInRange(float range)
-        {
-            if (!IsOwner) { return false; }
-            TargetClosestPlayer(bufferDistance: 1.5f, requireLineOfSight: false);
-            return targetPlayer != null && Vector3.Distance(transform.position, targetPlayer.transform.position) < range;
         }
 
         void MoveToPlayer()
@@ -207,7 +189,7 @@ namespace SCP956
             {
                 logger.LogDebug("Headbutt Attack");
                 StartCoroutine(HeadbuttAttack());
-                //return;
+                return; // TODO: Test this
             }
 
             if (timeSinceNewRandPos > 1.5f)
@@ -244,9 +226,20 @@ namespace SCP956
             logger.LogDebug("Animation: " + animationName);
             creatureAnimator.SetTrigger(animationName);
         }
+
+        [ClientRpc]
+        private void DamageTargetPlayerClientRpc(ulong clientId)
+        {
+            PlayerControllerB player = StartOfRound.Instance.localPlayerController;
+            if (player.actualClientId == clientId)
+            {
+                player.DamagePlayer(50);
+
+                if (player.isPlayerDead) { PlayerControllerBPatch.playerFrozen = false; }
+            }
+        }
     }
 }
 // TODO: Make pinata die from explosions
 // TODO: Animation for pinata dying
 // TODO: Make pinata a scrap object that spawns but when conditions are met, it turns into an enemy??
-// TODO: Freezes all players in range....

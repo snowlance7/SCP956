@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using static LethalLib.Modules.Enemies;
 using static SCP956.SCP956;
+using Unity.Netcode;
 
 namespace SCP956.Patches
 {
@@ -36,13 +37,11 @@ namespace SCP956.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch("GenerateNewFloor")]
-        public static void StartPatch()
+        public static void GenerateNewFloorPatch() // TODO: May be unneeded
         {
             logger.LogDebug("In GenerateNewFloorPatch");
 
-            //SCP956.PluginInstance.random = new System.Random(StartOfRound.Instance.randomMapSeed);
-
-            if (firstTime)
+            /*if (firstTime)
             {
                 if (SCP956.config956Behavior.Value == 3)
                 {
@@ -62,6 +61,21 @@ namespace SCP956.Patches
 
                 logger.LogDebug($"Age is {PlayerAge}");
                 firstTime = false;
+            }*/
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("DespawnPropsAtEndOfRound")]
+        private static void DespawnPropsAtEndOfRoundPatch()
+        {
+            logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
+            PlayerControllerBPatch.playerFrozen = false;
+            IngamePlayerSettings.Instance.playerInput.ActivateInput();
+            StartOfRound.Instance.localPlayerController.disableLookInput = false;
+
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                NetworkHandler.Instance.FrozenPlayers.Clear();
             }
         }
     }

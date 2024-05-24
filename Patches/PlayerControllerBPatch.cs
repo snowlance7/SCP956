@@ -7,6 +7,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
 using static SCP956.SCP956;
+using Unity.Netcode;
 
 namespace SCP956.Patches
 {
@@ -23,6 +24,7 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) { return; } // TODO: Temporary testing
             if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
             PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
             if (!__instance.isPlayerControlled) { return; }
@@ -44,7 +46,7 @@ namespace SCP956.Patches
                         __instance.movementAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
                         float pitch;
                         if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(__instance)) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
-                        __instance.movementAudio.pitch = pitch;
+                        __instance.movementAudio.pitch = pitch; // TODO: This doesnt extend the audio clip like expected
                         if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; } else { __instance.movementAudio.volume = 1f; }
                         __instance.movementAudio.Play();
 
@@ -56,11 +58,11 @@ namespace SCP956.Patches
                         // Freeze player
                         playerFrozen = true;
                         warningStarted = false;
-                        NetworkHandler.Instance.AddToFrozenPlayersList(__instance.actualClientId);
+                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(__instance.actualClientId);
 
-                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        __instance.disableLookInput = true;
-                        if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
+                        //IngamePlayerSettings.Instance.playerInput.DeactivateInput(); // TODO: Testing change these back later
+                        //__instance.disableLookInput = true;
+                        //if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
                     }
                 }
                 else if (warningStarted)
