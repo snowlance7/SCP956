@@ -14,26 +14,26 @@ namespace SCP956.Patches
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
         [HarmonyPostfix]
-        [HarmonyPatch("firstDayAnimation")]
-        public static void firstDayAnimationPatch()
+        [HarmonyPatch("Awake")]
+        public static void AwakePatch()
         {
-            logger.LogDebug("In firstDayAnimationPatch");
-            RoundManagerPatch.firstTime = true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("ReviveDeadPlayers")]
-        public static void ReviveDeadPlayersPatch()
-        {
-            logger.LogDebug("In ReviveDeadPlayersPatch");
-            PlayerControllerBPatch.playerFrozen = false;
-            IngamePlayerSettings.Instance.playerInput.ActivateInput();
-            StartOfRound.Instance.localPlayerController.disableLookInput = false;
-
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            if (SCP956.config956Behavior.Value == 3)
             {
-                NetworkHandler.Instance.FrozenPlayers.Clear();
+                if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
+                PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
+
+                if (PlayerAge < 12)
+                {
+                    NetworkHandler.Instance.ShrinkPlayer(StartOfRound.Instance.localPlayerController.actualClientId);
+                }
             }
+            else
+            {
+                if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
+                PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
+            }
+
+            logger.LogDebug($"Age is {PlayerAge}");
         }
     }
 }

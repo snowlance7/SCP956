@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 825393225
+CRC: 3750971147
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a8960f52870ddb768a4b0980f58e4bf7
+    Hash: 0fd4c9d5e1afcd6721395acba00a7c65
   TypeTreeHash:
     serializedVersion: 2
     Hash: 9f3d36926b905be5897865de1bcdfe3e
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a8960f52870ddb768a4b0980f58e4bf7
+    Hash: 0fd4c9d5e1afcd6721395acba00a7c65
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -82,6 +82,7 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
 Assets:
+- Assets/ModAssets/Candy/CandyBlueItem.asset
 - Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3
 - Assets/ModAssets/Candy/CandyYellowItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
@@ -93,6 +94,7 @@ Assets:
 - Assets/ModAssets/Pinata/NetworkHandler.prefab
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
+- Assets/ModAssets/Candy/CandyGreenItem.asset
 - Assets/ModAssets/Pinata/Audio/bone-crack.mp3
 - Assets/ModAssets/Pinata/Audio/papers-flapping.mp3
 - Assets/ModAssets/Cake/Audio/cake_candle_blow.wav

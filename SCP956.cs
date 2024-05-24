@@ -27,7 +27,6 @@ namespace SCP956
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;
-        //public System.Random random;
 
 
         public static AssetBundle? ModAssets;
@@ -88,11 +87,9 @@ namespace SCP956
             }
 
             LoggerInstance = PluginInstance.Logger;
-            //random = new System.Random();
 
             harmony.PatchAll();
 
-            //NetworkHandler.Init();
             InitializeNetworkBehaviours();
 
             // Configs
@@ -109,15 +106,14 @@ namespace SCP956
             configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OtherLevelRarity", 30, "Other Level Rarity");
 
             // General Configs
-
-            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" + // TEMP
+            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
                 "1 - Default: Kills players under the age of 12.\n" +
                 "2 - Secret Lab: Candy causes random effects but 956 targets players holding candy and under the age of 12.\n" +
                 "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "4 - All: 956 targets all players.");
-            config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956."); // TEMP
+            config956Radius = Config.Bind("General", "ActivationRadius", 10f, "The radius around 956 that will activate 956.");
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
-            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met."); // TEMP
+            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
             configActivationTime = Config.Bind("General", "Activation Time", 6f, "How long it takes for 956 to activate.");
             configActivationTimeCandy = Config.Bind("General", "Activation Time Candy", 20f, "How long it takes for 956 to activate when holding candy. Only used when behavior is 2.");
             configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
@@ -128,10 +124,10 @@ namespace SCP956
             config9561MinSpawn = Config.Bind("SCP-956-1", "Min Candy Spawn", 5, "The minimum amount of SCP-956-1 to spawn when player dies to SCP-956");
             config9561MaxSpawn = Config.Bind("SCP-956-1", "Max Candy Spawn", 20, "The maximum amount of SCP-956-1 to spawn when player dies to SCP-956");
             config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 5, "The chance of the Player being killed by SCP-956-1");
+            
             // SCP-559 Configs
-
-            config559Rarity = Config.Bind("SCP-559", "Rarity", 40, "How often SCP-559 will spawn."); // TEMP
-            config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 100, "The minimum scrap value of SCP-559."); // TODO: Make sure all configs are added and work
+            config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
+            config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559."); // TODO: Make sure all configs are added and work
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
 
             // TODO: Add NULL checks
@@ -148,7 +144,6 @@ namespace SCP956
             LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "mod_assets")}");
 
             // Getting Audio
-
             WarningSoundsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.wav");
             if (WarningSoundsfx == null) { LoggerInstance.LogError("Error: Couldnt get audio from assets"); return; }
             BoneCracksfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/bone-crack.mp3");
@@ -185,6 +180,8 @@ namespace SCP956
             Item CandyPurple = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPurpleItem.asset");
             Item CandyRed = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRedItem.asset");
             Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyYellowItem.asset");
+            Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyGreenItem.asset");
+            Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlueItem.asset");
 
             candyScript = CandyPink.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
@@ -222,6 +219,24 @@ namespace SCP956
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
             Items.RegisterScrap(CandyYellow);
 
+            candyScript = CandyGreen.spawnPrefab.AddComponent<CandyBehavior>();
+            candyScript.grabbable = true;
+            candyScript.itemProperties = CandyRed;
+            CandyGreen.minValue = config9561MinValue.Value;
+            CandyGreen.maxValue = config9561MaxValue.Value;
+            NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
+            Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
+            Items.RegisterScrap(CandyGreen);
+
+            candyScript = CandyBlue.spawnPrefab.AddComponent<CandyBehavior>();
+            candyScript.grabbable = true;
+            candyScript.itemProperties = CandyBlue;
+            CandyBlue.minValue = config9561MinValue.Value;
+            CandyBlue.maxValue = config9561MaxValue.Value;
+            NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
+            Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
+            Items.RegisterScrap(CandyBlue);
+
             // Getting enemy
             EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset"); // TODO: Wont let me change rotation or anything in the unity editor
             if (Pinata == null) { LoggerInstance.LogError("Error: Couldnt get enemy from assets"); return; }
@@ -253,7 +268,7 @@ namespace SCP956
             Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
         }
 
-        public static List<SpawnableEnemyWithRarity> GetEnemies()
+        public static List<SpawnableEnemyWithRarity> GetEnemies() // TODO: Uneeded?
         {
             LoggerInstance.LogDebug("Getting enemies");
             List<SpawnableEnemyWithRarity> enemies = new List<SpawnableEnemyWithRarity>();
@@ -271,7 +286,6 @@ namespace SCP956
 
         private static void InitializeNetworkBehaviours()
         {
-            // See https://github.com/EvaisaDev/UnityNetcodePatcher?tab=readme-ov-file#preparing-mods-for-patching
             var types = Assembly.GetExecutingAssembly().GetTypes();
             foreach (var type in types)
             {

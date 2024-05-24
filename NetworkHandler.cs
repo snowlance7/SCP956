@@ -6,6 +6,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
 using UnityEngine;
+using static SCP956.SCP956;
 
 namespace SCP956
 {
@@ -25,7 +26,6 @@ namespace SCP956
             }
 
             Instance = this;
-            FrozenPlayers.Clear();
             base.OnNetworkSpawn();
         }
 
@@ -41,29 +41,18 @@ namespace SCP956
             }
         }
 
-        public void AddToFrozenPlayersList(ulong clientId)
-        {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                AddToListClientRpc(clientId);
-            }
-            else
-            {
-                AddToListServerRpc(clientId);
-            }
-        }
-
         [ServerRpc(RequireOwnership = false)]
         private void ShrinkPlayerServerRpc(ulong clientId)
         {
-            ShrinkPlayerClientRpc(clientId);
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                ShrinkPlayerClientRpc(clientId);
+            }
         }
 
         [ClientRpc]
         private void ShrinkPlayerClientRpc(ulong clientId)
         {
-            logger.LogDebug("ReceivedFromClientShrinkPlayer()");
-            logger.LogDebug($"{clientId}");
             PlayerControllerB playerHeldBy = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
 
             playerHeldBy.thisPlayerBody.localScale = new Vector3(0.8f, 0.8f, 0.8f);
@@ -74,15 +63,12 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void AddToListServerRpc(ulong clientId)
+        public void AddToFrozenPlayersListServerRpc(ulong clientId)
         {
-            AddToListClientRpc(clientId);
-        }
-
-        [ClientRpc]
-        private void AddToListClientRpc(ulong clientId)
-        {
-            FrozenPlayers.Add(clientId);
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                FrozenPlayers.Add(clientId);
+            }
         }
     }
 

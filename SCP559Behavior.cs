@@ -36,7 +36,7 @@ namespace SCP956
                 else
                 {
                     pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit); // TODO: Use for candy spawn
-                }*/
+                }*/ // TODO: Figure out this and put it all together
 
                 Vector3 pos = playerHeldBy.transform.position;
                 int scrapValue = GetComponent<GrabbableObject>().scrapValue + 50;
@@ -47,6 +47,8 @@ namespace SCP956
                 obj.GetComponent<GrabbableObject>().SetScrapValue(scrapValue);
                 obj.GetComponent<NetworkObject>().Spawn();
                 obj.GetComponent<AudioSource>().PlayOneShot(CakeAppearsfx, 1f);
+
+                // TODO: Spawn scp956 when blowing out candles
             }
         }
     }
