@@ -131,7 +131,8 @@ namespace SCP956
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
 
-                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple" || x.itemName == "CandyGreen" || x.itemName == "CandyBlue").ToList(); // TODO: Test to make sure all candy shows up correctly
+                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple").ToList();
+                //int candiesCount = PluginInstance.random.Next(config9561MinSpawn.Value, config9561MaxSpawn.Value);
                 int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
