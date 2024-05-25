@@ -24,12 +24,11 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            //if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) { return; } // TODO: Temporary testing
             if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
             PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
             if (!__instance.isPlayerControlled) { return; }
 
-            /*if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
+            /*if (SCP956.PlayerAge < 12 && ___inTerminalMenu) // TODO: Figure this out
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
@@ -94,7 +93,7 @@ namespace SCP956.Patches
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple")
+                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple" || item.itemProperties.itemName == "CandyGreen" || item.itemProperties.itemName == "CandyBlue")
                 {
                     return true;
                 }

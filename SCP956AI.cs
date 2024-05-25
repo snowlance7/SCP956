@@ -110,7 +110,7 @@ namespace SCP956
                 case 2:
                     break;
             }
-        } // TODO: Remove all unneeded comments and todos before publishing
+        }
 
         public IEnumerator HeadbuttAttack()
         {
@@ -125,23 +125,23 @@ namespace SCP956
             Vector3 playerPos = targetPlayer.transform.position;
             DamageTargetPlayerClientRpc(targetPlayer.actualClientId);
 
-            //yield return new WaitForSeconds(0.5f); // TODO: Check this
+            yield return new WaitForSeconds(0.5f);
 
             if (targetPlayer.isPlayerDead) 
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
 
-                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple" || x.itemName == "CandyGreen" || x.itemName == "CandyBlue").ToList(); // TODO: make sure candy all shows up and works properly
+                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple" || x.itemName == "CandyGreen" || x.itemName == "CandyBlue").ToList(); // TODO: make sure candy all shows up and works properly, still not spawning
                 int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
                 {
                     Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
-                    GameObject obj = UnityEngine.Object.Instantiate(candies[UnityEngine.Random.Range(0, 4)].spawnPrefab, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), StartOfRound.Instance.propsContainer);
+                    GameObject obj = UnityEngine.Object.Instantiate(candies[UnityEngine.Random.Range(0, 6)].spawnPrefab, pos + UnityEngine.Vector3.up * 0.5f, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 360f), 0f), StartOfRound.Instance.propsContainer);
                     int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
                     obj.GetComponent<GrabbableObject>().SetScrapValue(scrapValue);
                     obj.GetComponent<NetworkObject>().Spawn();
-                }
+                } // TODO: This only spawns candy for the host if they die, needs more testing. If its a network problem, may have to redo all item spawning
 
                 NetworkHandler.Instance.FrozenPlayers.Remove(targetPlayer.actualClientId);
                 targetPlayer = null;
@@ -188,7 +188,7 @@ namespace SCP956
             {
                 logger.LogDebug("Headbutt Attack");
                 StartCoroutine(HeadbuttAttack());
-                return; // TODO: Test this
+                return;
             }
 
             if (timeSinceNewRandPos > 1.5f)

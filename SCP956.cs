@@ -227,26 +227,26 @@ namespace SCP956
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
             Items.RegisterScrap(CandyYellow);
 
-            /*candyScript = CandyGreen.spawnPrefab.AddComponent<CandyBehavior>();
+            candyScript = CandyGreen.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
             candyScript.itemProperties = CandyGreen;
             CandyGreen.minValue = config9561MinValue.Value;
             CandyGreen.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
             Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
-            Items.RegisterScrap(CandyGreen);*/
+            Items.RegisterScrap(CandyGreen);
 
-            /*candyScript = CandyBlue.spawnPrefab.AddComponent<CandyBehavior>();
+            candyScript = CandyBlue.spawnPrefab.AddComponent<CandyBehavior>();
             candyScript.grabbable = true;
             candyScript.itemProperties = CandyBlue;
             CandyBlue.minValue = config9561MinValue.Value;
             CandyBlue.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
             Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
-            Items.RegisterScrap(CandyBlue);*/
+            Items.RegisterScrap(CandyBlue);
 
             // Getting enemy
-            EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset"); // TODO: Wont let me change rotation or anything in the unity editor
+            EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset");
             if (Pinata == null) { LoggerInstance.LogError("Error: Couldnt get enemy from assets"); return; }
             LoggerInstance.LogDebug($"Got SCP-956 prefab");
             TerminalNode PinataTN = ModAssets.LoadAsset<TerminalNode>("Assets/ModAssets/Pinata/Bestiary/PinataTN.asset");

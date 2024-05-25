@@ -12,7 +12,7 @@ namespace SCP956
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
-        internal static void GrabObject(GrabbableObject grabbableItem, PlayerControllerB player) // TODO: may be unneeded
+        internal static void GrabObject(GrabbableObject grabbableItem, PlayerControllerB player)
         {
             player.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f);
             player.GrabObjectServerRpc(grabbableItem.NetworkObject);
@@ -44,7 +44,7 @@ namespace SCP956
                     }
                     else
                     {
-                        pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit); // TODO: Use for candy spawn
+                        pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
                     }
 
                     int newScrapValue = GetComponent<GrabbableObject>().scrapValue + 50;
@@ -62,13 +62,13 @@ namespace SCP956
                 int newScrapValue2 = scrapValue / 2;
                 playerHeldBy.DespawnHeldObject();
                 Item CakeBlown = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CakeBlown").FirstOrDefault();
-                GameObject obj2 = UnityEngine.Object.Instantiate(CakeBlown.spawnPrefab/*, playerHeldBy.transform.position, Quaternion.identity, StartOfRound.Instance.propsContainer*/);
+                GameObject obj2 = UnityEngine.Object.Instantiate(CakeBlown.spawnPrefab);
                 GrabbableObject cakeBlownGrabbable = obj2.GetComponent<GrabbableObject>();
                 obj2.GetComponent<NetworkObject>().Spawn();
                 GrabObject(cakeBlownGrabbable, tempPlayer);
                 cakeBlownGrabbable.SetScrapValue(newScrapValue2);
 
-                // Spawn SCP-956 if not already spawned // TODO: Test this
+                // Spawn SCP-956 if not already spawned
                 if (!StartOfRound.Instance.inShipPhase)
                 {
                     EnemyAI scp = RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
