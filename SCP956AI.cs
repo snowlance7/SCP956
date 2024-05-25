@@ -16,7 +16,7 @@ using SCP956.Patches;
 
 namespace SCP956
 {
-    class SCP956AI : EnemyAI // TODO: use unity logs to figure out additional errors
+    class SCP956AI : EnemyAI
     {
         private static ManualLogSource logger = LoggerInstance;
 
@@ -120,7 +120,7 @@ namespace SCP956
             logger.LogDebug("Headbutting");
             DoAnimationClientRpc("headButt");
             
-            yield return new WaitForSeconds(0.5f); // TODO: Check this
+            yield return new WaitForSeconds(0.5f);
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
             Vector3 playerPos = targetPlayer.transform.position;
             DamageTargetPlayerClientRpc(targetPlayer.actualClientId);
@@ -131,8 +131,7 @@ namespace SCP956
             { 
                 creatureVoice.PlayOneShot(PlayerDeathsfx);
 
-                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple").ToList();
-                //int candiesCount = PluginInstance.random.Next(config9561MinSpawn.Value, config9561MaxSpawn.Value);
+                List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "CandyRed" || x.itemName == "CandyPink" || x.itemName == "CandyYellow" || x.itemName == "CandyPurple" || x.itemName == "CandyGreen" || x.itemName == "CandyBlue").ToList(); // TODO: make sure candy all shows up and works properly
                 int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
@@ -151,7 +150,6 @@ namespace SCP956
             {
                 targetPlayer.movementAudio.PlayOneShot(BoneCracksfx);
             }
-            //yield return new WaitForSeconds(1f);
             if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
             {
                 yield break;

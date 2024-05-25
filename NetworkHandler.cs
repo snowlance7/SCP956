@@ -67,6 +67,7 @@ namespace SCP956
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
+                logger.LogDebug($"Adding {clientId} to frozen players list");
                 FrozenPlayers.Add(clientId);
             }
         }

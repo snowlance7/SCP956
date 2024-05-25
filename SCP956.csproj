@@ -75,6 +75,9 @@
       <Reference Include="LethalLib">
         <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
       </Reference>
+      <Reference Include="Unity.Netcode.Runtime">
+        <HintPath>..\1Lethal Company Debugging\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
   <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">

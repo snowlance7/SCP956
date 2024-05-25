@@ -7,6 +7,9 @@ using UnityEngine;
 using static LethalLib.Modules.Enemies;
 using static SCP956.SCP956;
 using Unity.Netcode;
+using System.Linq;
+using static UnityEngine.ParticleSystem.PlaybackState;
+using Unity.Mathematics;
 
 namespace SCP956.Patches
 {
@@ -18,14 +21,34 @@ namespace SCP956.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
-        public static bool SpawnEnemyFromVentPostFix(EnemyVent vent)
+        public static bool SpawnEnemyFromVentPreFix(EnemyVent vent)
         {
-            if (RoundManager.Instance.IsHost)
+            logger.LogDebug(vent.enemyTypeIndex);
+            logger.LogDebug(vent.enemyType);
+
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 if (vent.enemyType.enemyName == "SCP-956")
                 {
-                    Vector3 position = RoundManager.Instance.GetRandomNavMeshPositionInRadius(vent.floorNode.position, 5); // TODO: TEST THIS figure out radius
-                    RoundManager.Instance.SpawnEnemyOnServer(position, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
+                    // Getting random scrap spawn
+
+                    List<RandomScrapSpawn> list = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(x => x.spawnUsed == false).ToList();
+                    int index = UnityEngine.Random.Range(0, list.Count);
+                    RandomScrapSpawn randomScrapSpawn = list[index];
+                    Vector3 pos = randomScrapSpawn.transform.position;
+                    if (randomScrapSpawn.spawnedItemsCopyPosition)
+                    {
+                        list.RemoveAt(index);
+                    }
+                    else
+                    {
+                        pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
+                    }
+
+                    // Spawning
+
+                    logger.LogDebug("Spawning");
+                    RoundManager.Instance.SpawnEnemyOnServer(pos + Vector3.up * 0.5f, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
                     Debug.Log("Spawned enemy from vent");
                     vent.OpenVentClientRpc();
                     vent.occupied = false;
@@ -33,35 +56,6 @@ namespace SCP956.Patches
                 }
             }
             return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch("GenerateNewFloor")]
-        public static void GenerateNewFloorPatch() // TODO: May be unneeded
-        {
-            logger.LogDebug("In GenerateNewFloorPatch");
-
-            /*if (firstTime)
-            {
-                if (SCP956.config956Behavior.Value == 3)
-                {
-                    if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
-                    PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
-
-                    if (PlayerAge < 12)
-                    {
-                        NetworkHandler.Instance.ShrinkPlayer(StartOfRound.Instance.localPlayerController.actualClientId);
-                    }
-                }
-                else
-                {
-                    if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
-                    PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
-                }
-
-                logger.LogDebug($"Age is {PlayerAge}");
-                firstTime = false;
-            }*/
         }
 
         [HarmonyPostfix]

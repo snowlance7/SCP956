@@ -19,8 +19,10 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
+                logger.LogDebug("Eating candy");
                 // TODO: Set up tooltips
-                playerHeldBy.movementAudio.PlayOneShot(CandyCrunchsfx);
+                HUDManager.Instance.UIAudio.PlayOneShot(CandyCrunchsfx, 1f);
+                
 
                 if (PlayerAge >= 12)
                 {
@@ -35,7 +37,7 @@ namespace SCP956
                         // Blue:
                         //      gives 30 hp and goes over max health limit
                         // Green:
-                        //      Negate status effects for 30 seconds (time stackable)
+                        //      Negate status effects for 30 seconds (time stackable) - Web slow effect - undetectable for x seconds?
                         //      HP regeneration for for 80 seconds 1.5 hp per second 120 hp total
                         // Purple:
                         //      20% damage reduction for 15 seconds (time stackable)

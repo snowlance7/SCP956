@@ -24,51 +24,55 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) { return; } // TODO: Temporary testing
+            //if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) { return; } // TODO: Temporary testing
             if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
             PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
             if (!__instance.isPlayerControlled) { return; }
 
-            if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
+            /*if (SCP956.PlayerAge < 12 && ___inTerminalMenu)
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }
+            }*/
 
             timeSinceLastCheck += Time.deltaTime;
             if (timeSinceLastCheck > 0.3f)
             {
                 timeSinceLastCheck = 0f;
+
+                AudioSource _audioSource = HUDManager.Instance.UIAudio;
+                _audioSource.clip = WarningSoundsfx;
+
                 if (PlayerMeetsConditions(__instance))
                 {
                     if (!warningStarted)
                     {
-                        __instance.movementAudio.clip = WarningSoundsfx; // TODO: might need to change audio source later, might cause unexpected behavior
                         float pitch;
                         if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(__instance)) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
-                        __instance.movementAudio.pitch = pitch; // TODO: This doesnt extend the audio clip like expected
-                        if (!configPlayWarningSound.Value) { __instance.movementAudio.volume = 0f; } else { __instance.movementAudio.volume = 1f; }
-                        __instance.movementAudio.Play();
+                        _audioSource.pitch = pitch;
+                        if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
+                        _audioSource.loop = false;
+                        _audioSource.Play();
 
                         warningStarted = true;
                     }
 
-                    if (!__instance.movementAudio.isPlaying)
+                    if (!_audioSource.isPlaying)
                     {
                         // Freeze player
                         playerFrozen = true;
                         warningStarted = false;
                         NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(__instance.actualClientId);
 
-                        //IngamePlayerSettings.Instance.playerInput.DeactivateInput(); // TODO: Testing change these back later
-                        //__instance.disableLookInput = true;
-                        //if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
+                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
+                        __instance.disableLookInput = true;
+                        if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
                     }
                 }
                 else if (warningStarted)
                 {
                     warningStarted = false;
-                    __instance.movementAudio.Stop();
+                    _audioSource.Stop();
                 }
             }
         }
