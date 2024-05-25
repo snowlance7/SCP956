@@ -88,8 +88,6 @@ namespace SCP956.Patches
 
         public static bool IsPlayerHoldingCandy(PlayerControllerB player)
         {
-            logger.LogDebug(player.ItemSlots);
-            logger.LogDebug(player.ItemSlots.Count());
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }

@@ -20,7 +20,7 @@ namespace SCP956
             if (buttonDown)
             {
                 logger.LogDebug("Eating candy");
-                // TODO: Set up tooltips
+                // TODO: Set up tooltips in unity editor
                 HUDManager.Instance.UIAudio.PlayOneShot(CandyCrunchsfx, 1f);
                 
 

@@ -56,7 +56,7 @@ namespace SCP956
                     obj.GetComponent<AudioSource>().PlayOneShot(CakeAppearsfx, 1f);
                 }
 
-                // Blow out the candles
+                // Blow out the candles // TODO: Doesnt work for other clients...
 
                 PlayerControllerB tempPlayer = playerHeldBy;
                 int newScrapValue2 = scrapValue / 2;

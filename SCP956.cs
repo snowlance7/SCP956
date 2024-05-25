@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace SCP956
-{
+{ // TODO: LOTS OF NETWORK ERRORS WTF
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
     public class SCP956 : BaseUnityPlugin
@@ -95,16 +95,16 @@ namespace SCP956
 
             // Configs
             // Rarity
-            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
-            configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
-            configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "VowLevelRarity", 10, "Vow Level Rarity");
-            configOffenseLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OffenseLevelRarity", 30, "Offense Level Rarity");
-            configMarchLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "MarchLevelRarity", 50, "March Level Rarity");
-            configRendLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "RendLevelRarity", 50, "Rend Level Rarity");
-            configDineLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "DineLevelRarity", 50, "Dine Level Rarity");
-            configTitanLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "TitanLevelRarity", 80, "Titan Level Rarity");
-            configModdedLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "ModdedLevelRarity", 30, "Modded Level Rarity");
-            configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 0-1)", "OtherLevelRarity", 30, "Other Level Rarity");
+            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
+            configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
+            configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "VowLevelRarity", 10, "Vow Level Rarity");
+            configOffenseLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "OffenseLevelRarity", 30, "Offense Level Rarity");
+            configMarchLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "MarchLevelRarity", 50, "March Level Rarity");
+            configRendLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "RendLevelRarity", 50, "Rend Level Rarity");
+            configDineLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "DineLevelRarity", 50, "Dine Level Rarity");
+            configTitanLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "TitanLevelRarity", 80, "Titan Level Rarity");
+            configModdedLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "ModdedLevelRarity", 30, "Modded Level Rarity");
+            configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "OtherLevelRarity", 30, "Other Level Rarity");
 
             // General Configs
             config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
