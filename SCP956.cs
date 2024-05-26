@@ -108,14 +108,14 @@ namespace SCP956
             configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "OtherLevelRarity", 30, "Other Level Rarity");
 
             // General Configs
-            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 4, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
+            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 1, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
                 "1 - Default: Kills players under the age of 12.\n" +
                 "2 - Secret Lab: Candy causes random effects (coming soon) but 956 targets players holding candy and under the age of 12.\n" +
                 "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "4 - All: 956 targets all players.");
             config956Radius = Config.Bind("General", "ActivationRadius", 10f, "The radius around 956 that will activate 956.");
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
-            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
+            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met.");
             configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
             // SCP-956-1 Configs
@@ -123,7 +123,7 @@ namespace SCP956
             config9561MaxValue = Config.Bind("SCP-956-1", "SCP-956-1 Max Value", 15, "The maximum scrap value of the candy");
             config9561MinSpawn = Config.Bind("SCP-956-1", "Min Candy Spawn", 5, "The minimum amount of SCP-956-1 to spawn when player dies to SCP-956");
             config9561MaxSpawn = Config.Bind("SCP-956-1", "Max Candy Spawn", 20, "The maximum amount of SCP-956-1 to spawn when player dies to SCP-956");
-            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 5, "The chance of the Player being killed by SCP-956-1");
+            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 10, "The chance of the Player being killed by SCP-956-1");
             
             // SCP-559 Configs
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");

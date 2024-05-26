@@ -17,7 +17,7 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                //if (PlayerAge == 11) { return; }
+                if (PlayerAge == 11) { return; }
                 HUDManager.Instance.UIAudio.PlayOneShot(CandleBlowsfx, 1f);
                 SCP956.PlayerAge = 11;
 

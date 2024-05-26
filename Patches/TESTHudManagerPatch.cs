@@ -28,8 +28,8 @@ namespace SCP956.Patches
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
-            logger.LogDebug(StartOfRound.Instance.localPlayerController.thisPlayerBody.position);
-            logger.LogDebug(PlayerAge);
+            //logger.LogDebug(StartOfRound.Instance.localPlayerController.thisPlayerBody.position);
+            //logger.LogDebug(PlayerAge);
 
 
             /*logger.LogDebug("In PingScan_performedPostFix");

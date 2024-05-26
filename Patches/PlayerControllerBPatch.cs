@@ -24,11 +24,11 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            if (___inTerminalMenu) // TODO: Test this
+            /*if (___inTerminalMenu) // TODO: Test this
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, 0.29f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }
+            }*/
 
             PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
             if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null || !localPlayer.isPlayerControlled) { return; }
