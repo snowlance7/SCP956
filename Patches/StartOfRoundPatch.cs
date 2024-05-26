@@ -24,7 +24,7 @@ namespace SCP956.Patches
 
                 if (PlayerAge < 12)
                 {
-                    NetworkHandler.Instance.ShrinkPlayer(StartOfRound.Instance.localPlayerController.actualClientId);
+                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.8f);
                 }
             }
             else

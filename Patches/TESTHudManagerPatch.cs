@@ -15,6 +15,7 @@ using Unity.Netcode;
 using GameNetcodeStuff;
 using static UnityEngine.ParticleSystem.PlaybackState;
 using Unity.Mathematics;
+using UnityEngine;
 
 namespace SCP956.Patches
 {
@@ -27,7 +28,10 @@ namespace SCP956.Patches
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
+            logger.LogDebug(StartOfRound.Instance.localPlayerController.thisPlayerBody.position);
             logger.LogDebug(PlayerAge);
+
+
             /*logger.LogDebug("In PingScan_performedPostFix");
             foreach (EnemyAI enemy in RoundManager.Instance.SpawnedEnemies)
             {

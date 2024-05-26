@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using BepInEx.Logging;
 using GameNetcodeStuff;
@@ -29,37 +30,51 @@ namespace SCP956
             base.OnNetworkSpawn();
         }
 
-        public void ShrinkPlayer(ulong clientId)
+        /*[ClientRpc]
+        private void GrabObjectClientRpc(int id, ulong clientId)
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                ShrinkPlayerClientRpc(clientId);
-            }
-            else
-            {
-                ShrinkPlayerServerRpc(clientId);
-            }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        private void ShrinkPlayerServerRpc(ulong clientId)
-        {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                ShrinkPlayerClientRpc(clientId);
-            }
-        }
+            player.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f);
+            player.GrabObjectServerRpc(grabbableItem.NetworkObject);
+            grabbableItem.parentObject = player.localItemHolder;
+            grabbableItem.GrabItemOnClient();
+        }*/
 
         [ClientRpc]
-        private void ShrinkPlayerClientRpc(ulong clientId)
+        private void ChangePlayerSizeClientRpc(ulong clientId, float size)
         {
             PlayerControllerB playerHeldBy = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
 
-            playerHeldBy.thisPlayerBody.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+            playerHeldBy.thisPlayerBody.localScale = new Vector3(size, size, size);
             //playerHeldBy.playerGlobalHead.localScale = new Vector3(2f, 2f, 2f);
             //playerHeldBy.usernameBillboard.position = new Vector3(playerHeldBy.usernameBillboard.position.x, playerHeldBy.usernameBillboard.position.y + 0.23f, playerHeldBy.usernameBillboard.position.z);
             //playerHeldBy.usernameBillboard.localScale *= 1.5f;
             //playerHeldBy.gameplayCamera.transform.GetChild(0).position = new Vector3(playerHeldBy.gameplayCamera.transform.GetChild(0).position.x, playerHeldBy.gameplayCamera.transform.GetChild(0).position.y - 0.026f, playerHeldBy.gameplayCamera.transform.GetChild(0).position.z + 0.032f);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnPinataServerRpc()
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                SpawnableEnemyWithRarity enemy = RoundManager.Instance.currentLevel.Enemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
+                List<EnemyVent> vents = RoundManager.Instance.allEnemyVents.ToList();
+                EnemyVent vent = vents[UnityEngine.Random.Range(0, vents.Count)];
+
+                vent.enemyTypeIndex = RoundManager.Instance.currentLevel.Enemies.IndexOf(enemy);
+                vent.enemyType = enemy.enemyType;
+
+                RoundManager.Instance.SpawnEnemyFromVent(vent);
+                logger.LogDebug("Spawned SCP-956 from vent");
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void ChangePlayerSizeServerRpc(ulong clientId, float size)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                ChangePlayerSizeClientRpc(clientId, size);
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -71,6 +86,25 @@ namespace SCP956
                 FrozenPlayers.Add(clientId);
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnItemServerRpc(string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == _itemName).FirstOrDefault();
+
+                GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
+                obj.GetComponent<GrabbableObject>().fallTime = 0f;
+                obj.GetComponent<GrabbableObject>().SetScrapValue(newValue);
+                obj.GetComponent<NetworkObject>().Spawn();
+
+                if (playCakeSFX)
+                {
+                    obj.GetComponent<AudioSource>().PlayOneShot(CakeAppearsfx);
+                }
+            }
+        } // TODO: Figure out how to spawn cake in players hand instead of on the floor
     }
 
     [HarmonyPatch]

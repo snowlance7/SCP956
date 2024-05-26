@@ -14,7 +14,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace SCP956
-{ // TODO: LOTS OF NETWORK ERRORS WTF
+{
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
     public class SCP956 : BaseUnityPlugin
@@ -28,10 +28,13 @@ namespace SCP956
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;
 
+        public static List<string> CandyNames;
+
 
         public static AssetBundle? ModAssets;
 
-        public static AudioClip? WarningSoundsfx;
+        public static AudioClip? WarningSoundShortsfx;
+        public static AudioClip? WarningSoundLongsfx;
         public static AudioClip? BoneCracksfx;
         public static AudioClip? PlayerDeathsfx;
         public static AudioClip? CandyCrunchsfx;
@@ -61,8 +64,6 @@ namespace SCP956
         public static ConfigEntry<float> config956Radius;
         public static ConfigEntry<int> configMaxAge;
         public static ConfigEntry<bool> configPlayWarningSound;
-        public static ConfigEntry<float> configActivationTime;
-        public static ConfigEntry<float> configActivationTimeCandy;
         public static ConfigEntry<int> configHeadbuttDamage;
 
         // SCP0956-1 Configs
@@ -115,8 +116,6 @@ namespace SCP956
             config956Radius = Config.Bind("General", "ActivationRadius", 10f, "The radius around 956 that will activate 956.");
             configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
             configPlayWarningSound = Config.Bind("General", "Play Warning Sound", false, "Play warning sound when inside 956s radius and conditions are met.");
-            configActivationTime = Config.Bind("General", "Activation Time", 6f, "How long it takes for 956 to activate.");
-            configActivationTimeCandy = Config.Bind("General", "Activation Time Candy", 20f, "How long it takes for 956 to activate when holding candy. Only used when behavior is 2.");
             configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
             // SCP-956-1 Configs
@@ -143,43 +142,53 @@ namespace SCP956
             LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "mod_assets")}");
 
             // Getting Audio
-            WarningSoundsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.wav");
+            WarningSoundShortsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");
+            WarningSoundLongsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningLong.mp3");
             BoneCracksfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/bone-crack.mp3");
             PlayerDeathsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3");
             CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
             CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
             CakeAppearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_appear.wav");
             EatCakesfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/Cake_Eat.wav");
+            if (EatCakesfx == null) { Logger.LogError("EatCakesfx is null"); return; }
+            if (CandleBlowsfx == null) { Logger.LogError("CandleBlowsfx is null"); return; }
+            if (CakeAppearsfx == null) { Logger.LogError("CakeAppearsfx is null"); return; }
+            if (BoneCracksfx == null) { Logger.LogError("BoneCracksfx is null"); return; }
+            if (PlayerDeathsfx == null) { Logger.LogError("PlayerDeathsfx is null"); return; }
+            if (CandyCrunchsfx == null) { Logger.LogError("CandyCrunchsfx is null"); return; }
+            if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); return; }
+            if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); return; }
+            LoggerInstance.LogDebug($"Got sounds from assets");
 
             // Getting SCP-559
+            Item SCP559 = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/SCP559Item.asset");
+            if (SCP559 == null) { LoggerInstance.LogError("Error: Couldnt get SCP559 from assets"); return; }
+            LoggerInstance.LogDebug($"Got SCP559 prefab");
+
+            SCP559Behavior SCP559BehaviorScript = SCP559.spawnPrefab.AddComponent<SCP559Behavior>();
+
+            SCP559BehaviorScript.grabbable = true;
+            SCP559BehaviorScript.itemProperties = SCP559;
+            SCP559.minValue = config559MinValue.Value;
+            SCP559.maxValue = config559MaxValue.Value;
+
+            NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
+            Utilities.FixMixerGroups(SCP559.spawnPrefab);
+            Items.RegisterScrap(SCP559, config559Rarity.Value, Levels.LevelTypes.All);
+
+            // Getting Cake
             Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
             if (Cake == null) { LoggerInstance.LogError("Error: Couldnt get cake from assets"); return; }
             LoggerInstance.LogDebug($"Got Cake prefab");
 
-            CakeBehavior SCP559BehaviorScript = Cake.spawnPrefab.AddComponent<CakeBehavior>();
+            CakeBehavior CakeBehaviorScript = Cake.spawnPrefab.AddComponent<CakeBehavior>();
 
-            SCP559BehaviorScript.grabbable = true;
-            SCP559BehaviorScript.itemProperties = Cake;
-            Cake.minValue = config559MinValue.Value;
-            Cake.maxValue = config559MaxValue.Value;
+            CakeBehaviorScript.grabbable = true;
+            CakeBehaviorScript.itemProperties = Cake;
 
             NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
             Utilities.FixMixerGroups(Cake.spawnPrefab);
-            Items.RegisterScrap(Cake, config559Rarity.Value, Levels.LevelTypes.All);
-
-            // Getting Cake
-            Item CakeBlown = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeBlownItem.asset");
-            if (CakeBlown == null) { LoggerInstance.LogError("Error: Couldnt get cakeblown from assets"); return; }
-            LoggerInstance.LogDebug($"Got CakeBlown prefab");
-
-            CakeBlownBehavior SCP559BehaviorScript2 = CakeBlown.spawnPrefab.AddComponent<CakeBlownBehavior>();
-
-            SCP559BehaviorScript2.grabbable = true;
-            SCP559BehaviorScript2.itemProperties = Cake;
-
-            NetworkPrefabs.RegisterNetworkPrefab(CakeBlown.spawnPrefab);
-            Utilities.FixMixerGroups(CakeBlown.spawnPrefab);
-            Items.RegisterScrap(CakeBlown);
+            Items.RegisterScrap(Cake);
 
             // Getting Candy // TODO: Simplify this
             CandyBehavior candyScript;
@@ -244,6 +253,8 @@ namespace SCP956
             NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
             Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
             Items.RegisterScrap(CandyBlue);
+
+            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName };
 
             // Getting enemy
             EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset");

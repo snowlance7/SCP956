@@ -10,6 +10,7 @@ using Unity.Netcode;
 using System.Linq;
 using static UnityEngine.ParticleSystem.PlaybackState;
 using Unity.Mathematics;
+using GameNetcodeStuff;
 
 namespace SCP956.Patches
 {
@@ -63,6 +64,7 @@ namespace SCP956.Patches
         private static void DespawnPropsAtEndOfRoundPatch()
         {
             logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
+            PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
             PlayerControllerBPatch.playerFrozen = false;
             IngamePlayerSettings.Instance.playerInput.ActivateInput();
             StartOfRound.Instance.localPlayerController.disableLookInput = false;
@@ -70,6 +72,21 @@ namespace SCP956.Patches
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 NetworkHandler.Instance.FrozenPlayers.Clear();
+            }
+
+            if (config956Behavior.Value != 3)
+            {
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("GenerateNewFloor")]
+        private static void GenerateNewFloorPatch()
+        {
+            if (PlayerAge < 12 && RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
+            {
+                NetworkHandler.Instance.SpawnPinataServerRpc();
             }
         }
     }

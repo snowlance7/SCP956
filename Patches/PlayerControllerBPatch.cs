@@ -24,15 +24,14 @@ namespace SCP956.Patches
         [HarmonyPatch("Update")]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null) { return; }
-            PlayerControllerB __instance = StartOfRound.Instance.localPlayerController;
-            if (!__instance.isPlayerControlled) { return; }
-
-            /*if (SCP956.PlayerAge < 12 && ___inTerminalMenu) // TODO: Figure this out
+            if (___inTerminalMenu) // TODO: Test this
             {
-                ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, ___thisPlayerBody.position.y + 0.7f, ___thisPlayerBody.position.z);
+                ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, 0.29f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }*/
+            }
+
+            PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
+            if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null || !localPlayer.isPlayerControlled) { return; }
 
             timeSinceLastCheck += Time.deltaTime;
             if (timeSinceLastCheck > 0.3f)
@@ -40,15 +39,14 @@ namespace SCP956.Patches
                 timeSinceLastCheck = 0f;
 
                 AudioSource _audioSource = HUDManager.Instance.UIAudio;
-                _audioSource.clip = WarningSoundsfx;
 
-                if (PlayerMeetsConditions(__instance))
+                if (PlayerMeetsConditions(localPlayer))
                 {
+                    logger.LogDebug($"Warning started: {warningStarted}");
                     if (!warningStarted)
                     {
-                        float pitch;
-                        if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(__instance)) { pitch = WarningSoundsfx.length / configActivationTimeCandy.Value; } else { pitch = WarningSoundsfx.length / configActivationTime.Value; }
-                        _audioSource.pitch = pitch;
+                        if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
+                        if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
                         if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
                         _audioSource.loop = false;
                         _audioSource.Play();
@@ -58,27 +56,29 @@ namespace SCP956.Patches
 
                     if (!_audioSource.isPlaying)
                     {
-                        // Freeze player
+                        logger.LogDebug("audio stopped");
+                        // Freeze localPlayer
                         playerFrozen = true;
                         warningStarted = false;
-                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(__instance.actualClientId);
+                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
 
                         IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        __instance.disableLookInput = true;
-                        if (__instance.currentlyHeldObject != null) { __instance.DropItemAheadOfPlayer(); }
+                        localPlayer.disableLookInput = true;
+                        if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
                     }
                 }
                 else if (warningStarted)
                 {
+                    logger.LogDebug("Warning ended");
                     warningStarted = false;
                     _audioSource.Stop();
                 }
             }
         }
 
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch("SpawnDeadBody")]
-        private static void SpawnDeadBodyPatch(ref DeadBodyInfo ___deadBody)
+        private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
         {
             if (SCP956.PlayerAge < 12)
             {
@@ -91,7 +91,7 @@ namespace SCP956.Patches
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (item.itemProperties.itemName == "CandyRed" || item.itemProperties.itemName == "CandyPink" || item.itemProperties.itemName == "CandyYellow" || item.itemProperties.itemName == "CandyPurple" || item.itemProperties.itemName == "CandyGreen" || item.itemProperties.itemName == "CandyBlue")
+                if (CandyNames.Contains(item.itemProperties.itemName))
                 {
                     return true;
                 }
@@ -101,7 +101,7 @@ namespace SCP956.Patches
 
         public static bool PlayerMeetsConditions(PlayerControllerB player)
         {
-            if (PlayerAge < 12 || (config956Behavior.Value == 4) || (config956Behavior.Value == 2 && IsPlayerHoldingCandy(player)))
+            if (PlayerAge < 12 || config956Behavior.Value == 4 || (config956Behavior.Value == 2 && IsPlayerHoldingCandy(player)))
             {
                 foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
                 {
