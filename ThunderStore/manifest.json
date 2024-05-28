@@ -1,6 +1,6 @@
 {
   "name": "SCP956",
-  "version_number": "0.1.0",
+  "version_number": "0.1.1",
   "website_url": "https://ko-fi.com/snowlance",
   "description": "Adds a pinata to the game",
   "dependencies": [

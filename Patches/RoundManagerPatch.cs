@@ -76,6 +76,7 @@ namespace SCP956.Patches
 
             if (config956Behavior.Value != 3)
             {
+                PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
             }
         }
