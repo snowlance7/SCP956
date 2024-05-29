@@ -18,10 +18,11 @@ namespace SCP956
             if (buttonDown)
             {
                 if (PlayerAge == 11) { return; }
+                PlayerControllerB currentPlayer = StartOfRound.Instance.localPlayerController;
                 HUDManager.Instance.UIAudio.PlayOneShot(CandleBlowsfx, 1f);
                 SCP956.PlayerAge = 11;
 
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.8f);
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(currentPlayer.actualClientId, 0.8f);
 
                 // Spawn cake somewhere else
 
@@ -42,7 +43,7 @@ namespace SCP956
 
                     int newScrapValue = GetComponent<GrabbableObject>().scrapValue + 50;
                     logger.LogDebug("Spawning SCP-559");
-                    NetworkHandler.Instance.SpawnItemServerRpc(itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
+                    NetworkHandler.Instance.SpawnItemServerRpc(currentPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
                 }
 
                 // Blow out the candles
@@ -50,9 +51,11 @@ namespace SCP956
                 PlayerControllerB tempPlayer = playerHeldBy;
                 int newScrapValue2 = scrapValue / 2;
                 playerHeldBy.DespawnHeldObject();
+
+                // Spawn cake
                 Item Cake = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "Cake").FirstOrDefault();
                 logger.LogDebug("Spawning cake");
-                NetworkHandler.Instance.SpawnItemServerRpc(Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity);
+                NetworkHandler.Instance.SpawnItemServerRpc(currentPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, false, true);
                 
                 // Spawn SCP-956 if not already spawned
                 if (!StartOfRound.Instance.inShipPhase)

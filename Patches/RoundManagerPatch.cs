@@ -85,9 +85,9 @@ namespace SCP956.Patches
         [HarmonyPatch("GenerateNewFloor")]
         private static void GenerateNewFloorPatch()
         {
-            if (PlayerAge < 12 && RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
+            if (PlayerAge < 12)
             {
-                NetworkHandler.Instance.SpawnPinataServerRpc();
+                NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: This is causing errors
             }
         }
     }

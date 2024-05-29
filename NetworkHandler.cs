@@ -30,14 +30,20 @@ namespace SCP956
             base.OnNetworkSpawn();
         }
 
-        /*[ClientRpc]
-        private void GrabObjectClientRpc(int id, ulong clientId)
+        [ClientRpc]
+        private void GrabObjectClientRpc(ulong id, ulong clientId)
         {
-            player.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f);
-            player.GrabObjectServerRpc(grabbableItem.NetworkObject);
-            grabbableItem.parentObject = player.localItemHolder;
-            grabbableItem.GrabItemOnClient();
-        }*/
+            if (clientId == CurrentClient.actualClientId)
+            {
+                PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
+                GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
+
+                player.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f);
+                player.GrabObjectServerRpc(grabbableItem.NetworkObject);
+                grabbableItem.parentObject = player.localItemHolder;
+                grabbableItem.GrabItemOnClient();
+            }
+        }
 
         [ClientRpc]
         private void ChangePlayerSizeClientRpc(ulong clientId, float size)
@@ -52,16 +58,22 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnPinataServerRpc()
+        public void SpawnPinataServerRpc() // TODO: Causing errors during generatenewfloor patch
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 SpawnableEnemyWithRarity enemy = RoundManager.Instance.currentLevel.Enemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
+                logger.LogDebug("Found enemy: " + enemy);
+
                 List<EnemyVent> vents = RoundManager.Instance.allEnemyVents.ToList();
+                logger.LogDebug("Found vents: " + vents.Count);
+
                 EnemyVent vent = vents[UnityEngine.Random.Range(0, vents.Count)];
+                logger.LogDebug("Selected vent: " + vent);
 
                 vent.enemyTypeIndex = RoundManager.Instance.currentLevel.Enemies.IndexOf(enemy);
                 vent.enemyType = enemy.enemyType;
+                logger.LogDebug("Updated vent with enemy type index: " + vent.enemyTypeIndex + " and enemy type: " + vent.enemyType);
 
                 RoundManager.Instance.SpawnEnemyFromVent(vent);
                 logger.LogDebug("Spawned SCP-956 from vent");
@@ -88,7 +100,7 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false)
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
@@ -98,6 +110,11 @@ namespace SCP956
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 obj.GetComponent<GrabbableObject>().SetScrapValue(newValue);
                 obj.GetComponent<NetworkObject>().Spawn();
+
+                if (grabItem)
+                {
+                    GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
+                }
 
                 if (playCakeSFX)
                 {

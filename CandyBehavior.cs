@@ -7,6 +7,7 @@ using static SCP956.SCP956;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Timeline;
+using System.Collections;
 
 namespace SCP956
 {
@@ -33,6 +34,7 @@ namespace SCP956
 
                     if (config956Behavior.Value == 2)
                     {
+                        
                         // TODO: Create random effect like in secret lab
                         // Blue:
                         //      gives 30 hp and goes over max health limit
@@ -63,6 +65,11 @@ namespace SCP956
 
                 playerHeldBy.DespawnHeldObject();
             }
+        }
+
+        public IEnumerator HealthRegen()
+        {
+            yield return new WaitForSeconds(10f);
         }
     }
 }

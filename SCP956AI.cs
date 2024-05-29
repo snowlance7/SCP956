@@ -142,7 +142,7 @@ namespace SCP956
                 {
                     Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
                     int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
-                    NetworkHandler.Instance.SpawnItemServerRpc(candies[UnityEngine.Random.Range(0, 6)].itemName, scrapValue, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f));
+                    NetworkHandler.Instance.SpawnItemServerRpc(0, candies[UnityEngine.Random.Range(0, 6)].itemName, scrapValue, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f));
                 }
 
                 NetworkHandler.Instance.FrozenPlayers.Remove(player.actualClientId);
