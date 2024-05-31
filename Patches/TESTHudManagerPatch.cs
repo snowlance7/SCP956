@@ -24,10 +24,17 @@ namespace SCP956.Patches
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
+        private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
+
         [HarmonyPostfix]
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
+            StatusEffectController.Instance.StatusNegation();
+            //logger.LogDebug("In PingScan_performedPostFix");
+            //logger.LogDebug($"isMovementHindered: {localPlayer.isMovementHindered} movementHinderedPrev: {localPlayer.movementHinderedPrev} hinderedMultiplier: {localPlayer.hinderedMultiplier}");
+            //StatusEffectController.Instance.HealthRegen(10, 15);
+            //StatusEffectController.Instance.HealthRegen(20, 50);
             //logger.LogDebug(StartOfRound.Instance.localPlayerController.thisPlayerBody.position);
             //logger.LogDebug(PlayerAge);
 

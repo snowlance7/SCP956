@@ -63,31 +63,40 @@ namespace SCP956.Patches
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
         private static void DespawnPropsAtEndOfRoundPatch()
         {
-            logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
-            PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
-            PlayerControllerBPatch.playerFrozen = false;
-            IngamePlayerSettings.Instance.playerInput.ActivateInput();
-            StartOfRound.Instance.localPlayerController.disableLookInput = false;
-
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            firstTime = true;
+            try
             {
-                NetworkHandler.Instance.FrozenPlayers.Clear();
+                logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
+                PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
+                PlayerControllerBPatch.playerFrozen = false;
+                IngamePlayerSettings.Instance.playerInput.ActivateInput();
+                StartOfRound.Instance.localPlayerController.disableLookInput = false;
+
+                if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+                {
+                    NetworkHandler.Instance.FrozenPlayers.Clear();
+                }
+
+                if (config956Behavior.Value != 3)
+                {
+                    PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
+                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
+                }
             }
-
-            if (config956Behavior.Value != 3)
+            catch (Exception)
             {
-                PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
+                logger.LogError("Error in DespawnPropsAtEndOfRound");
             }
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("GenerateNewFloor")]
-        private static void GenerateNewFloorPatch()
+        [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
+        private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
         {
-            if (PlayerAge < 12)
+            if (PlayerAge < 12 && firstTime)
             {
-                NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: This is causing errors
+                NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: Needs testing
+                firstTime = false;
             }
         }
     }

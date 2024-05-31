@@ -76,7 +76,7 @@ namespace SCP956
             }
         }
         
-        public override void DoAIInterval()
+        public override void DoAIInterval() // TODO: Make it so if player isnt frozen but in list because of statusnegation, it will get angry and chase them faster and in longer range?
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
@@ -90,7 +90,7 @@ namespace SCP956
                     agent.speed = 0f;
                     if (TargetFrozenPlayerInRange(config956Radius.Value))
                     {
-                        logger.LogDebug("Start Killing Players");
+                        logger.LogDebug("Start Killing Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }

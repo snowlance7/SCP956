@@ -8,6 +8,7 @@ using HarmonyLib;
 using UnityEngine;
 using static SCP956.SCP956;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
 
 namespace SCP956.Patches
 {
@@ -20,24 +21,32 @@ namespace SCP956.Patches
 
         private static ManualLogSource logger = LoggerInstance;
 
+        private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
+
         [HarmonyPostfix]
-        [HarmonyPatch("Update")]
+        [HarmonyPatch(nameof(PlayerControllerB.Update))]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            /*if (___inTerminalMenu) // TODO: Test this
+            if (___inTerminalMenu) // TODO: Test this
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, 0.29f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }*/
+            }
 
-            PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
-            if (playerFrozen || StartOfRound.Instance == null || StartOfRound.Instance.localPlayerController == null || !localPlayer.isPlayerControlled) { return; }
+            if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
+            {
+                playerFrozen = false;
+                return;
+            }
+
+            if (playerFrozen) { return; }
+
+            if (StatusEffectController.Instance.infiniteSprintActive) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
 
             timeSinceLastCheck += Time.deltaTime;
             if (timeSinceLastCheck > 0.3f)
             {
                 timeSinceLastCheck = 0f;
-
                 AudioSource _audioSource = HUDManager.Instance.UIAudio;
 
                 if (PlayerMeetsConditions(localPlayer))
@@ -58,7 +67,7 @@ namespace SCP956.Patches
                     {
                         logger.LogDebug("audio stopped");
                         // Freeze localPlayer
-                        playerFrozen = true;
+                        playerFrozen = true; // TODO: Make sure this isnt freezing other players as well
                         warningStarted = false;
                         NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
 
@@ -66,24 +75,52 @@ namespace SCP956.Patches
                         localPlayer.disableLookInput = true;
                         if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
                     }
-                }
-                else if (warningStarted)
-                {
-                    logger.LogDebug("Warning ended");
-                    warningStarted = false;
-                    _audioSource.Stop();
+                    else if (warningStarted)
+                    {
+                        logger.LogDebug("Warning ended");
+                        warningStarted = false;
+                        _audioSource.Stop();
+                    }
                 }
             }
         }
 
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlayerControllerB.Update))]
+        private static void UpdatePrefix()
+        {
+            if (StatusEffectController.Instance.statusNegationActive)
+            {
+                localPlayer.bleedingHeavily = false;
+                localPlayer.criticallyInjured = false;
+                localPlayer.isMovementHindered = 0;
+                localPlayer.isExhausted = false;
+            }
+        }
+
         [HarmonyPostfix]
-        [HarmonyPatch("SpawnDeadBody")]
+        [HarmonyPatch(nameof(PlayerControllerB.SpawnDeadBody))]
         private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
         {
             if (SCP956.PlayerAge < 12)
             {
                 ___deadBody.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
             }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
+        private static void DamagePlayerPrefix(ref int damageNumber)
+        {
+            if (StatusEffectController.Instance.damageReductionActive) { damageNumber = Convert.ToInt32((float)damageNumber - ((float)damageNumber * .20)); }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlayerControllerB.KillPlayer))]
+        private static void KillPlayerPostfix(PlayerControllerB __instance)
+        {
+            __instance.disableLookInput = false;
+            IngamePlayerSettings.Instance.playerInput.ActivateInput(); // TODO: Make sure this isnt activating other players as well
         }
 
         public static bool IsPlayerHoldingCandy(PlayerControllerB player)

@@ -11,7 +11,7 @@ using System.Collections;
 
 namespace SCP956
 {
-    internal class CandyBehavior : PhysicsProp
+    public class CandyBehavior : PhysicsProp
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
@@ -29,12 +29,43 @@ namespace SCP956
                 {
                     if ((int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
                     {
-                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3); // TODO: Make this always do seizure animation but kill when chance is met
+                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
+                        return;
                     }
 
                     if (config956Behavior.Value == 2)
                     {
-                        
+                        switch (itemProperties.itemName)
+                        {
+                            case "Blue Candy":
+                                logger.LogDebug("Candy blue");
+                                playerHeldBy.health += 30;
+                                break;
+                            case "Green Candy":
+                                logger.LogDebug("Candy green");
+                                StatusEffectController.Instance.StatusNegation();
+                                StatusEffectController.Instance.HealthRegen(1, 80);
+                                break;
+                            case "Purple Candy":
+                                logger.LogDebug("Candy purple");
+                                StatusEffectController.Instance.StatusNegation();
+                                StatusEffectController.Instance.HealthRegen(2, 10);
+                                break;
+                            case "Red Candy":
+                                logger.LogDebug("Candy red");
+                                StatusEffectController.Instance.HealthRegen(9, 5);
+                                break;
+                            case "Yellow Candy":
+                                logger.LogDebug("Candy yellow");
+                                playerHeldBy.sprintMeter += playerHeldBy.sprintMeter / 4;
+                                StatusEffectController.Instance.InfiniteSprint();
+                                StatusEffectController.Instance.IncreasedMovementSpeed();
+                                break;
+                            case "Pink Candy":
+                                logger.LogDebug("Candy pink");
+                                Landmine.SpawnExplosion(playerHeldBy.transform.position, true, 3, 3);
+                                break;
+                        }
                         // TODO: Create random effect like in secret lab
                         // Blue:
                         //      gives 30 hp and goes over max health limit
@@ -65,11 +96,6 @@ namespace SCP956
 
                 playerHeldBy.DespawnHeldObject();
             }
-        }
-
-        public IEnumerator HealthRegen()
-        {
-            yield return new WaitForSeconds(10f);
         }
     }
 }
