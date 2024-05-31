@@ -15,6 +15,11 @@ namespace SCP956
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
+        //#pragma warning disable 0649
+        public bool pinataCandy = false;
+        //#pragma warning restore 0649
+        // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
+
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
@@ -39,17 +44,26 @@ namespace SCP956
                         {
                             case "Blue Candy":
                                 logger.LogDebug("Candy blue");
-                                playerHeldBy.health += 30;
+                                int newHealth = playerHeldBy.health + 30;
+                                playerHeldBy.health = newHealth;
                                 break;
                             case "Green Candy":
                                 logger.LogDebug("Candy green");
-                                StatusEffectController.Instance.StatusNegation();
+                                StatusEffectController.Instance.StatusNegation(30);
                                 StatusEffectController.Instance.HealthRegen(1, 80);
                                 break;
                             case "Purple Candy":
                                 logger.LogDebug("Candy purple");
-                                StatusEffectController.Instance.StatusNegation();
+                                StatusEffectController.Instance.DamageReduction(15, 20, true);
                                 StatusEffectController.Instance.HealthRegen(2, 10);
+                                break;
+                            case "Rainbow Candy":
+                                logger.LogDebug("Candy rainbow");
+                                StatusEffectController.Instance.HealPlayer(15);
+                                StatusEffectController.Instance.InfiniteSprint(5, true);
+                                StatusEffectController.Instance.bulletProofMultiplier += 1;
+                                StatusEffectController.Instance.StatusNegation(10);
+                                StatusEffectController.Instance.HealPlayer(20, true);
                                 break;
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
@@ -57,9 +71,9 @@ namespace SCP956
                                 break;
                             case "Yellow Candy":
                                 logger.LogDebug("Candy yellow");
-                                playerHeldBy.sprintMeter += playerHeldBy.sprintMeter / 4;
-                                StatusEffectController.Instance.InfiniteSprint();
-                                StatusEffectController.Instance.IncreasedMovementSpeed();
+                                StatusEffectController.Instance.RestoreStamina(25);
+                                StatusEffectController.Instance.InfiniteSprint(8);
+                                StatusEffectController.Instance.IncreasedMovementSpeed(8, 2, true, true);
                                 break;
                             case "Pink Candy":
                                 logger.LogDebug("Candy pink");
@@ -75,7 +89,12 @@ namespace SCP956
                         // Purple:
                         //      20% damage reduction for 15 seconds (time stackable)
                         //      hp regeneration for 10 seconds 1.5 hp per second 15 hp total
-                        // Rainbow: not added yet
+                        // Rainbow:
+                        //      15 hp
+                        //      infinite sprint for 5 seconds (stackable)
+                        //      damage reduction from turrets for the round
+                        //      Negate status effects for 10 seconds (not stackable)
+                        //      20 hp goes over max health limit
                         // Red:
                         //      HP regeneration for 5 seconds 9 hp per second 45 hp total
                         // Yellow:

@@ -65,65 +65,83 @@ namespace SCP956
         private Coroutine infiniteSprintCoroutine;
         private Coroutine increasedMovementSpeedCoroutine;
 
-        private int statusNegationSeconds = 0;
-        private int damageReductionSeconds = 0;
-        private int increasedMovementSpeedSeconds = 0;
+        public int statusNegationSeconds = 0;
+        public int damageReductionSeconds = 0;
+        public int infiniteSprintSeconds = 0;
+        public int increasedMovementSpeedSeconds = 0;
 
-        public bool statusNegationActive = false;
-        public bool damageReductionActive = false;
-        public bool infiniteSprintActive = false;
+        //public bool statusNegationActive = false;
+        //public bool damageReductionActive = false;
+        //public bool infiniteSprintActive = false;
+
+        public int damageReductionPercent = 0;
+        public int increasedMovementSpeedPercent = 0;
 
         public float freezeSprintMeter;
-        public float movementSpeedMultiplier = 1f;
         public const float baseMovementSpeed = 0.5f;
+        public bool bulletProof = false;
+        public int bulletProofMultiplier;
+
+        public void HealPlayer(int amount, bool overHeal = false)
+        {
+            int newHealth = LocalPlayer.health + amount;
+            if ((LocalPlayer.health + newHealth) > 100 && overHeal) { LocalPlayer.health = newHealth; }
+            else if (LocalPlayer.health >= 100) { return; }
+            else { LocalPlayer.health = 100; }
+        }
+
+        public void RestoreStamina(int percent)
+        {
+            // TODO: Implement this
+        }
 
         public void HealthRegen(int hpPerSecond, int seconds)
         {
             StartCoroutine(HealthRegenCoroutine(hpPerSecond, seconds));
         }
 
-        public void StatusNegation()
+        public void StatusNegation(int seconds, bool timeStackable = false) // TODO: Simplify all of these // TODO: Make sure these dont stop when scene changes
         {
             if (statusNegationCoroutine != null)
             {
-                statusNegationSeconds += 30;
+                if (timeStackable) { statusNegationSeconds += seconds; return; }
+                StopCoroutine(statusNegationCoroutine);
             }
-            else
-            {
-                statusNegationCoroutine = StartCoroutine(StatusNegationCoroutine());
-            }
+            statusNegationCoroutine = StartCoroutine(StatusNegationCoroutine(seconds));
         }
 
-        public void DamageReduction()
+        public void DamageReduction(int seconds, int percent, bool timeStackable = false, bool stackable = false)
         {
             if (damageReductionCoroutine != null)
             {
-                damageReductionSeconds += 15;
+                if (timeStackable) { damageReductionSeconds += seconds; }
+                if (stackable) { damageReductionPercent += percent; }
+                if (timeStackable || stackable) { return; }
+                StopCoroutine(damageReductionCoroutine);
             }
-            else
-            {
-                damageReductionCoroutine = StartCoroutine(DamageReductionCoroutine());
-            }
+            damageReductionCoroutine = StartCoroutine(DamageReductionCoroutine(seconds));
         }
 
-        public void InfiniteSprint()
+        public void InfiniteSprint(int seconds, bool timeStackable = false)
         {
             if (infiniteSprintCoroutine != null)
             {
-                StopCoroutine(InfiniteSprintCoroutine());
+                if (timeStackable) { infiniteSprintSeconds += seconds; return; }
+                StopCoroutine(infiniteSprintCoroutine);
             }
-            infiniteSprintCoroutine = StartCoroutine(InfiniteSprintCoroutine());
+            infiniteSprintCoroutine = StartCoroutine(InfiniteSprintCoroutine(seconds));
         }
 
-        public void IncreasedMovementSpeed()
+        public void IncreasedMovementSpeed(int seconds, int percent, bool timeStackable = false, bool stackable = false)
         {
             if (increasedMovementSpeedCoroutine != null)
             {
-                StopCoroutine(IncreasedMovementSpeedCoroutine());
-                movementSpeedMultiplier += 0.01f;
-                increasedMovementSpeedSeconds += 8;
+                if (timeStackable) { increasedMovementSpeedSeconds += seconds; }
+                if (stackable) { increasedMovementSpeedPercent += percent; }
+                if (timeStackable || stackable) { return; }
+                StopCoroutine(increasedMovementSpeedCoroutine);
             }
-            increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine());
+            increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds));
         }
 
         private IEnumerator HealthRegenCoroutine(int hpPerSecond, int seconds)
@@ -140,52 +158,59 @@ namespace SCP956
             }
         }
 
-        private IEnumerator StatusNegationCoroutine()
+        private IEnumerator StatusNegationCoroutine(int seconds)
         {
-            statusNegationSeconds = 30;
-            statusNegationActive = true;
+            statusNegationSeconds = seconds;
+            //statusNegationActive = true;
             while (statusNegationSeconds > 0)
             {
                 statusNegationSeconds--;
                 yield return new WaitForSecondsRealtime(1f);
             }
-            statusNegationActive = false;
+            //statusNegationActive = false;
             statusNegationCoroutine = null;
         }
 
-        private IEnumerator DamageReductionCoroutine()
+        private IEnumerator DamageReductionCoroutine(int seconds)
         {
-            damageReductionSeconds = 15;
-            damageReductionActive = true;
+            damageReductionSeconds = seconds;
+            //damageReductionActive = true;
             while (damageReductionSeconds > 0)
             {
                 damageReductionSeconds--;
                 yield return new WaitForSecondsRealtime(1f);
             }
-            damageReductionActive = false;
+            //damageReductionActive = false;
+            damageReductionPercent = 0;
             damageReductionCoroutine = null;
         }
 
-        private IEnumerator InfiniteSprintCoroutine()
+        private IEnumerator InfiniteSprintCoroutine(int seconds)
         {
-            infiniteSprintActive = true;
+            //infiniteSprintActive = true;
             freezeSprintMeter = LocalPlayer.sprintMeter;
-            yield return new WaitForSecondsRealtime(8f);
-            infiniteSprintActive = false;
+            infiniteSprintSeconds = seconds;
+            while (infiniteSprintSeconds > 0)
+            {
+                infiniteSprintSeconds--;
+                yield return new WaitForSecondsRealtime(1f);
+            }
+            //infiniteSprintActive = false;
             infiniteSprintCoroutine = null;
         }
 
-        private IEnumerator IncreasedMovementSpeedCoroutine()
+        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds)
         {
-            LocalPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
+            increasedMovementSpeedSeconds = seconds;
             while (increasedMovementSpeedSeconds > 0)
             {
+                float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100);
+                LocalPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
                 increasedMovementSpeedSeconds--;
                 yield return new WaitForSecondsRealtime(1f);
             }
-
+            increasedMovementSpeedPercent = 0;
             LocalPlayer.movementSpeed = baseMovementSpeed;
-            movementSpeedMultiplier = 1f;
             increasedMovementSpeedCoroutine = null;
         }
     }

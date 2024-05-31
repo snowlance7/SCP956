@@ -5,6 +5,7 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using LethalLib.Modules;
 using Steamworks.Data;
+using Steamworks.Ugc;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -165,10 +166,8 @@ namespace SCP956
             if (SCP559 == null) { LoggerInstance.LogError("Error: Couldnt get SCP559 from assets"); return; }
             LoggerInstance.LogDebug($"Got SCP559 prefab");
 
-            SCP559Behavior SCP559BehaviorScript = SCP559.spawnPrefab.AddComponent<SCP559Behavior>();
+            SCP559Behavior SCP559BehaviorScript = SCP559.spawnPrefab.GetComponent<SCP559Behavior>();
 
-            SCP559BehaviorScript.grabbable = true;
-            SCP559BehaviorScript.itemProperties = SCP559;
             SCP559.minValue = config559MinValue.Value;
             SCP559.maxValue = config559MaxValue.Value;
 
@@ -180,11 +179,6 @@ namespace SCP956
             Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
             if (Cake == null) { LoggerInstance.LogError("Error: Couldnt get cake from assets"); return; }
             LoggerInstance.LogDebug($"Got Cake prefab");
-
-            CakeBehavior CakeBehaviorScript = Cake.spawnPrefab.AddComponent<CakeBehavior>();
-
-            CakeBehaviorScript.grabbable = true;
-            CakeBehaviorScript.itemProperties = Cake;
 
             NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
             Utilities.FixMixerGroups(Cake.spawnPrefab);
@@ -199,62 +193,58 @@ namespace SCP956
             Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyYellowItem.asset");
             Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyGreenItem.asset");
             Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlueItem.asset");
+            Item CandyRainbow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRainbowItem.asset");
 
-            candyScript = CandyPink.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyPink;
+            candyScript = CandyPink.spawnPrefab.GetComponent<CandyBehavior>();
             CandyPink.minValue = config9561MinValue.Value;
             CandyPink.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
             Utilities.FixMixerGroups(CandyPink.spawnPrefab);
             Items.RegisterScrap(CandyPink);
 
-            candyScript = CandyPurple.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyPurple;
+            candyScript = CandyPurple.spawnPrefab.GetComponent<CandyBehavior>();
             CandyPurple.minValue = config9561MinValue.Value;
             CandyPurple.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPurple.spawnPrefab);
             Utilities.FixMixerGroups(CandyPurple.spawnPrefab);
             Items.RegisterScrap(CandyPurple);
 
-            candyScript = CandyRed.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyRed;
+            candyScript = CandyRed.spawnPrefab.GetComponent<CandyBehavior>();
             CandyRed.minValue = config9561MinValue.Value;
             CandyRed.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyRed.spawnPrefab);
             Utilities.FixMixerGroups(CandyRed.spawnPrefab);
             Items.RegisterScrap(CandyRed);
 
-            candyScript = CandyYellow.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyYellow;
+            candyScript = CandyYellow.spawnPrefab.GetComponent<CandyBehavior>();
             CandyYellow.minValue = config9561MinValue.Value;
             CandyYellow.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyYellow.spawnPrefab);
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
             Items.RegisterScrap(CandyYellow);
 
-            candyScript = CandyGreen.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyGreen;
+            candyScript = CandyGreen.spawnPrefab.GetComponent<CandyBehavior>();
             CandyGreen.minValue = config9561MinValue.Value;
             CandyGreen.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
             Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
             Items.RegisterScrap(CandyGreen);
 
-            candyScript = CandyBlue.spawnPrefab.AddComponent<CandyBehavior>();
-            candyScript.grabbable = true;
-            candyScript.itemProperties = CandyBlue;
+            candyScript = CandyBlue.spawnPrefab.GetComponent<CandyBehavior>();
             CandyBlue.minValue = config9561MinValue.Value;
             CandyBlue.maxValue = config9561MaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
             Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
             Items.RegisterScrap(CandyBlue);
 
-            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName };
+            candyScript = CandyRainbow.spawnPrefab.GetComponent<CandyBehavior>();
+            CandyRainbow.minValue = config9561MinValue.Value;
+            CandyRainbow.maxValue = config9561MaxValue.Value;
+            NetworkPrefabs.RegisterNetworkPrefab(CandyRainbow.spawnPrefab);
+            Utilities.FixMixerGroups(CandyRainbow.spawnPrefab);
+            Items.RegisterScrap(CandyRainbow);
+
+            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName };
 
             // Getting enemy
             EnemyType Pinata = ModAssets.LoadAsset<EnemyType>("Assets/ModAssets/Pinata/Pinata.asset");

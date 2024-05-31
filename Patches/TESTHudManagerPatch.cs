@@ -30,7 +30,6 @@ namespace SCP956.Patches
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
-            StatusEffectController.Instance.StatusNegation();
             //logger.LogDebug("In PingScan_performedPostFix");
             //logger.LogDebug($"isMovementHindered: {localPlayer.isMovementHindered} movementHinderedPrev: {localPlayer.movementHinderedPrev} hinderedMultiplier: {localPlayer.hinderedMultiplier}");
             //StatusEffectController.Instance.HealthRegen(10, 15);

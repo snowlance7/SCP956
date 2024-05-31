@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 662970874
+CRC: 1382242423
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 1fdcb9fa673cb5c05319fadf6eab072c
+    Hash: daed83505b1ef109eba6e2cd5fe80d6d
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 9f3d36926b905be5897865de1bcdfe3e
+    Hash: 0f82160249fd757b3f7de0dea62f0c52
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 1fdcb9fa673cb5c05319fadf6eab072c
+    Hash: daed83505b1ef109eba6e2cd5fe80d6d
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -47,6 +47,10 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
 - Class: 114
+  Script: {fileID: 989255763, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
+- Class: 114
+  Script: {fileID: -570734816, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
+- Class: 114
   Script: {fileID: -581893392, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: c30496d6ae6d6f907456e10a94e01ec6, type: 3}
@@ -60,6 +64,8 @@ ClassTypes:
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
+- Class: 114
+  Script: {fileID: -1359219867, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 137
@@ -78,6 +84,8 @@ SerializeReferenceClassIdentifiers:
 - AssemblyName: Assembly-CSharp
   ClassName: AISearchRoutine
 - AssemblyName: Assembly-CSharp
+  ClassName: Battery
+- AssemblyName: Assembly-CSharp
   ClassName: EnemyBehaviourState
 - AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
@@ -87,6 +95,7 @@ Assets:
 - Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3
 - Assets/ModAssets/Candy/CandyYellowItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
+- Assets/ModAssets/Candy/CandyRainbowItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
 - Assets/ModAssets/Candy/CandyPurpleItem.asset
 - Assets/ModAssets/Cake/SCP559Item.asset

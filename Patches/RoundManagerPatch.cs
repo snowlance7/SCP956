@@ -87,6 +87,8 @@ namespace SCP956.Patches
             {
                 logger.LogError("Error in DespawnPropsAtEndOfRound");
             }
+
+            StatusEffectController.Instance.bulletProofMultiplier = 0;
         }
 
         [HarmonyPostfix]

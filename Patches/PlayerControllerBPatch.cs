@@ -41,7 +41,7 @@ namespace SCP956.Patches
 
             if (playerFrozen) { return; }
 
-            if (StatusEffectController.Instance.infiniteSprintActive) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
+            if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
 
             timeSinceLastCheck += Time.deltaTime;
             if (timeSinceLastCheck > 0.3f)
@@ -89,7 +89,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
         private static void UpdatePrefix()
         {
-            if (StatusEffectController.Instance.statusNegationActive)
+            if (StatusEffectController.Instance.statusNegationSeconds > 0)
             {
                 localPlayer.bleedingHeavily = false;
                 localPlayer.criticallyInjured = false;
@@ -112,7 +112,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
         private static void DamagePlayerPrefix(ref int damageNumber)
         {
-            if (StatusEffectController.Instance.damageReductionActive) { damageNumber = Convert.ToInt32((float)damageNumber - ((float)damageNumber * .20)); }
+            if (StatusEffectController.Instance.damageReductionSeconds > 0) { damageNumber = Convert.ToInt32((float)damageNumber - ((float)damageNumber * (StatusEffectController.Instance.damageReductionPercent / 100))); } // TODO: Test this
         }
 
         [HarmonyPostfix]
