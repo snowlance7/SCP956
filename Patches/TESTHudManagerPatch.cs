@@ -30,6 +30,16 @@ namespace SCP956.Patches
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
+            //localPlayer.health = 5;
+
+            StatusEffectController.Instance.HealthRegen(5, 15);
+            //StatusEffectController.Instance.StatusNegation(15);
+            //StatusEffectController.Instance.DamageReduction(30, 20);
+            //StatusEffectController.Instance.InfiniteSprint(10, true);
+            //StatusEffectController.Instance.IncreasedMovementSpeed(10, 50);
+
+
+
             //logger.LogDebug("In PingScan_performedPostFix");
             //logger.LogDebug($"isMovementHindered: {localPlayer.isMovementHindered} movementHinderedPrev: {localPlayer.movementHinderedPrev} hinderedMultiplier: {localPlayer.hinderedMultiplier}");
             //StatusEffectController.Instance.HealthRegen(10, 15);

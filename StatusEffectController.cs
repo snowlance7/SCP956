@@ -95,7 +95,7 @@ namespace SCP956
             // TODO: Implement this
         }
 
-        public void HealthRegen(int hpPerSecond, int seconds)
+        public void HealthRegen(int hpPerSecond, int seconds) // TODO: Doesnt work properly
         {
             StartCoroutine(HealthRegenCoroutine(hpPerSecond, seconds));
         }
@@ -119,7 +119,7 @@ namespace SCP956
                 if (timeStackable || stackable) { return; }
                 StopCoroutine(damageReductionCoroutine);
             }
-            damageReductionCoroutine = StartCoroutine(DamageReductionCoroutine(seconds));
+            damageReductionCoroutine = StartCoroutine(DamageReductionCoroutine(seconds, percent));
         }
 
         public void InfiniteSprint(int seconds, bool timeStackable = false)
@@ -141,7 +141,7 @@ namespace SCP956
                 if (timeStackable || stackable) { return; }
                 StopCoroutine(increasedMovementSpeedCoroutine);
             }
-            increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds));
+            increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
 
         private IEnumerator HealthRegenCoroutine(int hpPerSecond, int seconds)
@@ -171,9 +171,10 @@ namespace SCP956
             statusNegationCoroutine = null;
         }
 
-        private IEnumerator DamageReductionCoroutine(int seconds)
+        private IEnumerator DamageReductionCoroutine(int seconds, int percent)
         {
             damageReductionSeconds = seconds;
+            damageReductionPercent = percent;
             //damageReductionActive = true;
             while (damageReductionSeconds > 0)
             {
@@ -199,12 +200,13 @@ namespace SCP956
             infiniteSprintCoroutine = null;
         }
 
-        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds)
+        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent)
         {
             increasedMovementSpeedSeconds = seconds;
+            increasedMovementSpeedPercent = percent;
             while (increasedMovementSpeedSeconds > 0)
             {
-                float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100);
+                float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100.0f);
                 LocalPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
                 increasedMovementSpeedSeconds--;
                 yield return new WaitForSecondsRealtime(1f);

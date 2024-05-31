@@ -11,7 +11,7 @@ using System.Collections;
 
 namespace SCP956
 {
-    public class CandyBehavior : PhysicsProp
+    public class CandyBehavior : PhysicsProp // TODO: make candy size 0.86 and test (changed from 0.5)
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
@@ -19,18 +19,17 @@ namespace SCP956
         public bool pinataCandy = false;
         //#pragma warning restore 0649
         // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
-
+        // TODO: Add SCP-330
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
                 logger.LogDebug("Eating candy");
-                // TODO: Set up tooltips in unity editor
                 HUDManager.Instance.UIAudio.PlayOneShot(CandyCrunchsfx, 1f);
                 
 
-                if (PlayerAge >= 12)
+                if (PlayerAge >= 12) // TODO: Probably doesnt despawn properly either here
                 {
                     if ((int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
                     {
@@ -67,7 +66,8 @@ namespace SCP956
                                 break;
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
-                                StatusEffectController.Instance.HealthRegen(9, 5);
+                                //StatusEffectController.Instance.HealthRegen(9, 5);
+                                playerHeldBy.DamagePlayer(50);
                                 break;
                             case "Yellow Candy":
                                 logger.LogDebug("Candy yellow");
@@ -75,9 +75,12 @@ namespace SCP956
                                 StatusEffectController.Instance.InfiniteSprint(8);
                                 StatusEffectController.Instance.IncreasedMovementSpeed(8, 2, true, true);
                                 break;
-                            case "Pink Candy":
+                            case "Pink Candy": // TODO: Doesnt despawn properly
                                 logger.LogDebug("Candy pink");
                                 Landmine.SpawnExplosion(playerHeldBy.transform.position, true, 3, 3);
+                                break;
+                            default:
+                                logger.LogDebug("Candy not found");
                                 break;
                         }
                         // TODO: Create random effect like in secret lab
@@ -114,6 +117,7 @@ namespace SCP956
                 }
 
                 playerHeldBy.DespawnHeldObject();
+                
             }
         }
     }

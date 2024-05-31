@@ -18,6 +18,8 @@ namespace SCP956
         public static NetworkHandler Instance { get; private set; }
         public static PlayerControllerB CurrentClient { get { return StartOfRound.Instance.localPlayerController; } }
 
+        public static PlayerControllerB PlayerFromId(ulong id) { return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]]; }
+
         public NetworkList<ulong> FrozenPlayers = new NetworkList<ulong>();
         public override void OnNetworkSpawn()
         {
@@ -55,6 +57,31 @@ namespace SCP956
             //playerHeldBy.usernameBillboard.position = new Vector3(playerHeldBy.usernameBillboard.position.x, playerHeldBy.usernameBillboard.position.y + 0.23f, playerHeldBy.usernameBillboard.position.z);
             //playerHeldBy.usernameBillboard.localScale *= 1.5f;
             //playerHeldBy.gameplayCamera.transform.GetChild(0).position = new Vector3(playerHeldBy.gameplayCamera.transform.GetChild(0).position.x, playerHeldBy.gameplayCamera.transform.GetChild(0).position.y - 0.026f, playerHeldBy.gameplayCamera.transform.GetChild(0).position.z + 0.032f);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void HealPlayerServerRpc(ulong clientId, int amount, bool overHeal = false) // TODO: Test this
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                PlayerControllerB player = PlayerFromId(clientId);
+                player.MakeCriticallyInjured(false);
+
+                int newHealth = player.health + amount;
+
+                if (newHealth > 100 && !overHeal) { newHealth = 100; }
+                player.health = newHealth;
+                HealPlayerClientRpc(clientId, newHealth);
+            }
+        }
+
+        [ClientRpc]
+        public void HealPlayerClientRpc(ulong clientId, int newHealth)
+        {
+            if (clientId == CurrentClient.actualClientId)
+            {
+                CurrentClient.health = newHealth;
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]

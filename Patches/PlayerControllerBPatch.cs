@@ -110,9 +110,17 @@ namespace SCP956.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
-        private static void DamagePlayerPrefix(ref int damageNumber)
+        private static void DamagePlayerPrefix(ref int damageNumber) // TODO: Test this
         {
-            if (StatusEffectController.Instance.damageReductionSeconds > 0) { damageNumber = Convert.ToInt32((float)damageNumber - ((float)damageNumber * (StatusEffectController.Instance.damageReductionPercent / 100))); } // TODO: Test this
+            if (StatusEffectController.Instance.damageReductionSeconds > 0)
+            {
+                logger.LogDebug("Applying " + StatusEffectController.Instance.damageReductionPercent + "% damage reduction");
+                float reductionPercent = StatusEffectController.Instance.damageReductionPercent / 100.0f;
+                int reductionAmount = Convert.ToInt32(damageNumber * reductionPercent);
+                int damageAfterReduction = damageNumber - reductionAmount;
+                logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                damageNumber = damageAfterReduction;
+            }
         }
 
         [HarmonyPostfix]
