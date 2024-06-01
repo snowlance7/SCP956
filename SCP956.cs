@@ -78,7 +78,7 @@ namespace SCP956
         public static ConfigEntry<int> config559Rarity;
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
-
+        // TODO: Add configs for custom status effects
         // SCP-330 Configs
         //public static ConfigEntry<int> config330Rarity;
 
@@ -130,6 +130,8 @@ namespace SCP956
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
+
+            new StatusEffectController();
 
             // Loading Assets
             string sAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);

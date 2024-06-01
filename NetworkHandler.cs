@@ -60,31 +60,6 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void HealPlayerServerRpc(ulong clientId, int amount, bool overHeal = false) // TODO: Test this
-        {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                PlayerControllerB player = PlayerFromId(clientId);
-                player.MakeCriticallyInjured(false);
-
-                int newHealth = player.health + amount;
-
-                if (newHealth > 100 && !overHeal) { newHealth = 100; }
-                player.health = newHealth;
-                HealPlayerClientRpc(clientId, newHealth);
-            }
-        }
-
-        [ClientRpc]
-        public void HealPlayerClientRpc(ulong clientId, int newHealth)
-        {
-            if (clientId == CurrentClient.actualClientId)
-            {
-                CurrentClient.health = newHealth;
-            }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
         public void SpawnPinataServerRpc() // TODO: Causing errors during generatenewfloor patch
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)

@@ -16,7 +16,7 @@ namespace SCP956
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
         //#pragma warning disable 0649
-        public bool pinataCandy = false;
+        public bool pinataCandy = true;
         //#pragma warning restore 0649
         // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
         // TODO: Add SCP-330
@@ -43,8 +43,7 @@ namespace SCP956
                         {
                             case "Blue Candy":
                                 logger.LogDebug("Candy blue");
-                                int newHealth = playerHeldBy.health + 30;
-                                playerHeldBy.health = newHealth;
+                                StatusEffectController.Instance.HealPlayer(30, true);
                                 break;
                             case "Green Candy":
                                 logger.LogDebug("Candy green");
@@ -116,7 +115,7 @@ namespace SCP956
                     RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }
 
-                playerHeldBy.DespawnHeldObject();
+                //playerHeldBy.DespawnHeldObject();
                 
             }
         }

@@ -19,6 +19,7 @@ using UnityEngine;
 
 namespace SCP956.Patches
 {
+    // TODO: Figure out how to determine if scrap spawn is on a table or on the floor, USE RAYCASTING
     [HarmonyPatch(typeof(HUDManager))]
     internal class HUDManagerPatch
     {
@@ -30,11 +31,34 @@ namespace SCP956.Patches
         [HarmonyPatch("PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
-            //localPlayer.health = 5;
+            //StartOfRound.Instance.Debug_EnableTestRoomServerRpc(true);
+            List<RandomScrapSpawn> list = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(x => x.spawnUsed == false).ToList();
+            RandomScrapSpawn randomScrapSpawn = list[0];
+            /*int index = UnityEngine.Random.Range(0, list.Count);
+            RandomScrapSpawn randomScrapSpawn = list[index];
+            Vector3 pos = randomScrapSpawn.transform.position;
+            if (randomScrapSpawn.spawnedItemsCopyPosition)
+            {
+                list.RemoveAt(index);
+            }
+            else
+            {
+                pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
+            }
 
-            StatusEffectController.Instance.HealthRegen(5, 15);
-            //StatusEffectController.Instance.StatusNegation(15);
-            //StatusEffectController.Instance.DamageReduction(30, 20);
+            Item Cake = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "Cake").FirstOrDefault();
+            logger.LogDebug("Spawning cake");
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, Cake.itemName, 1000, pos, Quaternion.identity, true, false);*/
+
+
+
+
+
+            //localPlayer.health = 5;
+            //StatusEffectController.Instance.HealPlayer(10, true);
+            //StatusEffectController.Instance.HealthRegen(5, 15);
+            //StatusEffectController.Instance.StatusNegation(10, true);
+            //StatusEffectController.Instance.DamageReduction(30, 20, true, true);
             //StatusEffectController.Instance.InfiniteSprint(10, true);
             //StatusEffectController.Instance.IncreasedMovementSpeed(10, 50);
 
