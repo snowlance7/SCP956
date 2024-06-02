@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1536712566
+CRC: 3033388285
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: a57b353746a0d1fd564367d63cd8c869
+    Hash: d73aadee7f90b920614008c8285f6e6f
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 40d8d13ac1221ab7c3fa7da7ff5f8360
+    Hash: 69858ed863efaf81bf7b5f38a6f724a5
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: a57b353746a0d1fd564367d63cd8c869
+    Hash: d73aadee7f90b920614008c8285f6e6f
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -65,7 +65,11 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
 - Class: 114
+  Script: {fileID: 11500000, guid: 0bf1473be2fdebe220e46d27c67438ea, type: 3}
+- Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
+- Class: 114
+  Script: {fileID: 965613704, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 137
@@ -92,10 +96,12 @@ SerializeReferenceClassIdentifiers:
 Assets:
 - Assets/ModAssets/Pinata/Audio/956WarningLong.mp3
 - Assets/ModAssets/Candy/CandyBlueItem.asset
+- Assets/ModAssets/Candy/CandyBowlItem.asset
 - Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3
 - Assets/ModAssets/Candy/CandyYellowItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
 - Assets/ModAssets/Candy/CandyRainbowItem.asset
+- Assets/ModAssets/Candy/CandyBowlPedestalItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
 - Assets/ModAssets/Candy/CandyPurpleItem.asset
 - Assets/ModAssets/Cake/SCP559Item.asset

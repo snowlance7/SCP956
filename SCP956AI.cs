@@ -135,6 +135,7 @@ namespace SCP956
 
                 logger.LogDebug("Player died, spawning candy");
                 List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => CandyNames.Contains(x.itemName)).ToList();
+                foreach (Item candy in candies) { candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = true; } // TODO: Test this
                 logger.LogDebug($"Candy count: {candies.Count}");
                 int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
 

@@ -15,9 +15,7 @@ namespace SCP956
     {
         private static ManualLogSource logger = SCP956.LoggerInstance;
 
-        //#pragma warning disable 0649
-        public bool pinataCandy = true;
-        //#pragma warning restore 0649
+        public bool pinataCandy = false;
         // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
         // TODO: Add SCP-330
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -29,18 +27,18 @@ namespace SCP956
                 HUDManager.Instance.UIAudio.PlayOneShot(CandyCrunchsfx, 1f);
                 
 
-                if (PlayerAge >= 12) // TODO: Probably doesnt despawn properly either here
+                if (!pinataCandy || PlayerAge >= 12)
                 {
-                    if ((int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
+                    if (pinataCandy && (int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
                     {
-                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
+                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3); // TODO: Probably doesnt despawn properly either here
                         return;
                     }
 
-                    if (config956Behavior.Value == 2)
+                    if (!pinataCandy || config956Behavior.Value == 2)
                     {
                         switch (itemProperties.itemName)
-                        {
+                        { // TODO: for custom effects, if disabled use config.defaultvalue
                             case "Blue Candy":
                                 logger.LogDebug("Candy blue");
                                 StatusEffectController.Instance.HealPlayer(30, true);
@@ -54,14 +52,6 @@ namespace SCP956
                                 logger.LogDebug("Candy purple");
                                 StatusEffectController.Instance.DamageReduction(15, 20, true);
                                 StatusEffectController.Instance.HealthRegen(2, 10);
-                                break;
-                            case "Rainbow Candy":
-                                logger.LogDebug("Candy rainbow");
-                                StatusEffectController.Instance.HealPlayer(15);
-                                StatusEffectController.Instance.InfiniteSprint(5, true);
-                                StatusEffectController.Instance.bulletProofMultiplier += 1;
-                                StatusEffectController.Instance.StatusNegation(10);
-                                StatusEffectController.Instance.HealPlayer(20, true);
                                 break;
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
@@ -77,6 +67,14 @@ namespace SCP956
                             case "Pink Candy": // TODO: Doesnt despawn properly
                                 logger.LogDebug("Candy pink");
                                 Landmine.SpawnExplosion(playerHeldBy.transform.position, true, 3, 3);
+                                break;
+                            case "Rainbow Candy":
+                                logger.LogDebug("Candy rainbow");
+                                StatusEffectController.Instance.HealPlayer(15);
+                                StatusEffectController.Instance.InfiniteSprint(5, true);
+                                StatusEffectController.Instance.bulletProofMultiplier += 1; // TODO: implement this
+                                StatusEffectController.Instance.StatusNegation(10);
+                                StatusEffectController.Instance.HealPlayer(20, true);
                                 break;
                             default:
                                 logger.LogDebug("Candy not found");
@@ -115,8 +113,7 @@ namespace SCP956
                     RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }
 
-                //playerHeldBy.DespawnHeldObject();
-                
+                playerHeldBy.DespawnHeldObject();
             }
         }
     }

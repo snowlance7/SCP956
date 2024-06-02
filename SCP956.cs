@@ -78,9 +78,18 @@ namespace SCP956
         public static ConfigEntry<int> config559Rarity;
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
-        // TODO: Add configs for custom status effects
+
         // SCP-330 Configs
-        //public static ConfigEntry<int> config330Rarity;
+        public static ConfigEntry<bool> configEnable330;
+        public static ConfigEntry<int> config330Rarity;
+
+        // Status Effect Configs
+        public static ConfigEntry<bool> configEnableCustomStatusEffects;
+        public static ConfigEntry<string> configCandyPurpleEffects;
+        public static ConfigEntry<string> configCandyRedEffects;
+        public static ConfigEntry<string> configCandyYellowEffects;
+        public static ConfigEntry<string> configCandyGreenEffects;
+        public static ConfigEntry<string> configCandyBlueEffects;
 
         private void Awake()
         {
@@ -130,6 +139,18 @@ namespace SCP956
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
+
+            // SCP-330 Configs
+            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Enable SCP-330");
+            config330Rarity = Config.Bind("SCP-330", "Rarity", 10, "How often SCP-330 will spawn.");
+
+            // Status Effect Configs
+            configEnableCustomStatusEffects = Config.Bind("Status Effects", "Enable Custom Status Effects", true, "Enable custom status effects");
+            configCandyPurpleEffects = Config.Bind("Status Effects", "Candy Purple Effects", "TODO: Add effects", "Enable candy purple effects");
+            configCandyRedEffects = Config.Bind("Status Effects", "Candy Red Effects", "TODO: Add effects", "Enable candy red effects");
+            configCandyYellowEffects = Config.Bind("Status Effects", "Candy Yellow Effects", "TODO: Add effects", "Enable candy yellow effects");
+            configCandyGreenEffects = Config.Bind("Status Effects", "Candy Green Effects", "TODO: Add effects", "Enable candy green effects");
+            configCandyBlueEffects = Config.Bind("Status Effects", "Candy Blue Effects", "TODO: Add effects", "Enable candy blue effects");
 
             new StatusEffectController();
 
@@ -185,6 +206,19 @@ namespace SCP956
             NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
             Utilities.FixMixerGroups(Cake.spawnPrefab);
             Items.RegisterScrap(Cake);
+
+            // Getting SCP-330
+            Item CandyBowl = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlItem.asset"); // TODO: Make sure spawnpositiontype works
+
+            NetworkPrefabs.RegisterNetworkPrefab(CandyBowl.spawnPrefab);
+            Utilities.FixMixerGroups(CandyBowl.spawnPrefab);
+            Items.RegisterScrap(CandyBowl);
+            
+            Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPedestalItem.asset"); // TODO: Make sure spawnpositiontype works
+
+            NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
+            Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
+            Items.RegisterScrap(CandyBowlPedestal);
 
             // Getting Candy // TODO: Simplify this
             CandyBehavior candyScript;
