@@ -214,11 +214,11 @@ namespace SCP956
             Utilities.FixMixerGroups(CandyBowl.spawnPrefab);
             Items.RegisterScrap(CandyBowl);
             
-            Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPedestalItem.asset"); // TODO: Make sure spawnpositiontype works
+            //Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPedestalItem.asset"); // TODO: Make sure spawnpositiontype works
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
-            Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
-            Items.RegisterScrap(CandyBowlPedestal);
+            //NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
+            //Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
+            //Items.RegisterScrap(CandyBowlPedestal);
 
             // Getting Candy // TODO: Simplify this
             CandyBehavior candyScript;

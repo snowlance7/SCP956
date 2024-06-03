@@ -63,12 +63,13 @@ namespace SCP956.Patches
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
         private static void DespawnPropsAtEndOfRoundPatch()
         {
-            firstTime = true;
             try
             {
                 logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
-                PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
+                firstTime = true;
                 PlayerControllerBPatch.playerFrozen = false;
+                SCP330Behavior.candyTaken = 0;
+                PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
                 IngamePlayerSettings.Instance.playerInput.ActivateInput();
                 StartOfRound.Instance.localPlayerController.disableLookInput = false;
 

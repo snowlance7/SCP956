@@ -56,7 +56,7 @@ namespace SCP956
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
                                 //StatusEffectController.Instance.HealthRegen(9, 5);
-                                playerHeldBy.DamagePlayer(50);
+                                playerHeldBy.DamagePlayer(50); // TODO: Remove this
                                 break;
                             case "Yellow Candy":
                                 logger.LogDebug("Candy yellow");

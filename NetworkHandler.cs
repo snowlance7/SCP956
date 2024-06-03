@@ -102,7 +102,7 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false)
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false, string scanHeader = "")
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
@@ -111,6 +111,7 @@ namespace SCP956
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 obj.GetComponent<GrabbableObject>().SetScrapValue(newValue);
+                if (scanHeader != "") { obj.GetComponent<ScanNodeProperties>().headerText = scanHeader; } // TODO: test this
                 obj.GetComponent<NetworkObject>().Spawn();
 
                 if (grabItem)

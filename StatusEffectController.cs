@@ -218,6 +218,11 @@ namespace SCP956
             increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
 
+        public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10)
+        {
+            StartCoroutine(DamagePlayerOverTimeCoroutine(damage, perSeconds, untilDead, totalSeconds));
+        }
+
         // Coroutines
 
         private IEnumerator HealthRegenCoroutine(int hpPerSecond, int seconds)
@@ -285,6 +290,27 @@ namespace SCP956
             LocalPlayer.movementSpeed = baseMovementSpeed;
             increasedMovementSpeedSeconds = 0;
             increasedMovementSpeedCoroutine = null;
+        }
+
+        private IEnumerator DamagePlayerOverTimeCoroutine(int damage, int perSeconds, bool untilDead, int totalSeconds)
+        {
+            if (untilDead)
+            {
+                while (!LocalPlayer.isPlayerDead)
+                {
+                    LocalPlayer.DamagePlayer(damage, false);
+                    yield return new WaitForSecondsRealtime(perSeconds);
+                }
+                yield break;
+            }
+
+            int seconds = 0;
+            while (seconds < totalSeconds)
+            {
+                LocalPlayer.DamagePlayer(damage, false);
+                seconds += perSeconds;
+                yield return new WaitForSecondsRealtime(perSeconds);
+            }
         }
     }
 }

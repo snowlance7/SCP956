@@ -129,6 +129,19 @@ namespace SCP956.Patches
         {
             __instance.disableLookInput = false;
             IngamePlayerSettings.Instance.playerInput.ActivateInput(); // TODO: Make sure this isnt activating other players as well
+            SCP330Behavior.noHands = false;
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(nameof(PlayerControllerB.BeginGrabObject))]
+        private static bool BeginGrabObjectPrefix()
+        {
+            if (SCP330Behavior.noHands)
+            {
+                HUDManager.Instance.DisplayTip("Cant grab item", "You dont have hands to grab with!");
+                return false;
+            }
+            return true;
         }
 
         public static bool IsPlayerHoldingCandy(PlayerControllerB player)
