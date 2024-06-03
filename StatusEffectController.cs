@@ -218,7 +218,7 @@ namespace SCP956
             increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
 
-        public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10)
+        public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10) // TODO: Test this
         {
             StartCoroutine(DamagePlayerOverTimeCoroutine(damage, perSeconds, untilDead, totalSeconds));
         }
@@ -299,6 +299,7 @@ namespace SCP956
                 while (!LocalPlayer.isPlayerDead)
                 {
                     LocalPlayer.DamagePlayer(damage, false);
+                    HUDManager.Instance.UpdateHealthUI(LocalPlayer.health, true);
                     yield return new WaitForSecondsRealtime(perSeconds);
                 }
                 yield break;

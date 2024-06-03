@@ -33,21 +33,23 @@ namespace SCP956.Patches
                 ___fallValue = 0f;
             }
 
-            if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
-            {
-                playerFrozen = false;
-                return;
-            }
-
-            if (playerFrozen) { return; }
-
-            if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
-
             timeSinceLastCheck += Time.deltaTime;
             if (timeSinceLastCheck > 0.3f)
             {
                 timeSinceLastCheck = 0f;
+
+                if (playerFrozen) { return; }
+
+                if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
+                {
+                    if (playerFrozen) { playerFrozen = false; }
+                    return;
+                }
+
+                if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
+
                 AudioSource _audioSource = HUDManager.Instance.UIAudio;
+                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
 
                 if (PlayerMeetsConditions(localPlayer))
                 {
@@ -75,12 +77,12 @@ namespace SCP956.Patches
                         localPlayer.disableLookInput = true;
                         if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
                     }
-                    else if (warningStarted)
-                    {
-                        logger.LogDebug("Warning ended");
-                        warningStarted = false;
-                        _audioSource.Stop();
-                    }
+                }
+                else if (warningStarted)
+                {
+                    logger.LogDebug("Warning ended");
+                    warningStarted = false;
+                    _audioSource.Stop();
                 }
             }
         }

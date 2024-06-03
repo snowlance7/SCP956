@@ -141,7 +141,7 @@ namespace SCP956
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
 
             // SCP-330 Configs
-            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Enable SCP-330");
+            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Enable SCP-330"); // TODO: Add description
             config330Rarity = Config.Bind("SCP-330", "Rarity", 10, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
@@ -212,13 +212,13 @@ namespace SCP956
 
             NetworkPrefabs.RegisterNetworkPrefab(CandyBowl.spawnPrefab);
             Utilities.FixMixerGroups(CandyBowl.spawnPrefab);
-            Items.RegisterScrap(CandyBowl);
-            
-            //Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPedestalItem.asset"); // TODO: Make sure spawnpositiontype works
+            Items.RegisterScrap(CandyBowl, config330Rarity.Value, Levels.LevelTypes.All);
 
-            //NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
-            //Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
-            //Items.RegisterScrap(CandyBowlPedestal);
+            Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPItem.asset"); // TODO: Make sure spawnpositiontype works
+
+            NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
+            Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
+            Items.RegisterScrap(CandyBowlPedestal, config330Rarity.Value, Levels.LevelTypes.All);
 
             // Getting Candy // TODO: Simplify this
             CandyBehavior candyScript;

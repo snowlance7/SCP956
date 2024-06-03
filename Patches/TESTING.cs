@@ -43,17 +43,26 @@ namespace SCP956.Patches
         public static void SpawnScrapInLevelPreFix()
         {
             logger.LogDebug("spawn scrap in level");
-
-            List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>();
+            //SpawnableItemWithRarity scp330 = RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330").First();
+            /*List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>();
             foreach (SpawnableItemWithRarity item in RoundManager.Instance.currentLevel.spawnableScrap)
             {
-                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "GeneralItemClass")
+                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "TabletopItems" && item.spawnableItem.itemName != "Fancy lamp")
                 {
                     newScrapList.Add(item);
                 }
-            }
-            RoundManager.Instance.currentLevel.spawnableScrap.Clear();
-            RoundManager.Instance.currentLevel.spawnableScrap.AddRange(newScrapList);
+            }*/
+
+
+            /*RandomScrapSpawn[] source = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>();
+            List<RandomScrapSpawn> tabletopspawns = source.Where(x => x.spawnableItems.name == "TabletopItems").ToList();
+            scp330.spawnableItem.spawnPositionTypes.Add(tabletopspawns[UnityEngine.Random.Range(0, tabletopspawns.Count)].spawnableItems); // TODO: MAKE THIS WORK
+            newScrapList.Add(scp330);*/
+
+            //RoundManager.Instance.currentLevel.spawnableScrap.Clear();
+            //RoundManager.Instance.currentLevel.spawnableScrap.AddRange(newScrapList);
+            //RoundManager.Instance.currentLevel.spawnableScrap.Add(item);
+            // No tiles containing a scrap spawn with item type: SCP-330
         }
     }
 }

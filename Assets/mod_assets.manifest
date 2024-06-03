@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2428764651
+CRC: 1016470165
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 75b020424b12cb7d93083a337ec51bc2
+    Hash: 95296dd60beabdf0a249ad6413cf8d98
   TypeTreeHash:
     serializedVersion: 2
-    Hash: ba8092517d5f04dd779c8d5982c3d1ea
+    Hash: 315d92fdd7a42b8c638902e4a0f3c9db
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 75b020424b12cb7d93083a337ec51bc2
+    Hash: 95296dd60beabdf0a249ad6413cf8d98
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -67,8 +67,6 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
 - Class: 114
-  Script: {fileID: 11500000, guid: 0bf1473be2fdebe220e46d27c67438ea, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
 - Class: 115
   Script: {instanceID: 0}
@@ -101,7 +99,6 @@ Assets:
 - Assets/ModAssets/Candy/CandyYellowItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
 - Assets/ModAssets/Candy/CandyRainbowItem.asset
-- Assets/ModAssets/Candy/CandyBowlPedestalItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
 - Assets/ModAssets/Candy/CandyPurpleItem.asset
 - Assets/ModAssets/Cake/SCP559Item.asset
@@ -117,6 +114,7 @@ Assets:
 - Assets/ModAssets/Pinata/Audio/papers-flapping.mp3
 - Assets/ModAssets/Cake/CakeItem.asset
 - Assets/ModAssets/Cake/Audio/cake_candle_blow.wav
+- Assets/ModAssets/Candy/CandyBowlPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 - Assets/ModAssets/Cake/Audio/cake_appear.wav
 Dependencies: []

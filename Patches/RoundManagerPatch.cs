@@ -21,6 +21,17 @@ namespace SCP956.Patches
         public static bool firstTime = true;
 
         [HarmonyPrefix]
+        [HarmonyPatch(nameof(RoundManager.SpawnScrapInLevel))]
+        public static void SpawnScrapInLevelPreFix()
+        {
+            //ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First();
+            //ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
+
+            //RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330").First().spawnableItem.spawnPositionTypes.Add(TabletopItems);
+            //RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330P").First().spawnableItem.spawnPositionTypes.Add(GeneralItemClass); // TODO: MAKE THIS WORK
+        }
+
+        [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
         public static bool SpawnEnemyFromVentPreFix(EnemyVent vent)
         {

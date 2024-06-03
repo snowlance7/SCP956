@@ -50,13 +50,13 @@ namespace SCP956
                                 break;
                             case "Purple Candy":
                                 logger.LogDebug("Candy purple");
-                                StatusEffectController.Instance.DamageReduction(15, 20, true);
-                                StatusEffectController.Instance.HealthRegen(2, 10);
+                                playerHeldBy.DamagePlayer(50); // TODO: Remove this
+                                //StatusEffectController.Instance.DamageReduction(15, 20, true);
+                                //StatusEffectController.Instance.HealthRegen(2, 10);
                                 break;
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
-                                //StatusEffectController.Instance.HealthRegen(9, 5);
-                                playerHeldBy.DamagePlayer(50); // TODO: Remove this
+                                StatusEffectController.Instance.HealthRegen(9, 5);
                                 break;
                             case "Yellow Candy":
                                 logger.LogDebug("Candy yellow");
@@ -113,7 +113,7 @@ namespace SCP956
                     RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }
 
-                playerHeldBy.DespawnHeldObject();
+                //playerHeldBy.DespawnHeldObject(); // TESTING
             }
         }
     }
