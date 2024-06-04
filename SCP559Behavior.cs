@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 
 namespace SCP956
 {
     internal class SCP559Behavior : PhysicsProp
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
@@ -20,7 +20,7 @@ namespace SCP956
                 if (PlayerAge == 11) { return; }
                 PlayerControllerB currentPlayer = StartOfRound.Instance.localPlayerController;
                 HUDManager.Instance.UIAudio.PlayOneShot(CandleBlowsfx, 1f);
-                SCP956.PlayerAge = 11;
+                Plugin.PlayerAge = 11;
 
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(currentPlayer.actualClientId, 0.8f);
 

@@ -18,13 +18,13 @@ namespace SCP956
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
-    public class SCP956 : BaseUnityPlugin
+    public class Plugin : BaseUnityPlugin
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
         private const string modVersion = "0.1.1";
 
-        public static SCP956 PluginInstance;
+        public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;

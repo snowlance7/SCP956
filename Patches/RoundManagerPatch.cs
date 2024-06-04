@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 using static LethalLib.Modules.Enemies;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 using Unity.Netcode;
 using System.Linq;
 using static UnityEngine.ParticleSystem.PlaybackState;
@@ -17,18 +17,26 @@ namespace SCP956.Patches
     [HarmonyPatch(typeof(RoundManager))]
     internal class RoundManagerPatch
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
         public static bool firstTime = true;
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(RoundManager.SpawnScrapInLevel))]
         public static void SpawnScrapInLevelPreFix()
         {
-            //ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First();
-            //ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
+            List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>(); // Testing
+            foreach (SpawnableItemWithRarity item in RoundManager.Instance.currentLevel.spawnableScrap)
+            {
+                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "TabletopItems" && item.spawnableItem.itemName != "Fancy lamp")
+                {
+                    logger.LogDebug(item.spawnableItem.itemName);
+                    newScrapList.Add(item);
+                }
+            }
 
-            //RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330").First().spawnableItem.spawnPositionTypes.Add(TabletopItems);
-            //RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330P").First().spawnableItem.spawnPositionTypes.Add(GeneralItemClass); // TODO: MAKE THIS WORK
+            logger.LogDebug("Clearing spawnableScrap");
+            RoundManager.Instance.currentLevel.spawnableScrap.Clear();
+            RoundManager.Instance.currentLevel.spawnableScrap.AddRange(newScrapList);
         }
 
         [HarmonyPrefix]

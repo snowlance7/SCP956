@@ -7,13 +7,13 @@ using GameNetcodeStuff;
 using HarmonyLib;
 using Unity.Netcode;
 using UnityEngine;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 
 namespace SCP956
 {
     public class NetworkHandler : NetworkBehaviour
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public static NetworkHandler Instance { get; private set; }
         public static PlayerControllerB CurrentClient { get { return StartOfRound.Instance.localPlayerController; } }
@@ -131,7 +131,7 @@ namespace SCP956
     public class NetworkObjectManager
     {
         static GameObject networkPrefab;
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
         public static void Init()
@@ -139,7 +139,7 @@ namespace SCP956
             if (networkPrefab != null)
                 return;
 
-            networkPrefab = (GameObject)SCP956.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandler.prefab");
+            networkPrefab = (GameObject)Plugin.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandler.prefab");
             networkPrefab.AddComponent<NetworkHandler>();
 
             NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);

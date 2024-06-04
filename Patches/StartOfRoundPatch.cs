@@ -5,7 +5,7 @@ using System.Text;
 using BepInEx.Logging;
 using HarmonyLib;
 using Unity.Netcode;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 using UnityEngine;
 
 namespace SCP956.Patches
@@ -13,13 +13,17 @@ namespace SCP956.Patches
     [HarmonyPatch(typeof(StartOfRound))]
     internal class StartOfRoundPatch
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         [HarmonyPostfix]
-        [HarmonyPatch("Awake")]
-        public static void AwakePatch()
+        [HarmonyPatch(nameof(StartOfRound.firstDayAnimation))]
+        public static void Patch()
         {
-            if (SCP956.config956Behavior.Value == 3)
+            logger.LogDebug("First day started");
+
+            // Setting up player age
+
+            if (Plugin.config956Behavior.Value == 3)
             {
                 if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
                 PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
@@ -36,6 +40,24 @@ namespace SCP956.Patches
             }
 
             logger.LogDebug($"Age is {PlayerAge}");
+
+            // Setting up itemgroups
+
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First(); // Testing
+                ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
+                logger.LogDebug("Got itemgroups");
+
+                Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
+                Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlPItem").First();
+                logger.LogDebug("Got items");
+
+                scp330.spawnPositionTypes.Clear();
+                scp330p.spawnPositionTypes.Clear();
+                scp330.spawnPositionTypes.Add(TabletopItems);
+                scp330p.spawnPositionTypes.Add(GeneralItemClass);
+            }
         }
     }
 }

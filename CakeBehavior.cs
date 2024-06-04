@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 
 namespace SCP956
 {
     internal class CakeBehavior : PhysicsProp
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {

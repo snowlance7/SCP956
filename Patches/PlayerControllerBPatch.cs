@@ -6,7 +6,7 @@ using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using UnityEngine;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 
@@ -104,7 +104,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.SpawnDeadBody))]
         private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
         {
-            if (SCP956.PlayerAge < 12)
+            if (Plugin.PlayerAge < 12)
             {
                 ___deadBody.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
             }

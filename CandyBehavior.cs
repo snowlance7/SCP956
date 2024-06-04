@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine.UIElements;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.Timeline;
@@ -13,7 +13,7 @@ namespace SCP956
 {
     public class CandyBehavior : PhysicsProp // TODO: make candy size 0.86 and test (changed from 0.5)
     {
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = false;
         // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()

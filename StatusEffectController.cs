@@ -38,7 +38,7 @@ namespace SCP956
             }
         }
 
-        private static ManualLogSource logger = SCP956.LoggerInstance;
+        private static ManualLogSource logger = Plugin.LoggerInstance;
 
         private PlayerControllerB LocalPlayer
         {
@@ -96,7 +96,7 @@ namespace SCP956
             logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
         }
 
-        public void ApplyCandyEffects(string config)
+        public void ApplyCandyEffects(string config) // TODO: Needs testing
         {
             // Split the config string into individual effect strings
             var effectStrings = config.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);

@@ -7,7 +7,7 @@ using LethalLib;
 using SCP956;
 using Unity.Netcode;
 using UnityEngine;
-using static SCP956.SCP956;
+using static SCP956.Plugin;
 using UnityEngine.UI;
 using System.Linq;
 using System.Runtime.CompilerServices;
