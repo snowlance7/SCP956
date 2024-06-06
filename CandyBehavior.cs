@@ -15,7 +15,7 @@ namespace SCP956
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
-        public bool pinataCandy = false;
+        public bool pinataCandy = true;
         // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
         // TODO: Add SCP-330
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -41,31 +41,51 @@ namespace SCP956
                         { // TODO: for custom effects, if disabled use config.defaultvalue
                             case "Blue Candy":
                                 logger.LogDebug("Candy blue");
-                                StatusEffectController.Instance.HealPlayer(30, true);
+                                if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyBlueEffects.Value); }
+                                else
+                                {
+                                    StatusEffectController.Instance.HealPlayer(30, true);
+                                }
                                 break;
                             case "Green Candy":
                                 logger.LogDebug("Candy green");
-                                StatusEffectController.Instance.StatusNegation(30);
-                                StatusEffectController.Instance.HealthRegen(1, 80);
+                                if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyGreenEffects.Value); }
+                                else
+                                {
+                                    StatusEffectController.Instance.StatusNegation(30);
+                                    StatusEffectController.Instance.HealthRegen(1, 80);
+                                }
                                 break;
                             case "Purple Candy":
                                 logger.LogDebug("Candy purple");
-                                playerHeldBy.DamagePlayer(50); // TODO: Remove this
-                                //StatusEffectController.Instance.DamageReduction(15, 20, true);
-                                //StatusEffectController.Instance.HealthRegen(2, 10);
+                                if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyPurpleEffects.Value); }
+                                else
+                                {
+                                    StatusEffectController.Instance.DamageReduction(15, 20, true);
+                                    StatusEffectController.Instance.HealthRegen(2, 10);
+                                }
                                 break;
                             case "Red Candy":
                                 logger.LogDebug("Candy red");
-                                StatusEffectController.Instance.HealthRegen(9, 5);
+                                if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyRedEffects.Value); }
+                                else
+                                {
+                                    StatusEffectController.Instance.HealthRegen(9, 5);
+                                }
                                 break;
                             case "Yellow Candy":
                                 logger.LogDebug("Candy yellow");
-                                StatusEffectController.Instance.RestoreStamina(25);
-                                StatusEffectController.Instance.InfiniteSprint(8);
-                                StatusEffectController.Instance.IncreasedMovementSpeed(8, 2, true, true);
+                                if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyYellowEffects.Value); }
+                                else
+                                {
+                                    StatusEffectController.Instance.RestoreStamina(25);
+                                    StatusEffectController.Instance.InfiniteSprint(8);
+                                    StatusEffectController.Instance.IncreasedMovementSpeed(8, 2, true, true);
+                                }
                                 break;
                             case "Pink Candy": // TODO: Doesnt despawn properly
                                 logger.LogDebug("Candy pink");
+                                playerHeldBy.DespawnHeldObject();
                                 Landmine.SpawnExplosion(playerHeldBy.transform.position, true, 3, 3);
                                 break;
                             case "Rainbow Candy":

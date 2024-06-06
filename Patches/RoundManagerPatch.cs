@@ -18,26 +18,6 @@ namespace SCP956.Patches
     internal class RoundManagerPatch
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
-        public static bool firstTime = true;
-
-        [HarmonyPrefix]
-        [HarmonyPatch(nameof(RoundManager.SpawnScrapInLevel))]
-        public static void SpawnScrapInLevelPreFix()
-        {
-            List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>(); // Testing
-            foreach (SpawnableItemWithRarity item in RoundManager.Instance.currentLevel.spawnableScrap)
-            {
-                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "GeneralItemClass" && item.spawnableItem.itemName != "Fancy lamp")
-                {
-                    logger.LogDebug(item.spawnableItem.itemName);
-                    newScrapList.Add(item);
-                }
-            }
-
-            logger.LogDebug("Clearing spawnableScrap");
-            RoundManager.Instance.currentLevel.spawnableScrap.Clear();
-            RoundManager.Instance.currentLevel.spawnableScrap.AddRange(newScrapList);
-        }
 
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
@@ -85,12 +65,19 @@ namespace SCP956.Patches
             try
             {
                 logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
-                firstTime = true;
                 PlayerControllerBPatch.playerFrozen = false;
                 SCP330Behavior.candyTaken = 0;
                 PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
                 IngamePlayerSettings.Instance.playerInput.ActivateInput();
                 StartOfRound.Instance.localPlayerController.disableLookInput = false;
+                StatusEffectController.Instance.bulletProofMultiplier = 0;
+                SCP330Behavior.noHands = false;
+
+                PlayerAge = PlayerOriginalAge;
+                if (PlayerAge >= 12)
+                {
+                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
+                }
 
                 if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
                 {
@@ -115,10 +102,12 @@ namespace SCP956.Patches
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
         private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
         {
-            if (PlayerAge < 12 && firstTime)
+            if (PlayerAge < 12)
             {
-                NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: Needs testing
-                firstTime = false;
+                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() != null) // TODO: Needs testing
+                {
+                    NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: Needs testing
+                }
             }
         }
     }

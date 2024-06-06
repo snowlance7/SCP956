@@ -17,10 +17,9 @@ namespace SCP956
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                if (PlayerAge == 11) { return; }
                 PlayerControllerB currentPlayer = StartOfRound.Instance.localPlayerController;
                 HUDManager.Instance.UIAudio.PlayOneShot(CandleBlowsfx, 1f);
-                Plugin.PlayerAge = 11;
+                Plugin.PlayerAge = 10;
 
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(currentPlayer.actualClientId, 0.8f);
 

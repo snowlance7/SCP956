@@ -25,14 +25,14 @@ namespace SCP956
 
         public override void InteractItem()
         {
-            //candy.spawnPrefab.gameObject.GetComponent<ScanNodeProperties>().headerText = "Candy"; // TODO: Do something like this when giving the player candy, or use getcomponentinparent
             logger.LogDebug("Interacting with SCP-330");
 
             if (candyTaken >= 2)
             {
+                logger.LogDebug("Player took too much candy!");
                 localPlayer.DamagePlayer(10);
                 HUDManager.Instance.UpdateHealthUI(localPlayer.health, true);
-                localPlayer.MakeCriticallyInjured(true); // TODO: Test this
+                localPlayer.MakeCriticallyInjured(true);
                 localPlayer.DropAllHeldItemsAndSync();
                 noHands = true;
 
@@ -45,9 +45,10 @@ namespace SCP956
             logger.LogDebug($"Candy count: {candies.Count}");
             Item candy = candies[UnityEngine.Random.Range(0, candies.Count)];
             logger.LogDebug("Got Candy");
+            candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = false; // TODO: Test this
+            logger.LogDebug("Set pinataCandy to false");
             int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
             logger.LogDebug("Got scrapValue");
-
             NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candy.itemName, scrapValue, transform.position, Quaternion.identity, false, true);
             logger.LogDebug("Spawned candy");
             candyTaken++;

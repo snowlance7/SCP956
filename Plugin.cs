@@ -22,12 +22,13 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.1.1";
+        private const string modVersion = "0.2.0";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge;
+        public static int PlayerOriginalAge;
 
         public static List<string> CandyNames;
 
@@ -122,17 +123,17 @@ namespace SCP956
                 "2 - Secret Lab: Candy causes random effects (coming soon) but 956 targets players holding candy and under the age of 12.\n" +
                 "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
                 "4 - All: 956 targets all players.");
-            config956Radius = Config.Bind("General", "ActivationRadius", 10f, "The radius around 956 that will activate 956.");
-            configMaxAge = Config.Bind("General", "Max Age", 50, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
+            config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956.");
+            configMaxAge = Config.Bind("General", "Max Age", 60, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
             configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met.");
             configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
-            // SCP-956-1 Configs
-            config9561MinValue = Config.Bind("SCP-956-1", "SCP-956-1 Min Value", 0, "The minimum scrap value of the candy");
-            config9561MaxValue = Config.Bind("SCP-956-1", "SCP-956-1 Max Value", 15, "The maximum scrap value of the candy");
-            config9561MinSpawn = Config.Bind("SCP-956-1", "Min Candy Spawn", 5, "The minimum amount of SCP-956-1 to spawn when player dies to SCP-956");
-            config9561MaxSpawn = Config.Bind("SCP-956-1", "Max Candy Spawn", 20, "The maximum amount of SCP-956-1 to spawn when player dies to SCP-956");
-            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 5, "The chance of the Player being killed by SCP-956-1");
+            // Candy Configs
+            config9561MinValue = Config.Bind("Candy", "Candy Min Value", 0, "The minimum scrap value of the candy");
+            config9561MaxValue = Config.Bind("Candy", "Cany Max Value", 15, "The maximum scrap value of the candy");
+            config9561MinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
+            config9561MaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 20, "The maximum amount of candy to spawn when player dies to SCP-956");
+            config9561DeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
             
             // SCP-559 Configs
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
@@ -142,15 +143,15 @@ namespace SCP956
 
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330."); // TODO: Add description
-            config330Rarity = Config.Bind("SCP-330", "Rarity", 10, "How often SCP-330 will spawn.");
+            config330Rarity = Config.Bind("SCP-330", "Rarity", 15, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
             configEnableCustomStatusEffects = Config.Bind("Status Effects", "Enable Custom Status Effects", false, "Enable custom status effects");
-            configCandyPurpleEffects = Config.Bind("Status Effects", "Candy Purple Effects", "TODO: Add effects", "Enable candy purple effects");
-            configCandyRedEffects = Config.Bind("Status Effects", "Candy Red Effects", "TODO: Add effects", "Enable candy red effects");
-            configCandyYellowEffects = Config.Bind("Status Effects", "Candy Yellow Effects", "TODO: Add effects", "Enable candy yellow effects");
-            configCandyGreenEffects = Config.Bind("Status Effects", "Candy Green Effects", "TODO: Add effects", "Enable candy green effects");
-            configCandyBlueEffects = Config.Bind("Status Effects", "Candy Blue Effects", "TODO: Add effects", "Enable candy blue effects");
+            configCandyPurpleEffects = Config.Bind("Status Effects", "Candy Purple Effects", "DamageReduction:15,20,true;HealthRegen:2,10;", "Effects when eating purple candy");
+            configCandyRedEffects = Config.Bind("Status Effects", "Candy Red Effects", "HealthRegen:9,5;", "Effects when eating red candy");
+            configCandyYellowEffects = Config.Bind("Status Effects", "Candy Yellow Effects", "RestoreStamina:25;InfiniteSprint:8;IncreasedMovementSpeed:8,2,true,true;", "Effects when eating yellow candy");
+            configCandyGreenEffects = Config.Bind("Status Effects", "Candy Green Effects", "StatusNegation:30;HealthRegen:1,80;", "Effects when eating green candy");
+            configCandyBlueEffects = Config.Bind("Status Effects", "Candy Blue Effects", "HealPlayer:30,true;", "Effects when eating blue candy");
 
             new StatusEffectController();
 
@@ -208,17 +209,20 @@ namespace SCP956
             Items.RegisterScrap(Cake);
 
             // Getting SCP-330
-            Item CandyBowl = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlItem.asset"); // TODO: Make sure spawnpositiontype works
+            if (configEnable330.Value)
+            {
+                Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyItem.asset"); // TODO: Make sure spawnpositiontype works
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyBowl.spawnPrefab);
-            Utilities.FixMixerGroups(CandyBowl.spawnPrefab);
-            Items.RegisterScrap(CandyBowl, config330Rarity.Value, Levels.LevelTypes.All);
+                NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
+                Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
+                Items.RegisterScrap(BowlOfCandy, config330Rarity.Value, Levels.LevelTypes.All);
 
-            Item CandyBowlPedestal = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBowlPItem.asset"); // TODO: Make sure spawnpositiontype works
+                Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset"); // TODO: Make sure spawnpositiontype works
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyBowlPedestal.spawnPrefab);
-            Utilities.FixMixerGroups(CandyBowlPedestal.spawnPrefab);
-            Items.RegisterScrap(CandyBowlPedestal, config330Rarity.Value, Levels.LevelTypes.All);
+                NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
+                Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);
+                Items.RegisterScrap(BowlOfCandyP, config330Rarity.Value, Levels.LevelTypes.All);
+            }
 
             // Getting Candy // TODO: Simplify this
             CandyBehavior candyScript;

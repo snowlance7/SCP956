@@ -123,6 +123,12 @@ namespace SCP956.Patches
                 logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
                 damageNumber = damageAfterReduction;
             }
+            if (StatusEffectController.Instance.bulletProofMultiplier != 0)
+            {
+                float reductionPercent = StatusEffectController.Instance.bulletProofMultiplier * .10f;
+
+
+            }
         }
 
         [HarmonyPostfix]

@@ -35,14 +35,20 @@ namespace SCP956.Patches
             // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
             logger.LogDebug("ping scan performed");
 
-            Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
+            //string effects = "status negation:10,true;DamageReduction:15, 35, false, true;HealthRegen:10,5;restorestamina:50;IncreasedMovementSpeed:15,10;";
+            //StatusEffectController.Instance.ApplyCandyEffects(effects);
+            //StatusEffectController.Instance.RestoreStamina(10);
+            //StatusEffectController.Instance.InfiniteSprint(10, true);
+            //StatusEffectController.Instance.IncreasedMovementSpeed(10, 10, true, true);
+
+            /*Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
             Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlPItem").First();
             logger.LogDebug("Got items");
 
             logger.LogDebug(scp330.name + ": " + scp330.spawnPositionTypes.Count);
             logger.LogDebug(scp330p.name + ": " + scp330p.spawnPositionTypes.Count);
             //StartOfRound.Instance.ManuallyEjectPlayersServerRpc();
-            //RoundManager.Instance.SpawnScrapInLevel();
+            //RoundManager.Instance.SpawnScrapInLevel();*/
         }
 
         /*[HarmonyPrefix, HarmonyPatch(typeof(RoundManager), nameof(RoundManager.SpawnScrapInLevel))]

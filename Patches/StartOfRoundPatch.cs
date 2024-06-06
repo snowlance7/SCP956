@@ -39,6 +39,7 @@ namespace SCP956.Patches
                 PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
             }
 
+            PlayerOriginalAge = PlayerAge;
             logger.LogDebug($"Age is {PlayerAge}");
 
             // Setting up itemgroups
@@ -49,8 +50,8 @@ namespace SCP956.Patches
                 ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
                 logger.LogDebug("Got itemgroups");
 
-                Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
-                Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlPItem").First();
+                Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "BowlOfCandyItem").First();
+                Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "BowlOfCandyPItem").First();
                 logger.LogDebug("Got items");
 
                 scp330.spawnPositionTypes.Clear();

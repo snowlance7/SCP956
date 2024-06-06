@@ -63,8 +63,7 @@ namespace SCP956
 
         public float freezeSprintMeter;
         public float baseMovementSpeed = 4.6f;
-        public bool bulletProof = false;
-        public int bulletProofMultiplier;
+        public int bulletProofMultiplier = 0;
 
         private readonly string[] effectNames = { "HealPlayer", "RestoreStamina", "HealthRegen", "StatusNegation", "DamageReduction", "InfiniteSprint", "IncreasedMovementSpeed" };
         private Dictionary<string, MethodInfo> effectMethods;
@@ -162,7 +161,7 @@ namespace SCP956
             HUDManager.Instance.UpdateHealthUI(newHealth, false);
         }
 
-        public void RestoreStamina(int percent) // TODO: Test this
+        public void RestoreStamina(int percent)
         {
             float percentage = percent / 100.0f;
             float newStamina = LocalPlayer.sprintMeter + (1 * percentage);
@@ -196,7 +195,7 @@ namespace SCP956
             damageReductionCoroutine = StartCoroutine(DamageReductionCoroutine(seconds, percent));
         }
 
-        public void InfiniteSprint(int seconds, bool timeStackable = false) // TODO: Test this
+        public void InfiniteSprint(int seconds, bool timeStackable = false)
         {
             if (infiniteSprintCoroutine != null)
             {
@@ -206,7 +205,7 @@ namespace SCP956
             infiniteSprintCoroutine = StartCoroutine(InfiniteSprintCoroutine(seconds));
         }
 
-        public void IncreasedMovementSpeed(int seconds, int percent, bool timeStackable = false, bool stackable = false) // TODO: Test this
+        public void IncreasedMovementSpeed(int seconds, int percent, bool timeStackable = false, bool stackable = false)
         {
             if (increasedMovementSpeedCoroutine != null)
             {
@@ -219,7 +218,7 @@ namespace SCP956
             increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
 
-        public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10) // TODO: Test this
+        public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10)
         {
             StartCoroutine(DamagePlayerOverTimeCoroutine(damage, perSeconds, untilDead, totalSeconds));
         }
@@ -270,13 +269,14 @@ namespace SCP956
             while (infiniteSprintSeconds > 0)
             {
                 infiniteSprintSeconds--;
+                logger.LogDebug("Infinite sprint: " + infiniteSprintSeconds);
                 yield return new WaitForSecondsRealtime(1f);
             }
             infiniteSprintSeconds = 0;
             infiniteSprintCoroutine = null;
         }
 
-        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent) // Test this
+        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent)
         {
             baseMovementSpeed = LocalPlayer.movementSpeed;
             increasedMovementSpeedSeconds = seconds;
@@ -286,6 +286,7 @@ namespace SCP956
                 float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100.0f);
                 LocalPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
                 increasedMovementSpeedSeconds--;
+                logger.LogDebug("Increased movement speed: " + increasedMovementSpeedPercent + "% " + increasedMovementSpeedSeconds);
                 yield return new WaitForSecondsRealtime(1f);
             }
             increasedMovementSpeedPercent = 0;
