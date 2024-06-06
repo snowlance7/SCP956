@@ -19,6 +19,7 @@ namespace SCP956
             {
                 logger.LogDebug("Eating cake");
                 HUDManager.Instance.UIAudio.PlayOneShot(EatCakesfx, 1f);
+                StatusEffectController.Instance.HealPlayer(config559HealAmount.Value);
                 playerHeldBy.DespawnHeldObject();
             }
         }

@@ -130,7 +130,7 @@ namespace SCP956.Patches
         private static void KillPlayerPostfix(PlayerControllerB __instance)
         {
             __instance.disableLookInput = false;
-            IngamePlayerSettings.Instance.playerInput.ActivateInput(); // TODO: Make sure this isnt activating other players as well
+            IngamePlayerSettings.Instance.playerInput.ActivateInput(); // TODO: Test and Make sure this isnt activating other players as well
             SCP330Behavior.noHands = false;
         }
 

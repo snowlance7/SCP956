@@ -26,10 +26,13 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
+                logger.LogDebug("Despaned network object");
             }
 
             Instance = this;
+            logger.LogDebug("set instance to this");
             base.OnNetworkSpawn();
+            logger.LogDebug("base.OnNetworkSpawn");
         }
 
         [ClientRpc]
@@ -102,26 +105,32 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false, string scanHeader = "")
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == _itemName).FirstOrDefault();
+                logger.LogDebug("Got item");
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
+                logger.LogDebug("Got obj");
                 obj.GetComponent<GrabbableObject>().fallTime = 0f;
+                logger.LogDebug("falltime set");
                 obj.GetComponent<GrabbableObject>().SetScrapValue(newValue);
-                if (scanHeader != "") { obj.GetComponent<ScanNodeProperties>().headerText = scanHeader; } // TODO: test this
+                logger.LogDebug("set value");
                 obj.GetComponent<NetworkObject>().Spawn();
+                logger.LogDebug("spawned obj");
 
                 if (grabItem)
                 {
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
+                    logger.LogDebug("grabbed obj");
                 }
 
                 if (playCakeSFX)
                 {
                     obj.GetComponent<AudioSource>().PlayOneShot(CakeAppearsfx);
+                    logger.LogDebug("Played cake sfx");
                 }
             }
         } // TODO: Figure out how to spawn cake in players hand instead of on the floor
@@ -140,9 +149,12 @@ namespace SCP956
                 return;
 
             networkPrefab = (GameObject)Plugin.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandler.prefab");
+            logger.LogDebug("Got networkPrefab");
             networkPrefab.AddComponent<NetworkHandler>();
+            logger.LogDebug("Added component");
 
             NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
+            logger.LogDebug("Added networkPrefab");
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]
@@ -151,7 +163,9 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 var networkHandlerHost = UnityEngine.Object.Instantiate(networkPrefab, Vector3.zero, Quaternion.identity);
+                logger.LogDebug("Instantiated networkHandlerHost");
                 networkHandlerHost.GetComponent<NetworkObject>().Spawn();
+                logger.LogDebug("Spawned network object");
             }
         }
     }

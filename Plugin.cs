@@ -45,8 +45,6 @@ namespace SCP956
 
 
 
-        
-
         // SCP-956 Configs
         // Rarity Configs || ONLY WORKS WITH BIRTHDAYMODE AND RANDOM AGE GAMEMODES
         public static ConfigEntry<int> configExperimentationLevelRarity;
@@ -78,6 +76,7 @@ namespace SCP956
         public static ConfigEntry<int> config559Rarity;
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
+        public static ConfigEntry<int> config559HealAmount;
 
         // SCP-330 Configs
         public static ConfigEntry<bool> configEnable330;
@@ -133,19 +132,20 @@ namespace SCP956
             config9561MaxValue = Config.Bind("SCP-956-1", "SCP-956-1 Max Value", 15, "The maximum scrap value of the candy");
             config9561MinSpawn = Config.Bind("SCP-956-1", "Min Candy Spawn", 5, "The minimum amount of SCP-956-1 to spawn when player dies to SCP-956");
             config9561MaxSpawn = Config.Bind("SCP-956-1", "Max Candy Spawn", 20, "The maximum amount of SCP-956-1 to spawn when player dies to SCP-956");
-            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 10, "The chance of the Player being killed by SCP-956-1");
+            config9561DeathChance = Config.Bind("SCP-956-1", "Death Chance", 5, "The chance of the Player being killed by SCP-956-1");
             
             // SCP-559 Configs
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
+            config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal.");
 
             // SCP-330 Configs
-            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Enable SCP-330"); // TODO: Add description
+            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330."); // TODO: Add description
             config330Rarity = Config.Bind("SCP-330", "Rarity", 10, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
-            configEnableCustomStatusEffects = Config.Bind("Status Effects", "Enable Custom Status Effects", true, "Enable custom status effects");
+            configEnableCustomStatusEffects = Config.Bind("Status Effects", "Enable Custom Status Effects", false, "Enable custom status effects");
             configCandyPurpleEffects = Config.Bind("Status Effects", "Candy Purple Effects", "TODO: Add effects", "Enable candy purple effects");
             configCandyRedEffects = Config.Bind("Status Effects", "Candy Red Effects", "TODO: Add effects", "Enable candy red effects");
             configCandyYellowEffects = Config.Bind("Status Effects", "Candy Yellow Effects", "TODO: Add effects", "Enable candy yellow effects");

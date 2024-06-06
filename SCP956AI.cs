@@ -76,7 +76,7 @@ namespace SCP956
             }
         }
         
-        public override void DoAIInterval() // TODO: Make it so if player isnt frozen but in list because of statusnegation, it will get angry and chase them faster and in longer range?
+        public override void DoAIInterval() // TODO?: Make it so if player isnt frozen but in list because of statusnegation, it will get angry and chase them faster and in longer range?
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
@@ -230,7 +230,7 @@ namespace SCP956
             PlayerControllerB player = StartOfRound.Instance.localPlayerController;
             if (player.actualClientId == clientId)
             {
-                player.DamagePlayer(50);
+                player.DamagePlayer(configHeadbuttDamage.Value);
 
                 if (player.isPlayerDead) { PlayerControllerBPatch.playerFrozen = false; }
             }

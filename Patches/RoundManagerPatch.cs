@@ -27,7 +27,7 @@ namespace SCP956.Patches
             List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>(); // Testing
             foreach (SpawnableItemWithRarity item in RoundManager.Instance.currentLevel.spawnableScrap)
             {
-                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "TabletopItems" && item.spawnableItem.itemName != "Fancy lamp")
+                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "GeneralItemClass" && item.spawnableItem.itemName != "Fancy lamp")
                 {
                     logger.LogDebug(item.spawnableItem.itemName);
                     newScrapList.Add(item);

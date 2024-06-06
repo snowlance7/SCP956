@@ -62,7 +62,7 @@ namespace SCP956
         public int increasedMovementSpeedPercent = 0;
 
         public float freezeSprintMeter;
-        public const float baseMovementSpeed = 0.5f;
+        public float baseMovementSpeed = 4.6f;
         public bool bulletProof = false;
         public int bulletProofMultiplier;
 
@@ -214,6 +214,7 @@ namespace SCP956
                 if (stackable) { increasedMovementSpeedPercent += percent; }
                 if (timeStackable || stackable) { return; }
                 StopCoroutine(increasedMovementSpeedCoroutine);
+                if (baseMovementSpeed != 0) { LocalPlayer.movementSpeed = baseMovementSpeed; }
             }
             increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
@@ -275,8 +276,9 @@ namespace SCP956
             infiniteSprintCoroutine = null;
         }
 
-        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent)
+        private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent) // Test this
         {
+            baseMovementSpeed = LocalPlayer.movementSpeed;
             increasedMovementSpeedSeconds = seconds;
             increasedMovementSpeedPercent = percent;
             while (increasedMovementSpeedSeconds > 0)
