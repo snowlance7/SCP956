@@ -1,13 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-    <!-- BepInEx Properties -->
-    <PropertyGroup>
-        <AssemblyName>Snowlance.SCP956</AssemblyName>
-        <Product>SCP956</Product>
-        <!-- Change to whatever version you're currently on. -->
-        <Version>0.1.2</Version>
-    </PropertyGroup>
-
     <!-- Project Properties -->
     <PropertyGroup>
         <TargetFramework>netstandard2.1</TargetFramework>

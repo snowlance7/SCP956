@@ -327,7 +327,7 @@ namespace SCP956
             }
             
             // Finished
-            Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+            Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
         }
 
         private static void InitializeNetworkBehaviours()
