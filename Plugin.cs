@@ -42,6 +42,7 @@ namespace SCP956
         public static AudioClip? CandyCrunchsfx;
         public static AudioClip? CandleBlowsfx;
         public static AudioClip? CakeAppearsfx;
+        public static AudioClip? CakeDisappearsfx;
         public static AudioClip? EatCakesfx;
 
 
@@ -139,10 +140,10 @@ namespace SCP956
             config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
-            config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal.");
+            config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
 
             // SCP-330 Configs
-            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330."); // TODO: Add description
+            configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
             config330Rarity = Config.Bind("SCP-330", "Rarity", 15, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
@@ -174,15 +175,17 @@ namespace SCP956
             CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
             CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
             CakeAppearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_appear.wav");
+            CakeDisappearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_disappear.wav");
             EatCakesfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/Cake_Eat.wav");
-            if (EatCakesfx == null) { Logger.LogError("EatCakesfx is null"); return; }
-            if (CandleBlowsfx == null) { Logger.LogError("CandleBlowsfx is null"); return; }
-            if (CakeAppearsfx == null) { Logger.LogError("CakeAppearsfx is null"); return; }
-            if (BoneCracksfx == null) { Logger.LogError("BoneCracksfx is null"); return; }
-            if (PlayerDeathsfx == null) { Logger.LogError("PlayerDeathsfx is null"); return; }
-            if (CandyCrunchsfx == null) { Logger.LogError("CandyCrunchsfx is null"); return; }
-            if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); return; }
-            if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); return; }
+            if (EatCakesfx == null) { Logger.LogError("EatCakesfx is null"); }
+            if (CandleBlowsfx == null) { Logger.LogError("CandleBlowsfx is null"); }
+            if (CakeAppearsfx == null) { Logger.LogError("CakeAppearsfx is null"); }
+            if (CakeDisappearsfx == null) { Logger.LogError("CakeDisappearsfx is null"); }
+            if (BoneCracksfx == null) { Logger.LogError("BoneCracksfx is null"); }
+            if (PlayerDeathsfx == null) { Logger.LogError("PlayerDeathsfx is null"); }
+            if (CandyCrunchsfx == null) { Logger.LogError("CandyCrunchsfx is null"); }
+            if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); }
+            if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); }
             LoggerInstance.LogDebug($"Got sounds from assets");
 
             // Getting SCP-559
@@ -211,13 +214,13 @@ namespace SCP956
             // Getting SCP-330
             if (configEnable330.Value)
             {
-                Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyItem.asset"); // TODO: Make sure spawnpositiontype works
+                Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyItem.asset");
 
                 NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
                 Items.RegisterScrap(BowlOfCandy, config330Rarity.Value, Levels.LevelTypes.All);
 
-                Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset"); // TODO: Make sure spawnpositiontype works
+                Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset");
 
                 NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);

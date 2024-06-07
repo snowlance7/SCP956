@@ -11,17 +11,14 @@ namespace SCP956
     internal class SCP559Behavior : PhysicsProp
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
+        private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                PlayerControllerB currentPlayer = StartOfRound.Instance.localPlayerController;
-                HUDManager.Instance.UIAudio.PlayOneShot(CandleBlowsfx, 1f);
-                Plugin.PlayerAge = 10;
-
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(currentPlayer.actualClientId, 0.8f);
+                StatusEffectController.Instance.BlowOutCandles();
 
                 // Spawn cake somewhere else
 
@@ -42,7 +39,7 @@ namespace SCP956
 
                     int newScrapValue = GetComponent<GrabbableObject>().scrapValue + 50;
                     logger.LogDebug("Spawning SCP-559");
-                    NetworkHandler.Instance.SpawnItemServerRpc(currentPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
+                    NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
                 }
 
                 // Blow out the candles
@@ -54,7 +51,7 @@ namespace SCP956
                 // Spawn cake
                 Item Cake = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "Cake").FirstOrDefault();
                 logger.LogDebug("Spawning cake");
-                NetworkHandler.Instance.SpawnItemServerRpc(currentPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, false, true);
+                NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, false, true);
                 
                 // Spawn SCP-956 if not already spawned
                 if (!StartOfRound.Instance.inShipPhase)

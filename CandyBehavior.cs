@@ -11,19 +11,18 @@ using System.Collections;
 
 namespace SCP956
 {
-    public class CandyBehavior : PhysicsProp // TODO: make candy size 0.86 and test (changed from 0.5)
+    public class CandyBehavior : PhysicsProp
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = true;
-        // TODO: get this script from itemprefab.GetComponent<CandyBehavior>()
-        // TODO: Add SCP-330
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
                 logger.LogDebug("Eating candy");
+                playerHeldBy.DespawnHeldObject();
                 HUDManager.Instance.UIAudio.PlayOneShot(CandyCrunchsfx, 1f);
                 
 
@@ -31,14 +30,14 @@ namespace SCP956
                 {
                     if (pinataCandy && (int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
                     {
-                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3); // TODO: Probably doesnt despawn properly either here
+                        playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
                         return;
                     }
 
                     if (!pinataCandy || config956Behavior.Value == 2)
                     {
                         switch (itemProperties.itemName)
-                        { // TODO: for custom effects, if disabled use config.defaultvalue
+                        {
                             case "Blue Candy":
                                 logger.LogDebug("Candy blue");
                                 if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyBlueEffects.Value); }
@@ -83,16 +82,15 @@ namespace SCP956
                                     StatusEffectController.Instance.IncreasedMovementSpeed(8, 2, true, true);
                                 }
                                 break;
-                            case "Pink Candy": // TODO: Doesnt despawn properly
+                            case "Pink Candy":
                                 logger.LogDebug("Candy pink");
-                                playerHeldBy.DespawnHeldObject();
                                 Landmine.SpawnExplosion(playerHeldBy.transform.position, true, 3, 3);
                                 break;
                             case "Rainbow Candy":
                                 logger.LogDebug("Candy rainbow");
                                 StatusEffectController.Instance.HealPlayer(15);
                                 StatusEffectController.Instance.InfiniteSprint(5, true);
-                                StatusEffectController.Instance.bulletProofMultiplier += 1; // TODO: implement this
+                                StatusEffectController.Instance.bulletProofMultiplier += 1;
                                 StatusEffectController.Instance.StatusNegation(10);
                                 StatusEffectController.Instance.HealPlayer(20, true);
                                 break;
@@ -100,7 +98,6 @@ namespace SCP956
                                 logger.LogDebug("Candy not found");
                                 break;
                         }
-                        // TODO: Create random effect like in secret lab
                         // Blue:
                         //      gives 30 hp and goes over max health limit
                         // Green:
@@ -132,8 +129,6 @@ namespace SCP956
                     int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
                     RoundManager.Instance.SpawnEnemyOnServer(playerHeldBy.transform.position, playerHeldBy.previousYRot, index);
                 }
-
-                //playerHeldBy.DespawnHeldObject(); // TESTING
             }
         }
     }

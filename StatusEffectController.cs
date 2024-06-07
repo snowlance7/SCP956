@@ -14,7 +14,7 @@ using static Netcode.Transports.Facepunch.FacepunchTransport;
 
 namespace SCP956
 {
-    public class StatusEffectController : MonoBehaviour // TODO: Add configs
+    public class StatusEffectController : MonoBehaviour
     {
         private static StatusEffectController _instance;
 
@@ -40,13 +40,7 @@ namespace SCP956
 
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
-        private PlayerControllerB LocalPlayer
-        {
-            get
-            {
-                return StartOfRound.Instance.localPlayerController;
-            }
-        }
+        private PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         private Coroutine statusNegationCoroutine;
         private Coroutine damageReductionCoroutine;
@@ -95,7 +89,7 @@ namespace SCP956
             logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
         }
 
-        public void ApplyCandyEffects(string config) // TODO: Needs testing
+        public void ApplyCandyEffects(string config)
         {
             // Split the config string into individual effect strings
             var effectStrings = config.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
@@ -150,7 +144,8 @@ namespace SCP956
 
         public void HealPlayer(int amount, bool overHeal = false) // TODO: Bug: when you heal over 100, if you take damage, it just resets to 100 rather than subtracting the damage. ex 150 health and you take 25 damage, it resets to 100
         {
-            PlayerControllerB player = LocalPlayer;
+            logger.LogDebug("Healing: " + amount);
+            PlayerControllerB player = localPlayer;
 
             player.MakeCriticallyInjured(false);
 
@@ -164,8 +159,8 @@ namespace SCP956
         public void RestoreStamina(int percent)
         {
             float percentage = percent / 100.0f;
-            float newStamina = LocalPlayer.sprintMeter + (1 * percentage);
-            LocalPlayer.sprintMeter = newStamina;
+            float newStamina = localPlayer.sprintMeter + (1 * percentage);
+            localPlayer.sprintMeter = newStamina;
         }
 
         public void HealthRegen(int hpPerSecond, int seconds)
@@ -213,7 +208,7 @@ namespace SCP956
                 if (stackable) { increasedMovementSpeedPercent += percent; }
                 if (timeStackable || stackable) { return; }
                 StopCoroutine(increasedMovementSpeedCoroutine);
-                if (baseMovementSpeed != 0) { LocalPlayer.movementSpeed = baseMovementSpeed; }
+                if (baseMovementSpeed != 0) { localPlayer.movementSpeed = baseMovementSpeed; }
             }
             increasedMovementSpeedCoroutine = StartCoroutine(IncreasedMovementSpeedCoroutine(seconds, percent));
         }
@@ -264,7 +259,7 @@ namespace SCP956
 
         private IEnumerator InfiniteSprintCoroutine(int seconds)
         {
-            freezeSprintMeter = LocalPlayer.sprintMeter;
+            freezeSprintMeter = localPlayer.sprintMeter;
             infiniteSprintSeconds = seconds;
             while (infiniteSprintSeconds > 0)
             {
@@ -278,19 +273,19 @@ namespace SCP956
 
         private IEnumerator IncreasedMovementSpeedCoroutine(int seconds, int percent)
         {
-            baseMovementSpeed = LocalPlayer.movementSpeed;
+            baseMovementSpeed = localPlayer.movementSpeed;
             increasedMovementSpeedSeconds = seconds;
             increasedMovementSpeedPercent = percent;
             while (increasedMovementSpeedSeconds > 0)
             {
                 float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100.0f);
-                LocalPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
+                localPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
                 increasedMovementSpeedSeconds--;
                 logger.LogDebug("Increased movement speed: " + increasedMovementSpeedPercent + "% " + increasedMovementSpeedSeconds);
                 yield return new WaitForSecondsRealtime(1f);
             }
             increasedMovementSpeedPercent = 0;
-            LocalPlayer.movementSpeed = baseMovementSpeed;
+            localPlayer.movementSpeed = baseMovementSpeed;
             increasedMovementSpeedSeconds = 0;
             increasedMovementSpeedCoroutine = null;
         }
@@ -299,10 +294,13 @@ namespace SCP956
         {
             if (untilDead)
             {
-                while (!LocalPlayer.isPlayerDead)
+                while (!localPlayer.isPlayerDead)
                 {
-                    LocalPlayer.DamagePlayer(damage, false);
-                    HUDManager.Instance.UpdateHealthUI(LocalPlayer.health, true);
+                    localPlayer.inSpecialInteractAnimation = true;
+                    localPlayer.DamagePlayer(damage, false);
+                    HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
+                    localPlayer.inSpecialInteractAnimation = false;
+                    HUDManager.Instance.UpdateHealthUI(localPlayer.health, true); // TODO: testing
                     yield return new WaitForSecondsRealtime(perSeconds);
                 }
                 yield break;
@@ -311,10 +309,21 @@ namespace SCP956
             int seconds = 0;
             while (seconds < totalSeconds)
             {
-                LocalPlayer.DamagePlayer(damage, false);
+                localPlayer.DamagePlayer(damage, false);
                 seconds += perSeconds;
                 yield return new WaitForSecondsRealtime(perSeconds);
             }
+        }
+
+        public void BlowOutCandles() { StartCoroutine(BlowOutCandlesCoroutine()); }
+
+        private IEnumerator BlowOutCandlesCoroutine()
+        {
+            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CandleBlowsfx, 1f);
+            yield return new WaitForSecondsRealtime(1.5f);
+            Plugin.PlayerAge = 10;
+            NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.8f);
+            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CakeAppearsfx, 1f);
         }
     }
 }

@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 796000009
+CRC: 1415525428
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7bc6dcc0a274a70d0b5663c084184214
+    Hash: 82c10767e0a3c76bd0b16370d6e7b1c5
   TypeTreeHash:
     serializedVersion: 2
     Hash: 315d92fdd7a42b8c638902e4a0f3c9db
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 7bc6dcc0a274a70d0b5663c084184214
+    Hash: 82c10767e0a3c76bd0b16370d6e7b1c5
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -114,6 +114,7 @@ Assets:
 - Assets/ModAssets/Pinata/Audio/papers-flapping.mp3
 - Assets/ModAssets/Cake/CakeItem.asset
 - Assets/ModAssets/Cake/Audio/cake_candle_blow.wav
+- Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/Candy/BowlOfCandyPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 - Assets/ModAssets/Cake/Audio/cake_appear.wav

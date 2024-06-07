@@ -46,14 +46,13 @@ namespace SCP956.Patches
                     return;
                 }
 
-                if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; } // TODO: Test this
+                if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
 
                 AudioSource _audioSource = HUDManager.Instance.UIAudio;
                 if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
 
                 if (PlayerMeetsConditions(localPlayer))
                 {
-                    logger.LogDebug($"Warning started: {warningStarted}");
                     if (!warningStarted)
                     {
                         if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
@@ -63,18 +62,19 @@ namespace SCP956.Patches
                         _audioSource.Play();
 
                         warningStarted = true;
+                        logger.LogDebug("Warning started");
                     }
 
                     if (!_audioSource.isPlaying)
                     {
-                        logger.LogDebug("audio stopped");
+                        logger.LogDebug("Audio stopped");
                         // Freeze localPlayer
                         playerFrozen = true; // TODO: Make sure this isnt freezing other players as well
                         warningStarted = false;
                         NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
 
-                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        localPlayer.disableLookInput = true;
+                        //IngamePlayerSettings.Instance.playerInput.DeactivateInput(); // TODO: Testing
+                        //localPlayer.disableLookInput = true;
                         if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
                     }
                 }
@@ -102,7 +102,7 @@ namespace SCP956.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlayerControllerB.SpawnDeadBody))]
-        private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
+        private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody) // TODO: Test this
         {
             if (Plugin.PlayerAge < 12)
             {
@@ -123,11 +123,13 @@ namespace SCP956.Patches
                 logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
                 damageNumber = damageAfterReduction;
             }
-            if (StatusEffectController.Instance.bulletProofMultiplier != 0)
+            if (StatusEffectController.Instance.bulletProofMultiplier != 0) // TODO: Test this
             {
                 float reductionPercent = StatusEffectController.Instance.bulletProofMultiplier * .10f;
-
-
+                int reductionAmount = (int)(damageNumber * reductionPercent);
+                int damageAfterReduction = damageNumber - reductionAmount;
+                logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                damageNumber = damageAfterReduction;
             }
         }
 
@@ -135,6 +137,8 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.KillPlayer))]
         private static void KillPlayerPostfix(PlayerControllerB __instance)
         {
+            NetworkHandler.Instance.ChangePlayerSizeServerRpc(__instance.actualClientId, 1f);
+            PlayerAge = PlayerOriginalAge;
             __instance.disableLookInput = false;
             IngamePlayerSettings.Instance.playerInput.ActivateInput(); // TODO: Test and Make sure this isnt activating other players as well
             SCP330Behavior.noHands = false;

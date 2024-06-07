@@ -35,6 +35,9 @@ namespace SCP956
                 localPlayer.MakeCriticallyInjured(true);
                 localPlayer.DropAllHeldItemsAndSync();
                 noHands = true;
+                HUDManager.Instance.UIAudio.PlayOneShot(BoneCracksfx, 1f);
+                HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
+                // TODO: Make it so the players hands are no longer visible
 
                 StatusEffectController.Instance.DamagePlayerOverTime(5, 2, true);
 

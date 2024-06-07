@@ -18,6 +18,7 @@ namespace SCP956.Patches
     internal class RoundManagerPatch
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
+        private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
@@ -67,35 +68,23 @@ namespace SCP956.Patches
                 logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
                 PlayerControllerBPatch.playerFrozen = false;
                 SCP330Behavior.candyTaken = 0;
-                PlayerControllerB localPlayer = StartOfRound.Instance.localPlayerController;
                 IngamePlayerSettings.Instance.playerInput.ActivateInput();
-                StartOfRound.Instance.localPlayerController.disableLookInput = false;
+                localPlayer.disableLookInput = false;
                 StatusEffectController.Instance.bulletProofMultiplier = 0;
                 SCP330Behavior.noHands = false;
 
                 PlayerAge = PlayerOriginalAge;
-                if (PlayerAge >= 12)
-                {
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
-                }
+                if (PlayerAge >= 12) { NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f); HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f); }
 
                 if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
                 {
                     NetworkHandler.Instance.FrozenPlayers.Clear();
-                }
-
-                if (config956Behavior.Value != 3)
-                {
-                    PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 1f);
                 }
             }
             catch (Exception)
             {
                 logger.LogError("Error in DespawnPropsAtEndOfRound");
             }
-
-            StatusEffectController.Instance.bulletProofMultiplier = 0;
         }
 
         [HarmonyPostfix]
@@ -104,7 +93,7 @@ namespace SCP956.Patches
         {
             if (PlayerAge < 12)
             {
-                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() != null) // TODO: Needs testing
+                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null) // TODO: Needs testing
                 {
                     NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: Needs testing
                 }

@@ -35,6 +35,13 @@ namespace SCP956.Patches
             // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
             logger.LogDebug("ping scan performed");
 
+            foreach (var bodypart in localPlayer.bodyParts)
+            {
+                logger.LogDebug(bodypart.name);
+            }
+
+            // TODO: Make player drunk
+
             //string effects = "status negation:10,true;DamageReduction:15, 35, false, true;HealthRegen:10,5;restorestamina:50;IncreasedMovementSpeed:15,10;";
             //StatusEffectController.Instance.ApplyCandyEffects(effects);
             //StatusEffectController.Instance.RestoreStamina(10);
