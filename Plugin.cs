@@ -147,12 +147,12 @@ namespace SCP956
             config330Rarity = Config.Bind("SCP-330", "Rarity", 15, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
-            configEnableCustomStatusEffects = Config.Bind("Status Effects", "Enable Custom Status Effects", false, "Enable custom status effects");
-            configCandyPurpleEffects = Config.Bind("Status Effects", "Candy Purple Effects", "DamageReduction:15,20,true;HealthRegen:2,10;", "Effects when eating purple candy");
-            configCandyRedEffects = Config.Bind("Status Effects", "Candy Red Effects", "HealthRegen:9,5;", "Effects when eating red candy");
-            configCandyYellowEffects = Config.Bind("Status Effects", "Candy Yellow Effects", "RestoreStamina:25;InfiniteSprint:8;IncreasedMovementSpeed:8,2,true,true;", "Effects when eating yellow candy");
-            configCandyGreenEffects = Config.Bind("Status Effects", "Candy Green Effects", "StatusNegation:30;HealthRegen:1,80;", "Effects when eating green candy");
-            configCandyBlueEffects = Config.Bind("Status Effects", "Candy Blue Effects", "HealPlayer:30,true;", "Effects when eating blue candy");
+            configEnableCustomStatusEffects = Config.Bind("Status Effects (Experimental)", "Enable Custom Status Effects", false, "Enable custom status effects");
+            configCandyPurpleEffects = Config.Bind("Status Effects (Experimental)", "Candy Purple Effects", "DamageReduction:15,20,true;HealthRegen:2,10;", "Effects when eating purple candy. See README for more info.");
+            configCandyRedEffects = Config.Bind("Status Effects (Experimental)", "Candy Red Effects", "HealthRegen:9,5;", "Effects when eating red candy. See README for more info.");
+            configCandyYellowEffects = Config.Bind("Status Effects (Experimental)", "Candy Yellow Effects", "RestoreStamina:25;InfiniteSprint:8;IncreasedMovementSpeed:8,2,true,true;", "Effects when eating yellow candy. See README for more info.");
+            configCandyGreenEffects = Config.Bind("Status Effects (Experimental)", "Candy Green Effects", "StatusNegation:30;HealthRegen:1,80;", "Effects when eating green candy. See README for more info.");
+            configCandyBlueEffects = Config.Bind("Status Effects (Experimental)", "Candy Blue Effects", "HealPlayer:30,true;", "Effects when eating blue candy. See README for more info.");
 
             new StatusEffectController();
 
