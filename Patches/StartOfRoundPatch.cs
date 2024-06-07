@@ -44,9 +44,9 @@ namespace SCP956.Patches
 
             // Setting up itemgroups
 
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && configEnable330.Value)
             {
-                ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First(); // Testing
+                ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First();
                 ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
                 logger.LogDebug("Got itemgroups");
 

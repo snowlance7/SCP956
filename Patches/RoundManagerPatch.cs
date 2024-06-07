@@ -91,7 +91,7 @@ namespace SCP956.Patches
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
         private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
         {
-            if (PlayerAge < 12)
+            if (PlayerAge < 12 && configEnablePinata.Value)
             {
                 if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
                 {

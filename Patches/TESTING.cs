@@ -34,11 +34,11 @@ namespace SCP956.Patches
         public static void PingScan_performedPostFix()
         {
             // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
-            PlayerAge = 10;
-            logger.LogDebug("ping scan performed");
-            logger.LogDebug("Player Age: " + PlayerAge);
-            logger.LogDebug("Hands?: " + SCP330Behavior.noHands);
-            logger.LogDebug("Candy taken: " + SCP330Behavior.candyTaken);
+           // PlayerAge = 10;
+            //logger.LogDebug("ping scan performed");
+            //logger.LogDebug("Player Age: " + PlayerAge);
+            //logger.LogDebug("Hands?: " + SCP330Behavior.noHands);
+            //logger.LogDebug("Candy taken: " + SCP330Behavior.candyTaken);
 
             //localPlayer.bodyParts[1].GetComponent<Renderer>().enabled = false; // TODO: Do something with this to hide the players hands?
             //WhiteSpike — Today at 8:09 PM

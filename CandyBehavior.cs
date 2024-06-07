@@ -122,7 +122,7 @@ namespace SCP956
                         //      player instantly explodes
                     }
                 }
-                else
+                else if (configEnablePinata.Value)
                 {
                     // TODO: Animation for player turning into SCP956 and bones crunching sound effects. Maybe spawn in as scavenger model and play animation to turn into scp956!
                     playerHeldBy.KillPlayer(new Vector3(), false, CauseOfDeath.Unknown, 3);

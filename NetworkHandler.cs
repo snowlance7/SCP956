@@ -63,9 +63,9 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnPinataServerRpc() // TODO: Causing errors during generatenewfloor patch
+        public void SpawnPinataServerRpc()
         {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && configEnablePinata.Value)
             {
                 SpawnableEnemyWithRarity enemy = RoundManager.Instance.currentLevel.Enemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
                 logger.LogDebug("Found enemy: " + enemy);

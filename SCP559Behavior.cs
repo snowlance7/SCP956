@@ -54,7 +54,7 @@ namespace SCP956
                 NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, false, true);
                 
                 // Spawn SCP-956 if not already spawned
-                if (!StartOfRound.Instance.inShipPhase)
+                if (!StartOfRound.Instance.inShipPhase && configEnablePinata.Value)
                 {
                     EnemyAI scp = RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
                     
