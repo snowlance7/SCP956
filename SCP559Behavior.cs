@@ -67,5 +67,5 @@ namespace SCP956
         }
     }
 }
-// TODO: Add more candles to the cake so it equals 11
+// TODO: Add more candles to the cake so it equals 10
 // TODO: Make the pitch of the player go up when you blow out the candles

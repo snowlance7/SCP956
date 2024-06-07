@@ -93,9 +93,9 @@ namespace SCP956.Patches
         {
             if (PlayerAge < 12)
             {
-                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null) // TODO: Needs testing
+                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
                 {
-                    NetworkHandler.Instance.SpawnPinataServerRpc(); // TODO: Needs testing
+                    NetworkHandler.Instance.SpawnPinataServerRpc();
                 }
             }
         }

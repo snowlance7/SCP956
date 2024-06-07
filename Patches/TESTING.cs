@@ -17,10 +17,11 @@ using static UnityEngine.ParticleSystem.PlaybackState;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
+using static Unity.Collections.LowLevel.Unsafe.WordStorageStatic;
+using Unity.Burst.Intrinsics;
 
 namespace SCP956.Patches
 {
-    // TODO: Figure out how to determine if scrap spawn is on a table or on the floor, USE RAYCASTING
     // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
     [HarmonyPatch]
     internal class TESTING
@@ -33,14 +34,27 @@ namespace SCP956.Patches
         public static void PingScan_performedPostFix()
         {
             // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
+            PlayerAge = 10;
             logger.LogDebug("ping scan performed");
+            logger.LogDebug("Player Age: " + PlayerAge);
+            logger.LogDebug("Hands?: " + SCP330Behavior.noHands);
+            logger.LogDebug("Candy taken: " + SCP330Behavior.candyTaken);
 
-            foreach (var bodypart in localPlayer.bodyParts)
-            {
-                logger.LogDebug(bodypart.name);
-            }
+            //localPlayer.bodyParts[1].GetComponent<Renderer>().enabled = false; // TODO: Do something with this to hide the players hands?
+            //WhiteSpike — Today at 8:09 PM
+            //You would probably have to mess with what's shown in the camera (the local body) and then the model itself when viewed by others (which means executed by other clients)
+            /*[Debug: Pinata] spine.004
+            [Debug: Pinata] arm.R_lower
+            [Debug: Pinata] arm.L_lower
+            [Debug: Pinata] shin.R
+            [Debug: Pinata] shin.L
+            [Debug: Pinata] spine.002
+            [Debug: Pinata] Player
+            [Debug: Pinata] thigh.R
+            [Debug: Pinata] thigh.L
+            [Debug: Pinata] arm.L_upper
+            [Debug: Pinata] arm.R_upper*/
 
-            // TODO: Make player drunk
 
             //string effects = "status negation:10,true;DamageReduction:15, 35, false, true;HealthRegen:10,5;restorestamina:50;IncreasedMovementSpeed:15,10;";
             //StatusEffectController.Instance.ApplyCandyEffects(effects);
@@ -75,7 +89,7 @@ namespace SCP956.Patches
 
             RandomScrapSpawn[] source = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>();
             List<RandomScrapSpawn> tabletopspawns = source.Where(x => x.spawnableItems.name == "TabletopItems").ToList();
-            scp330.spawnableItem.spawnPositionTypes.Add(tabletopspawns[UnityEngine.Random.Range(0, tabletopspawns.Count)].spawnableItems); // TODO: MAKE THIS WORK
+            scp330.spawnableItem.spawnPositionTypes.Add(tabletopspawns[UnityEngine.Random.Range(0, tabletopspawns.Count)].spawnableItems);
             newScrapList.Add(scp330);
 
             //RoundManager.Instance.currentLevel.spawnableScrap.Clear();

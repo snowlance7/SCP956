@@ -300,7 +300,7 @@ namespace SCP956
                     localPlayer.DamagePlayer(damage, false);
                     HUDManager.Instance.ShakeCamera(ScreenShakeType.Small);
                     localPlayer.inSpecialInteractAnimation = false;
-                    HUDManager.Instance.UpdateHealthUI(localPlayer.health, true); // TODO: testing
+                    HUDManager.Instance.UpdateHealthUI(localPlayer.health, false);
                     yield return new WaitForSecondsRealtime(perSeconds);
                 }
                 yield break;
@@ -320,7 +320,7 @@ namespace SCP956
         private IEnumerator BlowOutCandlesCoroutine()
         {
             HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CandleBlowsfx, 1f);
-            yield return new WaitForSecondsRealtime(1.5f);
+            yield return new WaitForSecondsRealtime(1f);
             Plugin.PlayerAge = 10;
             NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.8f);
             HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CakeAppearsfx, 1f);

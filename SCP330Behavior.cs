@@ -38,6 +38,7 @@ namespace SCP956
                 HUDManager.Instance.UIAudio.PlayOneShot(BoneCracksfx, 1f);
                 HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
                 // TODO: Make it so the players hands are no longer visible
+                // TODO: Make player drunk?
 
                 StatusEffectController.Instance.DamagePlayerOverTime(5, 2, true);
 
@@ -48,7 +49,7 @@ namespace SCP956
             logger.LogDebug($"Candy count: {candies.Count}");
             Item candy = candies[UnityEngine.Random.Range(0, candies.Count)];
             logger.LogDebug("Got Candy");
-            candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = false; // TODO: Test this
+            candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = false;
             logger.LogDebug("Set pinataCandy to false");
             int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
             logger.LogDebug("Got scrapValue");

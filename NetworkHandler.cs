@@ -123,6 +123,7 @@ namespace SCP956
 
                 if (grabItem)
                 {
+                    
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
                     logger.LogDebug("grabbed obj");
                 }
@@ -133,7 +134,7 @@ namespace SCP956
                     logger.LogDebug("Played cake sfx");
                 }
             }
-        } // TODO: Figure out how to spawn cake in players hand instead of on the floor
+        }
     }
 
     [HarmonyPatch]

@@ -64,15 +64,11 @@ namespace SCP956
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
-                targetPlayer.turnCompass.LookAt(transform.position);
-                targetPlayer.transform.rotation = Quaternion.Lerp(targetPlayer.transform.rotation, Quaternion.Euler(new Vector3(0f, targetPlayer.turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
             }
-            if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
+            else if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 3f * Time.deltaTime);
-                targetPlayer.turnCompass.LookAt(transform.position);
-                targetPlayer.transform.rotation = Quaternion.Lerp(targetPlayer.transform.rotation, Quaternion.Euler(new Vector3(0f, targetPlayer.turnCompass.eulerAngles.y, 0f)), 3f * Time.deltaTime);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
             }
         }
         
