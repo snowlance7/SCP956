@@ -44,6 +44,7 @@ A list of all available effects and their parameters are listed below:
 - When shrunk player uses terminal, cant see the full screen
 - When player is *overhealed* and takes damage, resets health to 100 rather than taking off damage amount
 - When player loses their hands from SCP-330, their hands are still visible
+- Bugs out when landing on a moon
 
 ## Support and Feedback
 

@@ -24,37 +24,45 @@ namespace SCP956.Patches
         [HarmonyPatch("SpawnEnemyFromVent")]
         public static bool SpawnEnemyFromVentPreFix(EnemyVent vent)
         {
-            logger.LogDebug(vent.enemyTypeIndex);
-            logger.LogDebug(vent.enemyType);
-
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            try // TODO: Temp fix until it's fixed
             {
-                if (vent.enemyType.enemyName == "SCP-956")
+                logger.LogDebug(vent.enemyTypeIndex);
+                logger.LogDebug(vent.enemyType);
+
+                if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
                 {
-                    // Getting random scrap spawn
-
-                    List<RandomScrapSpawn> list = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(x => x.spawnUsed == false).ToList();
-                    int index = UnityEngine.Random.Range(0, list.Count);
-                    RandomScrapSpawn randomScrapSpawn = list[index];
-                    Vector3 pos = randomScrapSpawn.transform.position;
-                    if (randomScrapSpawn.spawnedItemsCopyPosition)
+                    if (vent.enemyType.enemyName == "SCP-956")
                     {
-                        list.RemoveAt(index);
-                    }
-                    else
-                    {
-                        pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
-                    }
+                        // Getting random scrap spawn
 
-                    // Spawning
+                        List<RandomScrapSpawn> list = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(x => x.spawnUsed == false).ToList();
+                        int index = UnityEngine.Random.Range(0, list.Count);
+                        RandomScrapSpawn randomScrapSpawn = list[index];
+                        Vector3 pos = randomScrapSpawn.transform.position;
+                        if (randomScrapSpawn.spawnedItemsCopyPosition)
+                        {
+                            list.RemoveAt(index);
+                        }
+                        else
+                        {
+                            pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
+                        }
 
-                    logger.LogDebug("Spawning");
-                    RoundManager.Instance.SpawnEnemyOnServer(pos + Vector3.up * 0.5f, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
-                    Debug.Log("Spawned enemy from vent");
-                    vent.OpenVentClientRpc();
-                    vent.occupied = false;
-                    return false;
+                        // Spawning
+
+                        logger.LogDebug("Spawning");
+                        RoundManager.Instance.SpawnEnemyOnServer(pos + Vector3.up * 0.5f, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
+                        Debug.Log("Spawned enemy from vent");
+                        vent.OpenVentClientRpc();
+                        vent.occupied = false;
+                        return false;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e);
+                return true;
             }
             return true;
         }
@@ -63,7 +71,7 @@ namespace SCP956.Patches
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
         private static void DespawnPropsAtEndOfRoundPatch()
         {
-            try
+            try // TODO: Temp fix until it's fixed
             {
                 logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
                 PlayerControllerBPatch.playerFrozen = false;
@@ -91,12 +99,19 @@ namespace SCP956.Patches
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
         private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
         {
-            if (PlayerAge < 12 && configEnablePinata.Value)
+            try
             {
-                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
+                if (PlayerAge < 12 && configEnablePinata.Value)
                 {
-                    NetworkHandler.Instance.SpawnPinataServerRpc();
+                    if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
+                    {
+                        NetworkHandler.Instance.SpawnPinataServerRpc();
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e);
             }
         }
     }

@@ -22,7 +22,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.2.0";
+        private const string modVersion = "0.2.2";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;

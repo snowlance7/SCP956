@@ -1,3 +1,6 @@
+## 0.2.2
+- Temp fix for bugging out when landing on a moon
+
 ## 0.2.1
 - Added configs to disable SCP-956, SCP-559, and SCP-330 (In case you want to use just the items or enemy)
 - Small description fix
