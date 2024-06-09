@@ -27,11 +27,11 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
         private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            if (___inTerminalMenu) // TODO: Get this working
+            /*if (___inTerminalMenu) // TODO: Get this working
             {
                 ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, 0.29f, ___thisPlayerBody.position.z);
                 ___fallValue = 0f;
-            }
+            }*/
 
             if (!configEnablePinata.Value) { return; }
             timeSinceLastCheck += Time.deltaTime;

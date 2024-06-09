@@ -149,7 +149,7 @@ namespace SCP956
             if (networkPrefab != null)
                 return;
 
-            networkPrefab = (GameObject)Plugin.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandler.prefab");
+            networkPrefab = (GameObject)Plugin.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab");
             logger.LogDebug("Got networkPrefab");
             networkPrefab.AddComponent<NetworkHandler>();
             logger.LogDebug("Added component");

@@ -22,7 +22,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.2.2";
+        private const string modVersion = "0.2.3";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -222,12 +222,16 @@ namespace SCP956
             if (configEnable330.Value)
             {
                 Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyItem.asset");
+                if (BowlOfCandy == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
+                LoggerInstance.LogDebug($"Got bowl of candy prefab");
 
                 NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
                 Items.RegisterScrap(BowlOfCandy, config330Rarity.Value, Levels.LevelTypes.All);
 
                 Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset");
+                if (BowlOfCandyP == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
+                LoggerInstance.LogDebug($"Got bowl of candy P prefab");
 
                 NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);
@@ -238,12 +242,26 @@ namespace SCP956
             CandyBehavior candyScript;
 
             Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
+            if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyPink prefab");
             Item CandyPurple = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPurpleItem.asset");
+            if (CandyPurple == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyPurple prefab");
             Item CandyRed = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRedItem.asset");
+            if (CandyRed == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyRed prefab");
             Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyYellowItem.asset");
+            if (CandyYellow == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyYellow prefab");
             Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyGreenItem.asset");
+            if (CandyGreen == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyGreen prefab");
             Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlueItem.asset");
+            if (CandyBlue == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyBlue prefab");
             Item CandyRainbow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRainbowItem.asset");
+            if (CandyRainbow == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
+            LoggerInstance.LogDebug($"Got CandyRainbow prefab");
 
             candyScript = CandyPink.spawnPrefab.GetComponent<CandyBehavior>();
             CandyPink.minValue = config9561MinValue.Value;

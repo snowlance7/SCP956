@@ -1,3 +1,7 @@
+## 0.2.3
+- Added more candles to cake
+- Some temp bug fixes
+
 ## 0.2.2
 - Temp fix for bugging out when landing on a moon
 

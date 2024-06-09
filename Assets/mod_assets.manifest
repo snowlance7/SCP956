@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1415525428
+CRC: 1295850790
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 82c10767e0a3c76bd0b16370d6e7b1c5
+    Hash: f2bd33c8ceeef5ac96660f26371b10da
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 315d92fdd7a42b8c638902e4a0f3c9db
+    Hash: 895c557bcf4fdd0a3670c66e870cfc88
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 82c10767e0a3c76bd0b16370d6e7b1c5
+    Hash: f2bd33c8ceeef5ac96660f26371b10da
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -47,16 +47,6 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
 - Class: 114
-  Script: {fileID: -1359219867, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
-- Class: 114
-  Script: {fileID: 989255763, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
-- Class: 114
-  Script: {fileID: 965613704, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
-- Class: 114
-  Script: {fileID: -570734816, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
-- Class: 114
-  Script: {fileID: -581893392, guid: 9cc07ecad5f78154cbcdeb774e6e4541, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: c30496d6ae6d6f907456e10a94e01ec6, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 3c36d0a92cbb1f26a39169ef0eae393a, type: 3}
@@ -68,6 +58,16 @@ ClassTypes:
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
+- Class: 114
+  Script: {fileID: -1359219867, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: 989255763, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: 965613704, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: -570734816, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: -581893392, guid: d4457945250164e4394e1272cacb356f, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 137
@@ -106,7 +106,7 @@ Assets:
 - Assets/ModAssets/Pinata/Pinata.asset
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
 - Assets/ModAssets/Pinata/Audio/956WarningShort.mp3
-- Assets/ModAssets/Pinata/NetworkHandler.prefab
+- Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
 - Assets/ModAssets/Candy/CandyGreenItem.asset
