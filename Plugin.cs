@@ -22,7 +22,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.2.3";
+        private const string modVersion = "0.2.5";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -163,13 +163,13 @@ namespace SCP956
             // Loading Assets
             string sAssemblyLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            ModAssets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), "mod_assets"));
+            ModAssets = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Info.Location), "scp956_assets"));
             if (ModAssets == null)
             {
                 Logger.LogError($"Failed to load custom assets.");
                 return;
             }
-            LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "mod_assets")}");
+            LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "scp956_assets")}");
 
             // Getting Audio
             WarningSoundShortsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");

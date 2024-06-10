@@ -1,3 +1,9 @@
+## 0.2.5
+- Small fix that might fix compatibility with Deathnote mod
+
+## 0.2.4
+- Fixed small game breaking bug oops
+
 ## 0.2.3
 - Added more candles to cake
 - Some temp bug fixes

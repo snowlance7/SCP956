@@ -44,7 +44,10 @@
     <!-- Primary Package References -->
     <ItemGroup>
         <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1" PrivateAssets="all" />
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
         <PackageReference Include="LethalCompany.GameLibs.Steam" Version="*-*" Publicize="true" PrivateAssets="all" />
@@ -66,9 +69,6 @@
       <Reference Include="LethalLib">
         <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
       </Reference>
-      <Reference Include="Unity.Netcode.Runtime">
-        <HintPath>..\1Lethal Company Debugging\Lethal Company_Data\Managed\Unity.Netcode.Runtime.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
   <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">
@@ -76,6 +76,6 @@
   </Target>
 
     <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-      <Exec Command="xcopy &quot;C:\Users\snowl\source\repos\SCP956\Assets\mod_assets&quot; &quot;C:\Users\snowl\source\repos\1Lethal Company Debugging\BepInEx\plugins&quot; /Y" />
+      <Exec Command="xcopy &quot;C:\Users\snowl\source\repos\SCP956\Assets\scp956_assets&quot; &quot;C:\Users\snowl\source\repos\1Lethal Company Debugging\BepInEx\plugins&quot; /Y" />
     </Target>
 </Project>

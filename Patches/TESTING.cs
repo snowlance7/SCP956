@@ -10,14 +10,12 @@ using UnityEngine;
 using static SCP956.Plugin;
 using LethalLib;
 using static LethalLib.Modules.Enemies;
-using static UnityEngine.VFX.VisualEffectControlTrackController;
 using Unity.Netcode;
 using GameNetcodeStuff;
 using static UnityEngine.ParticleSystem.PlaybackState;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
-using static Unity.Collections.LowLevel.Unsafe.WordStorageStatic;
 using Unity.Burst.Intrinsics;
 
 namespace SCP956.Patches
