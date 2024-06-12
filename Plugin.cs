@@ -14,7 +14,7 @@ using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace SCP956
+namespace SCP956 // TODO: Make sure wireframe video is working
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
@@ -22,7 +22,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.2.5";
+        private const string modVersion = "0.3.0";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -48,7 +48,6 @@ namespace SCP956
 
 
         // SCP-956 Configs
-        // Rarity Configs || ONLY WORKS WITH BIRTHDAYMODE AND RANDOM AGE GAMEMODES
         public static ConfigEntry<int> configExperimentationLevelRarity;
         public static ConfigEntry<int> configAssuranceLevelRarity;
         public static ConfigEntry<int> configVowLevelRarity;
@@ -109,16 +108,16 @@ namespace SCP956
 
             // Configs
             // Rarity
-            configExperimentationLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
-            configAssuranceLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
-            configVowLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "VowLevelRarity", 10, "Vow Level Rarity");
-            configOffenseLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "OffenseLevelRarity", 30, "Offense Level Rarity");
-            configMarchLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "MarchLevelRarity", 50, "March Level Rarity");
-            configRendLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "RendLevelRarity", 50, "Rend Level Rarity");
-            configDineLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "DineLevelRarity", 50, "Dine Level Rarity");
-            configTitanLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "TitanLevelRarity", 80, "Titan Level Rarity");
-            configModdedLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "ModdedLevelRarity", 30, "Modded Level Rarity");
-            configOtherLevelRarity = Config.Bind("Rarity (Doesnt work for behaviors 1-2)", "OtherLevelRarity", 30, "Other Level Rarity");
+            configExperimentationLevelRarity = Config.Bind("Rarity", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
+            configAssuranceLevelRarity = Config.Bind("Rarity", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
+            configVowLevelRarity = Config.Bind("Rarity", "VowLevelRarity", 10, "Vow Level Rarity");
+            configOffenseLevelRarity = Config.Bind("Rarity", "OffenseLevelRarity", 30, "Offense Level Rarity");
+            configMarchLevelRarity = Config.Bind("Rarity", "MarchLevelRarity", 50, "March Level Rarity");
+            configRendLevelRarity = Config.Bind("Rarity", "RendLevelRarity", 50, "Rend Level Rarity");
+            configDineLevelRarity = Config.Bind("Rarity", "DineLevelRarity", 50, "Dine Level Rarity");
+            configTitanLevelRarity = Config.Bind("Rarity", "TitanLevelRarity", 80, "Titan Level Rarity");
+            configModdedLevelRarity = Config.Bind("Rarity", "ModdedLevelRarity", 30, "Modded Level Rarity");
+            configOtherLevelRarity = Config.Bind("Rarity", "OtherLevelRarity", 30, "Other Level Rarity");
 
             // General Configs
             configEnablePinata = Config.Bind("General", "Enable Pinata", true, "Set to false to disable spawning pinata.");
@@ -321,7 +320,7 @@ namespace SCP956
                 if (Pinata == null) { LoggerInstance.LogError("Error: Couldnt get enemy from assets"); return; }
                 LoggerInstance.LogDebug($"Got SCP-956 prefab");
                 TerminalNode PinataTN = ModAssets.LoadAsset<TerminalNode>("Assets/ModAssets/Pinata/Bestiary/PinataTN.asset");
-                TerminalKeyword PinataTK = ModAssets.LoadAsset<TerminalKeyword>("Assets/ModAssets/Pinata/Bestiary/PinataTK.asset"); // TODO: Make wireframe video
+                TerminalKeyword PinataTK = ModAssets.LoadAsset<TerminalKeyword>("Assets/ModAssets/Pinata/Bestiary/PinataTK.asset");
 
                 LoggerInstance.LogDebug("Setting rarities");
                 var SCP956LevelRarities = new Dictionary<Levels.LevelTypes, int> {
@@ -336,8 +335,7 @@ namespace SCP956
                 {Levels.LevelTypes.All, configOtherLevelRarity.Value},
                 {Levels.LevelTypes.Modded, configModdedLevelRarity.Value},
             };
-
-                if (config956Behavior.Value > 2) { Pinata.spawningDisabled = false; }
+                
                 LoggerInstance.LogDebug("Registering enemy network prefab...");
                 NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
                 LoggerInstance.LogDebug("Registering enemy...");

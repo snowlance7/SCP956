@@ -13,7 +13,7 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
-        public override void ItemActivate(bool used, bool buttonDown = true)
+        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Make sure cake shows up correctly in game after change
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
@@ -37,7 +37,7 @@ namespace SCP956
                         pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
                     }
 
-                    int newScrapValue = GetComponent<GrabbableObject>().scrapValue + 50;
+                    int newScrapValue = GetComponent<GrabbableObject>().scrapValue * 50;
                     logger.LogDebug("Spawning SCP-559");
                     NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
                 }
@@ -67,5 +67,4 @@ namespace SCP956
         }
     }
 }
-// TODO: Add more candles to the cake so it equals 10
 // TODO: Make the pitch of the player go up when you blow out the candles

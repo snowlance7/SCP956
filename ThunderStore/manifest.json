@@ -1,6 +1,6 @@
 {
   "name": "SCP956",
-  "version_number": "0.2.5",
+  "version_number": "0.3.0",
   "website_url": "https://ko-fi.com/snowlance",
   "description": "Adds a pinata (and candy) to the game v0.2.0: SCP-330, CustomCandyEffects, and more!",
   "dependencies": [

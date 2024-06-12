@@ -1,3 +1,10 @@
+## 0.3.0
+- 11 candles instead of 10 for cake
+- Changes to cake model
+- Enabled spawning pinata for all behaviors
+- Secret mechanic for cake :3
+- Small tweaks
+
 ## 0.2.5
 - Small fix that might fix compatibility with Deathnote mod
 

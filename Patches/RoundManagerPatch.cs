@@ -76,15 +76,25 @@ namespace SCP956.Patches
                 logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
                 PlayerControllerBPatch.playerFrozen = false;
                 SCP330Behavior.candyTaken = 0;
-                IngamePlayerSettings.Instance.playerInput.ActivateInput();
-                localPlayer.disableLookInput = false;
+                if (!IngamePlayerSettings.Instance.playerInput.m_InputActive)
+                {
+                    IngamePlayerSettings.Instance.playerInput.ActivateInput();
+                    localPlayer.disableLookInput = false;
+                }
                 StatusEffectController.Instance.bulletProofMultiplier = 0;
                 SCP330Behavior.noHands = false;
 
-                PlayerAge = PlayerOriginalAge;
-                if (PlayerAge >= 12) { NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f); HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f); }
+                if (PlayerAge != PlayerOriginalAge)
+                {
+                    PlayerAge = PlayerOriginalAge;
+                    HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
+                }
+                if (PlayerAge >= 12)
+                {
+                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
+                }
 
-                if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+                if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && NetworkHandler.Instance.FrozenPlayers != null)
                 {
                     NetworkHandler.Instance.FrozenPlayers.Clear();
                 }

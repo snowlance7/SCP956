@@ -160,7 +160,7 @@ namespace SCP956
                 foreach (ulong id in NetworkHandler.Instance.FrozenPlayers)
                 {
                     PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]];
-                    if (player == null || player.disconnectedMidGame || player.isPlayerDead) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
+                    if (player == null || player.disconnectedMidGame || player.isPlayerDead || !player.isPlayerControlled) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
                     if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
                     {
                         targetPlayer = player;
