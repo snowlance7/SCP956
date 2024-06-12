@@ -16,7 +16,7 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = true;
-        public override void ItemActivate(bool used, bool buttonDown = true)
+        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Add candy bags to hold candies
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)

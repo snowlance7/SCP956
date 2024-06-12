@@ -322,7 +322,7 @@ namespace SCP956
             HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CandleBlowsfx, 1f);
             yield return new WaitForSecondsRealtime(1f);
             Plugin.PlayerAge = 11;
-            NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.8f);
+            NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
             HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CakeAppearsfx, 1f);
         }
     }

@@ -13,6 +13,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using static Netcode.Transports.Facepunch.FacepunchTransport;
 using SCP956.Patches;
+using System.Drawing;
 
 namespace SCP956
 {
@@ -25,6 +26,7 @@ namespace SCP956
         #pragma warning restore 0649
         bool isDeadAnimationDone;
         float timeSinceNewRandPos;
+        //float timeSinceLookedAt;
 
         enum State
         {
@@ -57,6 +59,7 @@ namespace SCP956
                 return;
             }
             timeSinceNewRandPos += Time.deltaTime;
+            //timeSinceLookedAt += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
 
@@ -72,7 +75,7 @@ namespace SCP956
             }
         }
         
-        public override void DoAIInterval() // TODO?: Make it so if player isnt frozen but in list because of statusnegation, it will get angry and chase them faster and in longer range?
+        public override void DoAIInterval() // TODO?: Make it so if a player is in the factory and meets conditions, it will very slowly move to their location
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
@@ -150,6 +153,14 @@ namespace SCP956
             }
             SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
         }
+
+        bool TargetClosestPlayerMeetingConditions()
+        {
+            targetPlayer = null;
+            if (StartOfRound.Instance.allPlayerScripts.Where(x => Vector3.Distance(transform.position, x.transform.position) <= (config956Radius.Value * 3f)).FirstOrDefault() != null) { moveTowardsDestination = false; return false; }
+            targetPlayer = StartOfRound.Instance.allPlayerScripts.Where(x => PlayerMeetsConditions(x)).FirstOrDefault();
+            return targetPlayer != null;
+        }
         
         bool TargetFrozenPlayerInRange(float range)
         {
@@ -164,11 +175,10 @@ namespace SCP956
                     if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
                     {
                         targetPlayer = player;
-                        return true;
                     }
                 }
             }
-            return false;
+            return targetPlayer != null;
         }
 
         void MoveToPlayer()
@@ -208,6 +218,31 @@ namespace SCP956
             transform.position = teleportPos;
             agent.Warp(teleportPos);
             SyncPositionToClients();
+        }
+
+        private bool PlayerMeetsConditions(PlayerControllerB player)
+        {
+            if ((player.thisPlayerBody.localScale.x < 1f && player.thisPlayerBody.localScale.y < 1f && player.thisPlayerBody.localScale.z < 1f) || (IsPlayerHoldingCandy(player) && config956Behavior.Value == 2) || config956Behavior.Value == 4)
+            {
+                if (player.isPlayerControlled && player.isInsideFactory)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        {
+            foreach (GrabbableObject item in player.ItemSlots)
+            {
+                if (item == null) { continue; }
+                if (CandyNames.Contains(item.itemProperties.itemName))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // RPC's

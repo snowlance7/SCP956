@@ -67,7 +67,7 @@
         <HintPath>..\1Resources\1Dependencies\0Harmony.dll</HintPath>
       </Reference>
       <Reference Include="LethalLib">
-        <HintPath>..\1Resources\1Dependencies\LethalLib.dll</HintPath>
+        <HintPath>..\1Resources\1Assemblies\LethalLib.dll</HintPath>
       </Reference>
     </ItemGroup>
 

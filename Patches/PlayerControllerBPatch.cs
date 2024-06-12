@@ -52,12 +52,12 @@ namespace SCP956.Patches
                 AudioSource _audioSource = HUDManager.Instance.UIAudio;
                 if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
 
-                if (PlayerMeetsConditions(localPlayer))
+                if (PlayerMeetsConditions())
                 {
                     if (!warningStarted)
                     {
                         if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (config956Behavior.Value == 2 && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
+                        if (config956Behavior.Value == 2 && SCP956AI.IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
                         if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
                         _audioSource.loop = false;
                         _audioSource.Play();
@@ -158,26 +158,13 @@ namespace SCP956.Patches
             return true;
         }
 
-        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        public static bool PlayerMeetsConditions()
         {
-            foreach (GrabbableObject item in player.ItemSlots)
-            {
-                if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool PlayerMeetsConditions(PlayerControllerB player)
-        {
-            if (PlayerAge < 12 || config956Behavior.Value == 4 || (config956Behavior.Value == 2 && IsPlayerHoldingCandy(player)))
+            if (PlayerAge < 12 || config956Behavior.Value == 4 || (config956Behavior.Value == 2 && SCP956AI.IsPlayerHoldingCandy(localPlayer)))
             {
                 foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
                 {
-                    if (scp.PlayerIsTargetable(player) && Vector3.Distance(scp.transform.position, player.transform.position) <= config956Radius.Value)
+                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956Radius.Value)
                     {
                         return true;
                     }

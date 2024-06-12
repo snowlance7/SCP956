@@ -13,9 +13,9 @@ Adds SCP-956 to the game along with a few other SCP's (more to come).
 	- SecretLab: Works similar to the game SCP: Secret Lab. Candy will give random effects (coming soon) and SCP-956 will activate anyone holding candy.
 	- Random Age: Everyone is assigned a random age at the beginning of the game and its possible to be a child.
 	- All: SCP-956 will activate when *anyone* stays within its activation zone, regardless of age.
-- SCP-559: A mysterious cake that can change your age.
-- Candy: Mysterious candy.
-- SCP-330: A dangerous bowl of candy
+- SCP-559: A mysterious cake that can change your age
+- Candy: Mysterious candy with random effects
+- SCP-330: A dangerous bowl of candy, make sure to read the warning label
 - Custom Candy Effects: See section below for how to use
 
 ## Custom Candy Effects (Experimental)
@@ -35,8 +35,10 @@ A list of all available effects and their parameters are listed below:
 
 ## Upcoming Plans
 
-- More animations
-- A flamethrower or other fire related tools to kill SCP-956
+- Ability to kill SCP-956 with explosions
+- Death animation for SCP-956
+- Animation for player turning into SCP-956
+- Candy bags for easier candy management
 
 ## Known Issues
 
@@ -44,7 +46,6 @@ A list of all available effects and their parameters are listed below:
 - When shrunk player uses terminal, cant see the full screen
 - When player is *overhealed* and takes damage, resets health to 100 rather than taking off damage amount
 - When player loses their hands from SCP-330, their hands are still visible
-- Bugs out when landing on a moon
 
 ## Support and Feedback
 

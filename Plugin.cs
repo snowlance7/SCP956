@@ -135,19 +135,19 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             config9561MinValue = Config.Bind("Candy", "Candy Min Value", 0, "The minimum scrap value of the candy");
             config9561MaxValue = Config.Bind("Candy", "Cany Max Value", 15, "The maximum scrap value of the candy");
             config9561MinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
-            config9561MaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 20, "The maximum amount of candy to spawn when player dies to SCP-956");
+            config9561MaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
             config9561DeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
             
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
-            config559Rarity = Config.Bind("SCP-559", "Rarity", 25, "How often SCP-559 will spawn.");
+            config559Rarity = Config.Bind("SCP-559", "Rarity", 40, "How often SCP-559 will spawn.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
             config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
 
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
-            config330Rarity = Config.Bind("SCP-330", "Rarity", 15, "How often SCP-330 will spawn.");
+            config330Rarity = Config.Bind("SCP-330", "Rarity", 30, "How often SCP-330 will spawn.");
 
             // Status Effect Configs
             configEnableCustomStatusEffects = Config.Bind("Status Effects (Experimental)", "Enable Custom Status Effects", false, "Enable custom status effects");

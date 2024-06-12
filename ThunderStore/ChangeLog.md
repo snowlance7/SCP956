@@ -3,7 +3,8 @@
 - Changes to cake model
 - Enabled spawning pinata for all behaviors
 - Secret mechanic for cake :3
-- Small tweaks
+- Height of child players changed from 0.8 to 0.7
+- Other small tweaks
 
 ## 0.2.5
 - Small fix that might fix compatibility with Deathnote mod
