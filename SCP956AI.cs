@@ -60,13 +60,14 @@ namespace SCP956
                 return;
             }
             timeSinceNewRandPos += Time.deltaTime;
-
+            timeSinceRandTeleport += Time.deltaTime;
+            logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
+            
             var state = currentBehaviourStateIndex;
 
-            if (!(GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* && state == (int)State.Dormant*/)) // TODO: Testing
+            if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* || Vector3.Distance(transform.position, targetPlayer.transform.position) <= (2f * config956SpawnRadius.Value)*/) // TODO: Testing
             {
-                timeSinceRandTeleport += Time.deltaTime;
-                logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
+                timeSinceRandTeleport = 0;
             }
 
             if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
@@ -108,6 +109,12 @@ namespace SCP956
                         logger.LogDebug("Start Killing Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
+                    }
+                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this
+                    {
+                        Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                        Teleport(pos);
+                        timeSinceRandTeleport = 0;
                     }
                     break;
 

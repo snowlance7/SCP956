@@ -27,7 +27,7 @@ namespace SCP956.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
-        private static void UpdatePatch(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
+        private static void UpdatePostfix(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
             /*if (___inTerminalMenu) // TODO: Get this working
             {

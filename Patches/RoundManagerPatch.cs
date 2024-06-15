@@ -69,7 +69,7 @@ namespace SCP956.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
-        private static void DespawnPropsAtEndOfRoundPatch()
+        private static void DespawnPropsAtEndOfRoundPostfix()
         {
             logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
             PlayerControllerBPatch.playerFrozen = false;
@@ -100,7 +100,7 @@ namespace SCP956.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
-        private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
+        private static void SpawnInsideEnemiesFromVentsIfReadyPostfix()
         {
             try // TODO: Temp fix until it's fixed
             {
@@ -115,6 +115,29 @@ namespace SCP956.Patches
             catch (Exception e)
             {
                 logger.LogError("Error when spawning pinata from vent: " + e);
+            }
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(RoundManager.GenerateNewFloor))]
+        private static void GenerateNewFloorPostfix()
+        {
+            logger.LogDebug("In GenerateNewFloorPostfix");
+
+            // Setting up player age
+            
+            if (PlayerAge == 0)
+            {
+                PlayerAge = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value);
+                logger.LogDebug($"Player age: {PlayerAge}");
+                PlayerOriginalAge = PlayerAge;
+                logger.LogDebug($"Player original age: {PlayerOriginalAge}");
+                if (PlayerAge < 12)
+                {
+                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
+                }
+                logger.LogDebug("Changed player size");
+                logger.LogInfo($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {PlayerAge}");
             }
         }
     }

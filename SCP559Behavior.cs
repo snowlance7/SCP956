@@ -69,3 +69,4 @@ namespace SCP956
     }
 }
 // TODO: Make the pitch of the player go up when you blow out the candles
+// TODO: Give the player buffs when they are a child, like faster movement speed, can take extra candy from candy bowl, and change certain monster behaviors? Extra stamina and movement speed!

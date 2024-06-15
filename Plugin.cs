@@ -27,7 +27,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
         private readonly Harmony harmony = new Harmony(modGUID);
-        public static int PlayerAge;
+        public static int PlayerAge = 0;
         public static int PlayerOriginalAge;
 
         public static List<string> CandyNames;
@@ -47,7 +47,9 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
         // Secret Lab Configs
         public static ConfigEntry<bool> configSecretLab;
-        public static ConfigEntry<float> config956SpawnRadius;
+        public static ConfigEntry<int> config956SpawnRadius;
+        public static ConfigEntry<int> config956TeleportTime;
+        public static ConfigEntry<int> config956TeleportRange;
 
         // SCP-956 Rarity Configs
         public static ConfigEntry<int> configExperimentationLevelRarity;
@@ -113,7 +115,9 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
             // Secret Lab
             configSecretLab = Config.Bind("Secret Lab", "Secret Lab", false, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info."); // TODO: Make behavior just like SCP Secret Lab
-            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 25f, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
+            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 30, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
+            config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
+            config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 50, "Range at which SCP-956 will teleport.");
 
             // Rarity
             configExperimentationLevelRarity = Config.Bind("Rarity", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
@@ -131,7 +135,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
             configTargetAllPlayers = Config.Bind("SCP-956", "Target All Players", false, "Set to true if you want 956 to target all players regardless of conditions.");
             config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 15f, "The radius in which SCP-956 will target players that meet the required conditions.");
-            configMaxAge = Config.Bind("SCP-956", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
+            configMinAge = Config.Bind("SCP-956", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
             configMaxAge = Config.Bind("SCP-956", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
             configPlayWarningSound = Config.Bind("SCP-956", "Play Warning Sound", true, "Play warning sound when inside SCP-956's radius and conditions are met.");
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
