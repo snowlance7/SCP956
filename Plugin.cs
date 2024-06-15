@@ -114,7 +114,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             // Configs
 
             // Secret Lab
-            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", false, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info."); // TODO: Make behavior just like SCP Secret Lab
+            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");// TODO: temp set to true, change back later // TODO: Make behavior just like SCP Secret Lab
             config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 30, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
             config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
             config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 50, "Range at which SCP-956 will teleport.");

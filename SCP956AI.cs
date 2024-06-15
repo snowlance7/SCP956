@@ -65,7 +65,7 @@ namespace SCP956
             
             var state = currentBehaviourStateIndex;
 
-            if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* || Vector3.Distance(transform.position, targetPlayer.transform.position) <= (2f * config956SpawnRadius.Value)*/) // TODO: Testing
+            if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* || Vector3.Distance(transform.position, targetPlayer.transform.position) <= (2f * config956SpawnRadius.Value)*/) // TODO: NOT SYNCED WITH SERVER AND CLIENT
             {
                 timeSinceRandTeleport = 0;
             }
@@ -92,7 +92,7 @@ namespace SCP956
             }
         }
         
-        public override void DoAIInterval()
+        public override void DoAIInterval() // TODO: ERROR: Tried to destroy scp956 and it started replicating infinitely figure out whyyyy, probably because im spawning it because player age is under 12
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
@@ -110,8 +110,9 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this
+                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this, make sure configSecretLab is set to true when testing you idiot
                     {
+                        logger.LogDebug("Teleporting");
                         Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
                         Teleport(pos);
                         timeSinceRandTeleport = 0;

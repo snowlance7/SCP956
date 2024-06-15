@@ -28,7 +28,7 @@ namespace SCP956
                 }
             }
         }
-        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Add candy bags to hold candies
+        public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
@@ -145,3 +145,4 @@ namespace SCP956
         }
     }
 }
+// TODO: Add candy bags to hold candies

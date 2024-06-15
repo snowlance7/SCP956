@@ -34,7 +34,7 @@ namespace SCP956.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
-            //StatusEffectController.Instance.TransformPlayer(); // TODO: Test this!
+            //StatusEffectController.Instance.TransformPlayer(localPlayer); // TODO: [Error  : Unity Log] [Netcode-Server Sender=1] Destroy a spawned NetworkObject on a non-host client is not valid. Call Destroy or Despawn on the server/host instead.
 
             // deathAnimations:
             // 0 = normal

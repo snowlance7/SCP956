@@ -52,9 +52,9 @@ namespace SCP956.Patches
                 if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
 
                 //AudioSource _audioSource = HUDManager.Instance.UIAudio;
-                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
+                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; } // TODO: ERROR: When opening a new save, this is null
 
-                if (PlayerMeetsConditions())
+                if (PlayerMeetsConditions()) // TODO: THIS ISNT WORKING
                 {
                     logger.LogDebug("Player meets conditions"); // Temp
                     if (!warningStarted)
