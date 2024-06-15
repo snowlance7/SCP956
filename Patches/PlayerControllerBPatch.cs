@@ -54,7 +54,7 @@ namespace SCP956.Patches
                 //AudioSource _audioSource = HUDManager.Instance.UIAudio;
                 if (_audioSource == null) { logger.LogError("AudioSource is null"); return; } // TODO: ERROR: When opening a new save, this is null
 
-                if (PlayerMeetsConditions()) // TODO: THIS ISNT WORKING
+                if (PlayerMeetsConditions()) // TODO: ERROR: THIS ISNT WORKING, CAUSES ERRORS WHEN 956 IS DESPAWNED?????
                 {
                     logger.LogDebug("Player meets conditions"); // Temp
                     if (!warningStarted)
