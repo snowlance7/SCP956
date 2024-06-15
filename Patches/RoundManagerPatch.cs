@@ -22,7 +22,7 @@ namespace SCP956.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
-        public static bool SpawnEnemyFromVentPreFix(EnemyVent vent)
+        public static bool SpawnEnemyFromVentPreFix(EnemyVent vent) // TODO: Scrap this? May cause errors with other mods?
         {
             try // TODO: Temp fix until it's fixed
             {
@@ -45,14 +45,14 @@ namespace SCP956.Patches
                         }
                         else
                         {
-                            pos = RoundManager.Instance.GetRandomNavMeshPositionInRadiusSpherical(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit);
+                            pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom); // TODO: Test this
                         }
 
                         // Spawning
 
                         logger.LogDebug("Spawning");
-                        RoundManager.Instance.SpawnEnemyOnServer(pos + Vector3.up * 0.5f, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
-                        Debug.Log("Spawned enemy from vent");
+                        RoundManager.Instance.SpawnEnemyOnServer(pos, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
+                        Debug.Log("Spawned pinata from vent");
                         vent.OpenVentClientRpc();
                         vent.occupied = false;
                         return false;
@@ -61,7 +61,7 @@ namespace SCP956.Patches
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogError("Error with spawning pinata from vent: " + e);
                 return true;
             }
             return true;
@@ -71,37 +71,30 @@ namespace SCP956.Patches
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
         private static void DespawnPropsAtEndOfRoundPatch()
         {
-            try // TODO: Temp fix until it's fixed
+            logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
+            PlayerControllerBPatch.playerFrozen = false;
+            SCP330Behavior.candyTaken = 0;
+            if (!IngamePlayerSettings.Instance.playerInput.m_InputActive)
             {
-                logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
-                PlayerControllerBPatch.playerFrozen = false;
-                SCP330Behavior.candyTaken = 0;
-                if (!IngamePlayerSettings.Instance.playerInput.m_InputActive)
-                {
-                    IngamePlayerSettings.Instance.playerInput.ActivateInput();
-                    localPlayer.disableLookInput = false;
-                }
-                StatusEffectController.Instance.bulletProofMultiplier = 0;
-                SCP330Behavior.noHands = false;
-
-                if (PlayerAge != PlayerOriginalAge)
-                {
-                    PlayerAge = PlayerOriginalAge;
-                    HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
-                }
-                if (PlayerAge >= 12)
-                {
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
-                }
-
-                if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && NetworkHandler.Instance.FrozenPlayers != null)
-                {
-                    NetworkHandler.Instance.FrozenPlayers.Clear();
-                }
+                IngamePlayerSettings.Instance.playerInput.ActivateInput();
+                localPlayer.disableLookInput = false;
             }
-            catch (Exception)
+            StatusEffectController.Instance.bulletProofMultiplier = 0;
+            SCP330Behavior.noHands = false;
+
+            if (PlayerAge != PlayerOriginalAge)
             {
-                logger.LogError("Error in DespawnPropsAtEndOfRound");
+                PlayerAge = PlayerOriginalAge;
+                HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
+            }
+            if (PlayerAge >= 12)
+            {
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
+            }
+
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && NetworkHandler.Instance.FrozenPlayers != null)
+            {
+                NetworkHandler.Instance.FrozenPlayers.Clear();
             }
         }
 
@@ -109,7 +102,7 @@ namespace SCP956.Patches
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
         private static void SpawnInsideEnemiesFromVentsIfReadyPatch()
         {
-            try
+            try // TODO: Temp fix until it's fixed
             {
                 if (PlayerAge < 12 && configEnablePinata.Value)
                 {
@@ -121,7 +114,7 @@ namespace SCP956.Patches
             }
             catch (Exception e)
             {
-                logger.LogError(e);
+                logger.LogError("Error when spawning pinata from vent: " + e);
             }
         }
     }

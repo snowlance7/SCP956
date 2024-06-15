@@ -16,6 +16,18 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = true;
+
+        public override void GrabItem()
+        {
+            base.GrabItem();
+            if (configSecretLab.Value)
+            {
+                if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null && StartOfRound.Instance.localPlayerController.isInsideFactory)
+                {
+                    NetworkHandler.Instance.SpawnPinataNearbyServerRpc(StartOfRound.Instance.localPlayerController.transform.position);
+                }
+            }
+        }
         public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Add candy bags to hold candies
         {
             base.ItemActivate(used, buttonDown);
@@ -28,13 +40,13 @@ namespace SCP956
 
                 if (!pinataCandy || PlayerAge >= 12)
                 {
-                    if (pinataCandy && (int)UnityEngine.Random.Range(0, 101) < config9561DeathChance.Value)
+                    if (pinataCandy && (int)UnityEngine.Random.Range(0, 101) < configCandyDeathChance.Value)
                     {
                         playerHeldBy.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
                         return;
                     }
 
-                    if (!pinataCandy || config956Behavior.Value == 2)
+                    if (!pinataCandy || configSecretLab.Value)
                     {
                         switch (itemProperties.itemName)
                         {

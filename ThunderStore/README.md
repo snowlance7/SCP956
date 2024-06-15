@@ -37,7 +37,6 @@ A list of all available effects and their parameters are listed below:
 
 - Ability to kill SCP-956 with explosions
 - Death animation for SCP-956
-- Animation for player turning into SCP-956
 - Candy bags for easier candy management
 
 ## Known Issues

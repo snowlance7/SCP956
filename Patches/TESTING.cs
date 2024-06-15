@@ -17,12 +17,15 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Burst.Intrinsics;
+using System.Collections;
+using static UnityEngine.VFX.VisualEffectControlTrackController;
+using UnityEngine.InputSystem.Utilities;
 
 namespace SCP956.Patches
 {
     // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
     [HarmonyPatch]
-    internal class TESTING
+    internal class TESTING : MonoBehaviour
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
@@ -31,8 +34,18 @@ namespace SCP956.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
+            //StatusEffectController.Instance.TransformPlayer(); // TODO: Test this!
+
+            // deathAnimations:
+            // 0 = normal
+            // 1 = decapitation
+            // 2 = coilhead decapitation
+            // 3 = seizure
+            // 4 = disapearance // was masked
+            // 5 = mask
+            // 6 = burn
             // spawnpositiontypes: GeneralItemClass, TabletopItems, SmallItems
-           // PlayerAge = 10;
+            // PlayerAge = 10;
             //logger.LogDebug("ping scan performed");
             //logger.LogDebug("Player Age: " + PlayerAge);
             //logger.LogDebug("Hands?: " + SCP330Behavior.noHands);
@@ -69,31 +82,5 @@ namespace SCP956.Patches
             //StartOfRound.Instance.ManuallyEjectPlayersServerRpc();
             //RoundManager.Instance.SpawnScrapInLevel();*/
         }
-
-        /*[HarmonyPrefix, HarmonyPatch(typeof(RoundManager), nameof(RoundManager.SpawnScrapInLevel))]
-        public static void SpawnScrapInLevelPreFix()
-        {
-            logger.LogDebug("spawn scrap in level");
-            //SpawnableItemWithRarity scp330 = RoundManager.Instance.currentLevel.spawnableScrap.Where(x => x.spawnableItem.itemName == "SCP-330").First();
-            List<SpawnableItemWithRarity> newScrapList = new List<SpawnableItemWithRarity>();
-            foreach (SpawnableItemWithRarity item in RoundManager.Instance.currentLevel.spawnableScrap)
-            {
-                if (item.spawnableItem.spawnPositionTypes.Count == 1 && item.spawnableItem.spawnPositionTypes[0].name == "TabletopItems" && item.spawnableItem.itemName != "Fancy lamp")
-                {
-                    newScrapList.Add(item);
-                }
-            }
-
-
-            RandomScrapSpawn[] source = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>();
-            List<RandomScrapSpawn> tabletopspawns = source.Where(x => x.spawnableItems.name == "TabletopItems").ToList();
-            scp330.spawnableItem.spawnPositionTypes.Add(tabletopspawns[UnityEngine.Random.Range(0, tabletopspawns.Count)].spawnableItems);
-            newScrapList.Add(scp330);
-
-            //RoundManager.Instance.currentLevel.spawnableScrap.Clear();
-            //RoundManager.Instance.currentLevel.spawnableScrap.AddRange(newScrapList);
-            //RoundManager.Instance.currentLevel.spawnableScrap.Add(item);
-            // No tiles containing a scrap spawn with item type: SCP-330
-        }*/
     }
 }

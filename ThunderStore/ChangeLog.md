@@ -1,3 +1,9 @@
+## 1.0.0
+- Made it so activation times are shorter when using Secret Lab Behavior
+- Removed behavior system, 'random age' and 'all' behaviors moved to separate configs
+- Reworked configs
+- Secret Lab behavior has its own config section and got completely reworked, more info in README
+
 ## 0.3.0
 - 11 candles instead of 10 for cake
 - Changes to cake model

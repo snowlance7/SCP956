@@ -13,7 +13,7 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
-        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Make sure cake shows up correctly in game after change
+        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Find a way to remove the grab animation so blowing out the candles is instant
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
@@ -60,7 +60,8 @@ namespace SCP956
                     
                     if (scp == null)
                     {
-                        NetworkHandler.Instance.SpawnPinataServerRpc();
+                        if (configSecretLab.Value && localPlayer.isInsideFactory) { NetworkHandler.Instance.SpawnPinataNearbyServerRpc(localPlayer.transform.position); }
+                        else { NetworkHandler.Instance.SpawnPinataServerRpc(); }
                     }
                 }
             }

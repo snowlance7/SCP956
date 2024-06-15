@@ -21,27 +21,6 @@ namespace SCP956.Patches
         {
             logger.LogDebug("First day started");
 
-            // Setting up player age
-
-            if (Plugin.config956Behavior.Value == 3)
-            {
-                if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
-                PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
-
-                if (PlayerAge < 12)
-                {
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
-                }
-            }
-            else
-            {
-                if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
-                PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
-            }
-
-            PlayerOriginalAge = PlayerAge;
-            logger.LogDebug($"Age is {PlayerAge}");
-
             // Setting up itemgroups
 
             if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && configEnable330.Value)
@@ -69,24 +48,15 @@ namespace SCP956.Patches
 
             // Setting up player age
 
-            if (Plugin.config956Behavior.Value == 3)
-            {
-                if (configMaxAge.Value < 5) { configMaxAge.Value = 5; }
-                PlayerAge = (int)UnityEngine.Random.Range(5, configMaxAge.Value);
-
-                if (PlayerAge < 12)
-                {
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
-                }
-            }
-            else
-            {
-                if (configMaxAge.Value < 18) { configMaxAge.Value = 18; }
-                PlayerAge = (int)UnityEngine.Random.Range(18, configMaxAge.Value);
-            }
-
+            PlayerAge = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value);
             PlayerOriginalAge = PlayerAge;
-            logger.LogDebug($"Age is {PlayerAge}");
+
+            if (PlayerAge < 12)
+            {
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
+            }
+
+            logger.LogInfo($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {PlayerAge}");
         }
     }
 }

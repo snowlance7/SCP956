@@ -26,6 +26,7 @@ namespace SCP956
         #pragma warning restore 0649
         bool isDeadAnimationDone;
         float timeSinceNewRandPos;
+        float timeSinceRandTeleport;
         //float timeSinceLookedAt;
 
         enum State
@@ -59,23 +60,38 @@ namespace SCP956
                 return;
             }
             timeSinceNewRandPos += Time.deltaTime;
-            //timeSinceLookedAt += Time.deltaTime;
 
             var state = currentBehaviourStateIndex;
+
+            if (!(GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* && state == (int)State.Dormant*/)) // TODO: Testing
+            {
+                timeSinceRandTeleport += Time.deltaTime;
+                logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
+            }
 
             if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
+
+                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position/* + Vector3.up * 0.75f*/, 60f/*, 15*/))
+                {
+                    GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.3f);
+                }
             }
             else if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
+
+                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position/* + Vector3.up * 0.75f*/, 60f/*, 15*/))
+                {
+                    GameNetworkManager.Instance.localPlayerController.JumpToFearLevel(1f);
+                }
             }
         }
         
-        public override void DoAIInterval() // TODO?: Make it so if a player is in the factory and meets conditions, it will very slowly move to their location
+        public override void DoAIInterval()
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
@@ -85,9 +101,9 @@ namespace SCP956
 
             switch (currentBehaviourStateIndex)
             {
-                case 0:
+                case (int)State.Dormant:
                     agent.speed = 0f;
-                    if (TargetFrozenPlayerInRange(config956Radius.Value))
+                    if (TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
                         logger.LogDebug("Start Killing Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
@@ -95,9 +111,9 @@ namespace SCP956
                     }
                     break;
 
-                case 1:
+                case (int)State.MovingTowardsPlayer:
                     agent.speed = 1f;
-                    if (!TargetFrozenPlayerInRange(config956Radius.Value))
+                    if (!TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
                         logger.LogDebug("Stop Killing Players");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
@@ -106,7 +122,7 @@ namespace SCP956
                     MoveToPlayer();
                     break;
 
-                case 2:
+                case (int)State.HeadButtAttackInProgress:
                     break;
             }
         }
@@ -135,12 +151,12 @@ namespace SCP956
                 logger.LogDebug("Player died, spawning candy");
                 List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => CandyNames.Contains(x.itemName)).ToList();
                 logger.LogDebug($"Candy count: {candies.Count}");
-                int candiesCount = UnityEngine.Random.Range(config9561MinSpawn.Value, config9561MaxSpawn.Value);
+                int candiesCount = UnityEngine.Random.Range(configCandyMinSpawn.Value, configCandyMaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
                 {
                     Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
-                    int scrapValue = (int)UnityEngine.Random.Range(config9561MinValue.Value, config9561MaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
+                    int scrapValue = (int)UnityEngine.Random.Range(configCandyMinValue.Value, configCandyMaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
                     NetworkHandler.Instance.SpawnItemServerRpc(0, candies[UnityEngine.Random.Range(0, 6)].itemName, scrapValue, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f));
                 }
 
@@ -152,14 +168,6 @@ namespace SCP956
                 yield break;
             }
             SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
-        }
-
-        bool TargetClosestPlayerMeetingConditions()
-        {
-            targetPlayer = null;
-            if (StartOfRound.Instance.allPlayerScripts.Where(x => Vector3.Distance(transform.position, x.transform.position) <= (config956Radius.Value * 3f)).FirstOrDefault() != null) { moveTowardsDestination = false; return false; }
-            targetPlayer = StartOfRound.Instance.allPlayerScripts.Where(x => PlayerMeetsConditions(x)).FirstOrDefault();
-            return targetPlayer != null;
         }
         
         bool TargetFrozenPlayerInRange(float range)
@@ -218,31 +226,6 @@ namespace SCP956
             transform.position = teleportPos;
             agent.Warp(teleportPos);
             SyncPositionToClients();
-        }
-
-        private bool PlayerMeetsConditions(PlayerControllerB player)
-        {
-            if ((player.thisPlayerBody.localScale.x < 1f && player.thisPlayerBody.localScale.y < 1f && player.thisPlayerBody.localScale.z < 1f) || (IsPlayerHoldingCandy(player) && config956Behavior.Value == 2) || config956Behavior.Value == 4)
-            {
-                if (player.isPlayerControlled && player.isInsideFactory)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
-        {
-            foreach (GrabbableObject item in player.ItemSlots)
-            {
-                if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName))
-                {
-                    return true;
-                }
-            }
-            return false;
         }
 
         // RPC's

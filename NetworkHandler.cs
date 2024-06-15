@@ -11,12 +11,12 @@ using static SCP956.Plugin;
 
 namespace SCP956
 {
-    public class NetworkHandler : NetworkBehaviour
+    public class NetworkHandler : NetworkBehaviour // TODO: Add config syncing
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public static NetworkHandler Instance { get; private set; }
-        public static PlayerControllerB CurrentClient { get { return StartOfRound.Instance.localPlayerController; } }
+        public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         public static PlayerControllerB PlayerFromId(ulong id) { return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]]; }
 
@@ -26,7 +26,7 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
-                logger.LogDebug("Despaned network object");
+                logger.LogDebug("Despawned network object");
             }
 
             Instance = this;
@@ -38,14 +38,13 @@ namespace SCP956
         [ClientRpc]
         private void GrabObjectClientRpc(ulong id, ulong clientId)
         {
-            if (clientId == CurrentClient.actualClientId)
+            if (clientId == localPlayer.actualClientId)
             {
-                PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
                 GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
 
-                player.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f);
-                player.GrabObjectServerRpc(grabbableItem.NetworkObject);
-                grabbableItem.parentObject = player.localItemHolder;
+                localPlayer.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
+                localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
+                grabbableItem.parentObject = localPlayer.localItemHolder;
                 grabbableItem.GrabItemOnClient();
             }
         }
@@ -68,7 +67,7 @@ namespace SCP956
             if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && configEnablePinata.Value)
             {
                 SpawnableEnemyWithRarity enemy = RoundManager.Instance.currentLevel.Enemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault();
-                logger.LogDebug("Found enemy: " + enemy);
+                if (enemy == null) { return; }
 
                 List<EnemyVent> vents = RoundManager.Instance.allEnemyVents.ToList();
                 logger.LogDebug("Found vents: " + vents.Count);
@@ -81,7 +80,18 @@ namespace SCP956
                 logger.LogDebug("Updated vent with enemy type index: " + vent.enemyTypeIndex + " and enemy type: " + vent.enemyType);
 
                 RoundManager.Instance.SpawnEnemyFromVent(vent);
-                logger.LogDebug("Spawned SCP-956 from vent");
+                logger.LogDebug("Spawning SCP-956 from vent");
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SpawnPinataNearbyServerRpc(Vector3 playerPos)
+        {
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && configEnablePinata.Value)
+            {
+                Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(playerPos, config956SpawnRadius.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
+                RoundManager.Instance.SpawnEnemyOnServer(pos, UnityEngine.Random.Range(0f, 360f), index);
             }
         }
 

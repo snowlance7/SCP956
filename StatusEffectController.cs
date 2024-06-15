@@ -315,6 +315,8 @@ namespace SCP956
             }
         }
 
+        // Other methods
+
         public void BlowOutCandles() { StartCoroutine(BlowOutCandlesCoroutine()); }
 
         private IEnumerator BlowOutCandlesCoroutine()
@@ -324,6 +326,25 @@ namespace SCP956
             Plugin.PlayerAge = 11;
             NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
             HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CakeAppearsfx, 1f);
+        }
+
+        public void TransformPlayer(PlayerControllerB player)
+        {
+            StartCoroutine(TransformPlayerCoroutine(player));
+        }
+
+        private IEnumerator TransformPlayerCoroutine(PlayerControllerB player) // TODO: Test this
+        {
+            Vector3 playerPos = player.transform.position;
+
+            player.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
+
+            yield return new WaitForSecondsRealtime(7f);
+
+            UnityEngine.Object.Destroy(player.deadBody.gameObject);
+
+            int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
+            RoundManager.Instance.SpawnEnemyOnServer(player.transform.position, player.previousYRot, index);
         }
     }
 }

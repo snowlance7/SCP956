@@ -45,9 +45,11 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static AudioClip? CakeDisappearsfx;
         public static AudioClip? EatCakesfx;
 
+        // Secret Lab Configs
+        public static ConfigEntry<bool> configSecretLab;
+        public static ConfigEntry<float> config956SpawnRadius;
 
-
-        // SCP-956 Configs
+        // SCP-956 Rarity Configs
         public static ConfigEntry<int> configExperimentationLevelRarity;
         public static ConfigEntry<int> configAssuranceLevelRarity;
         public static ConfigEntry<int> configVowLevelRarity;
@@ -59,20 +61,21 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static ConfigEntry<int> configModdedLevelRarity;
         public static ConfigEntry<int> configOtherLevelRarity;
 
-        // General Configs
+        // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
-        public static ConfigEntry<int> config956Behavior;
-        public static ConfigEntry<float> config956Radius;
+        public static ConfigEntry<bool> configTargetAllPlayers;
+        public static ConfigEntry<float> config956ActivationRadius;
+        public static ConfigEntry<int> configMinAge;
         public static ConfigEntry<int> configMaxAge;
         public static ConfigEntry<bool> configPlayWarningSound;
         public static ConfigEntry<int> configHeadbuttDamage;
 
         // SCP0956-1 Configs
-        public static ConfigEntry<int> config9561MinValue;
-        public static ConfigEntry<int> config9561MaxValue;
-        public static ConfigEntry<int> config9561MinSpawn;
-        public static ConfigEntry<int> config9561MaxSpawn;
-        public static ConfigEntry<int> config9561DeathChance;
+        public static ConfigEntry<int> configCandyMinValue;
+        public static ConfigEntry<int> configCandyMaxValue;
+        public static ConfigEntry<int> configCandyMinSpawn;
+        public static ConfigEntry<int> configCandyMaxSpawn;
+        public static ConfigEntry<int> configCandyDeathChance;
 
         // SCP-559 Configs
         public static ConfigEntry<bool> configEnable559;
@@ -107,6 +110,11 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             InitializeNetworkBehaviours();
 
             // Configs
+
+            // Secret Lab
+            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", false, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info."); // TODO: Make behavior just like SCP Secret Lab
+            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 25f, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
+
             // Rarity
             configExperimentationLevelRarity = Config.Bind("Rarity", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
             configAssuranceLevelRarity = Config.Bind("Rarity", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
@@ -119,24 +127,21 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             configModdedLevelRarity = Config.Bind("Rarity", "ModdedLevelRarity", 30, "Modded Level Rarity");
             configOtherLevelRarity = Config.Bind("Rarity", "OtherLevelRarity", 30, "Other Level Rarity");
 
-            // General Configs
-            configEnablePinata = Config.Bind("General", "Enable Pinata", true, "Set to false to disable spawning pinata.");
-            config956Behavior = Config.Bind("General", "SCP-956 Behavior", 1, "Determines SCP'S behavior when spawned\nBehaviors:\n" +
-                "1 - Default: Kills players under the age of 12.\n" +
-                "2 - Secret Lab: Candy causes random effects (coming soon) but 956 targets players holding candy and under the age of 12.\n" +
-                "3 - Random Age: Everyone has a random age at the start of the game. 956 will target players under 12.\n" +
-                "4 - All: 956 targets all players.");
-            config956Radius = Config.Bind("General", "ActivationRadius", 15f, "The radius around 956 that will activate 956.");
-            configMaxAge = Config.Bind("General", "Max Age", 60, "The maximum age of a player that is decided at the beginning of a game. Useful for random age behavior. Minimum age is 5 on random age behavior, and 18 on all other behaviors");
-            configPlayWarningSound = Config.Bind("General", "Play Warning Sound", true, "Play warning sound when inside 956s radius and conditions are met.");
-            configHeadbuttDamage = Config.Bind("General", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
+            // SCP-956 Configs
+            configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
+            configTargetAllPlayers = Config.Bind("SCP-956", "Target All Players", false, "Set to true if you want 956 to target all players regardless of conditions.");
+            config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 15f, "The radius in which SCP-956 will target players that meet the required conditions.");
+            configMaxAge = Config.Bind("SCP-956", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
+            configMaxAge = Config.Bind("SCP-956", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
+            configPlayWarningSound = Config.Bind("SCP-956", "Play Warning Sound", true, "Play warning sound when inside SCP-956's radius and conditions are met.");
+            configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
             // Candy Configs
-            config9561MinValue = Config.Bind("Candy", "Candy Min Value", 0, "The minimum scrap value of the candy");
-            config9561MaxValue = Config.Bind("Candy", "Cany Max Value", 15, "The maximum scrap value of the candy");
-            config9561MinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
-            config9561MaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
-            config9561DeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
+            configCandyMinValue = Config.Bind("Candy", "Candy Min Value", 0, "The minimum scrap value of the candy");
+            configCandyMaxValue = Config.Bind("Candy", "Cany Max Value", 15, "The maximum scrap value of the candy");
+            configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
+            configCandyMaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
+            configCandyDeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
             
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
@@ -263,50 +268,50 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             LoggerInstance.LogDebug($"Got CandyRainbow prefab");
 
             candyScript = CandyPink.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyPink.minValue = config9561MinValue.Value;
-            CandyPink.maxValue = config9561MaxValue.Value;
+            CandyPink.minValue = configCandyMinValue.Value;
+            CandyPink.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
             Utilities.FixMixerGroups(CandyPink.spawnPrefab);
             Items.RegisterScrap(CandyPink);
 
             candyScript = CandyPurple.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyPurple.minValue = config9561MinValue.Value;
-            CandyPurple.maxValue = config9561MaxValue.Value;
+            CandyPurple.minValue = configCandyMinValue.Value;
+            CandyPurple.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPurple.spawnPrefab);
             Utilities.FixMixerGroups(CandyPurple.spawnPrefab);
             Items.RegisterScrap(CandyPurple);
 
             candyScript = CandyRed.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyRed.minValue = config9561MinValue.Value;
-            CandyRed.maxValue = config9561MaxValue.Value;
+            CandyRed.minValue = configCandyMinValue.Value;
+            CandyRed.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyRed.spawnPrefab);
             Utilities.FixMixerGroups(CandyRed.spawnPrefab);
             Items.RegisterScrap(CandyRed);
 
             candyScript = CandyYellow.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyYellow.minValue = config9561MinValue.Value;
-            CandyYellow.maxValue = config9561MaxValue.Value;
+            CandyYellow.minValue = configCandyMinValue.Value;
+            CandyYellow.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyYellow.spawnPrefab);
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
             Items.RegisterScrap(CandyYellow);
 
             candyScript = CandyGreen.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyGreen.minValue = config9561MinValue.Value;
-            CandyGreen.maxValue = config9561MaxValue.Value;
+            CandyGreen.minValue = configCandyMinValue.Value;
+            CandyGreen.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
             Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
             Items.RegisterScrap(CandyGreen);
 
             candyScript = CandyBlue.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyBlue.minValue = config9561MinValue.Value;
-            CandyBlue.maxValue = config9561MaxValue.Value;
+            CandyBlue.minValue = configCandyMinValue.Value;
+            CandyBlue.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
             Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
             Items.RegisterScrap(CandyBlue);
 
             candyScript = CandyRainbow.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyRainbow.minValue = config9561MinValue.Value;
-            CandyRainbow.maxValue = config9561MaxValue.Value;
+            CandyRainbow.minValue = configCandyMinValue.Value;
+            CandyRainbow.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyRainbow.spawnPrefab);
             Utilities.FixMixerGroups(CandyRainbow.spawnPrefab);
             Items.RegisterScrap(CandyRainbow);
@@ -344,6 +349,19 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             
             // Finished
             Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
+        }
+
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        {
+            foreach (GrabbableObject item in player.ItemSlots)
+            {
+                if (item == null) { continue; }
+                if (CandyNames.Contains(item.itemProperties.itemName))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private static void InitializeNetworkBehaviours()

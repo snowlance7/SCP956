@@ -19,6 +19,8 @@ namespace SCP956.Patches
         private static bool warningStarted = false;
         public static bool playerFrozen = false;
 
+        public static AudioSource _audioSource = HUDManager.Instance.UIAudio;
+
         private static ManualLogSource logger = LoggerInstance;
 
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
@@ -49,15 +51,16 @@ namespace SCP956.Patches
 
                 if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
 
-                AudioSource _audioSource = HUDManager.Instance.UIAudio;
+                //AudioSource _audioSource = HUDManager.Instance.UIAudio;
                 if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
 
                 if (PlayerMeetsConditions())
                 {
+                    logger.LogDebug("Player meets conditions"); // Temp
                     if (!warningStarted)
                     {
                         if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (config956Behavior.Value == 2 && SCP956AI.IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
+                        if (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
                         if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
                         _audioSource.loop = false;
                         _audioSource.Play();
@@ -66,7 +69,7 @@ namespace SCP956.Patches
                         logger.LogDebug("Warning started");
                     }
 
-                    if (!_audioSource.isPlaying && warningStarted)
+                    if (warningStarted && IsTimeUp()) // TODO: Test this
                     {
                         logger.LogDebug("Audio stopped");
                         // Freeze localPlayer
@@ -86,6 +89,25 @@ namespace SCP956.Patches
                     _audioSource.Stop();
                 }
             }
+        }
+
+        private static bool IsTimeUp() // TODO: Test this
+        {
+            if (!_audioSource.isPlaying) { return true; }
+
+            if (configSecretLab.Value)
+            {
+                if (_audioSource.clip.length < 10) // Player is child
+                {
+                    if (_audioSource.time >= 2.5f) { return true; }
+                }
+                else // Player is holding candy
+                {
+                    if (_audioSource.time >= 20f) { return true; }
+                }
+            }
+
+            return false;
         }
 
         [HarmonyPrefix]
@@ -160,11 +182,11 @@ namespace SCP956.Patches
 
         public static bool PlayerMeetsConditions()
         {
-            if (PlayerAge < 12 || config956Behavior.Value == 4 || (config956Behavior.Value == 2 && SCP956AI.IsPlayerHoldingCandy(localPlayer)))
+            if (PlayerAge < 12 || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)))
             {
                 foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
                 {
-                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956Radius.Value)
+                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
                     {
                         return true;
                     }
