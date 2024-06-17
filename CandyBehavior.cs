@@ -8,6 +8,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Timeline;
 using System.Collections;
+using UnityEngine.ProBuilder;
 
 namespace SCP956
 {
@@ -16,6 +17,16 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = true;
+
+
+        public override void Start()
+        {
+            base.Start();
+            if (!pinataCandy || configSecretLab.Value)
+            {
+                itemProperties.toolTips.Add("Put Candy in Bag"); // TODO: Test this
+            }
+        }
 
         public override void GrabItem()
         {
@@ -28,6 +39,32 @@ namespace SCP956
                 }
             }
         }
+
+        public override void ItemInteractLeftRight(bool right) // TODO: Test this
+        {
+            base.ItemInteractLeftRight(right);
+            if (!right && (!pinataCandy || configSecretLab.Value))
+            {
+                playerHeldBy.DespawnHeldObject();
+
+                // Put candy in bag
+                Item candyBag;
+                GrabbableObject candyBagObj = playerHeldBy.ItemSlots.Where(x => x.itemProperties.itemName == "Candy Bag").FirstOrDefault();
+
+                if (candyBagObj != null) { candyBag = candyBagObj.itemProperties; }
+                else
+                {
+                    NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, "Candy Bag", 0, playerHeldBy.transform.position, Quaternion.identity, false, true);
+
+                    candyBag = playerHeldBy.ItemSlots.Where(x => x.itemProperties.itemName == "Candy Bag").FirstOrDefault().itemProperties;
+                }
+
+                if (candyBag == null) { logger.LogError("Candy bag is null"); return; }
+
+                candyBag.spawnPrefab.GetComponent<CandyBagBehavior>().CandyBag[itemProperties.itemName]++;
+            }
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);

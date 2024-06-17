@@ -36,6 +36,11 @@ namespace SCP956.Patches
         {
             //StatusEffectController.Instance.TransformPlayer(localPlayer); // TODO: [Error  : Unity Log] [Netcode-Server Sender=1] Destroy a spawned NetworkObject on a non-host client is not valid. Call Destroy or Despawn on the server/host instead.
 
+            SCP956AI scp = RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault();
+
+            Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(scp.transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+            scp.Teleport(pos);
+
             // deathAnimations:
             // 0 = normal
             // 1 = decapitation

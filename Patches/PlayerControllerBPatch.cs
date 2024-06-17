@@ -60,7 +60,7 @@ namespace SCP956.Patches
                     if (!warningStarted)
                     {
                         if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
+                        if (!(PlayerAge < 12) && configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
                         if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
                         _audioSource.loop = false;
                         _audioSource.Play();
@@ -110,6 +110,21 @@ namespace SCP956.Patches
             return false;
         }
 
+        public static bool PlayerMeetsConditions()
+        {
+            if (PlayerAge < 12 || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)))
+            {
+                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
+                {
+                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
         private static void UpdatePrefix()
@@ -129,7 +144,7 @@ namespace SCP956.Patches
         {
             if (Plugin.PlayerAge < 12)
             {
-                ___deadBody.transform.localScale = new Vector3(0.8f, 0.8f, 0.8f);
+                ___deadBody.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             }
         }
 
@@ -178,21 +193,6 @@ namespace SCP956.Patches
                 return false;
             }
             return true;
-        }
-
-        public static bool PlayerMeetsConditions()
-        {
-            if (PlayerAge < 12 || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)))
-            {
-                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
-                {
-                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
         }
     }
 }

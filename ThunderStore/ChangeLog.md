@@ -3,6 +3,8 @@
 - Removed behavior system, 'random age' and 'all' behaviors moved to separate configs
 - Reworked configs
 - Secret Lab behavior has its own config section and got completely reworked, more info in README
+- Added Candy Bags
+- Candy no longer has value
 
 ## 0.3.0
 - 11 candles instead of 10 for cake

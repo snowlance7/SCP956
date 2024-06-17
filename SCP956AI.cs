@@ -60,44 +60,39 @@ namespace SCP956
                 return;
             }
             timeSinceNewRandPos += Time.deltaTime;
-            timeSinceRandTeleport += Time.deltaTime;
-            logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
+            //timeSinceRandTeleport += Time.deltaTime;
+            //logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
             
             var state = currentBehaviourStateIndex;
-
-            if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value)/* || Vector3.Distance(transform.position, targetPlayer.transform.position) <= (2f * config956SpawnRadius.Value)*/) // TODO: NOT SYNCED WITH SERVER AND CLIENT
-            {
-                timeSinceRandTeleport = 0;
-            }
 
             if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
 
-                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position/* + Vector3.up * 0.75f*/, 60f/*, 15*/))
+                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 60f))
                 {
-                    GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.3f);
+                    GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.2f);
                 }
             }
             else if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
             {
                 turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                 transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
-
-                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position/* + Vector3.up * 0.75f*/, 60f/*, 15*/))
-                {
-                    GameNetworkManager.Instance.localPlayerController.JumpToFearLevel(1f);
-                }
             }
         }
         
-        public override void DoAIInterval() // TODO: ERROR: Tried to destroy scp956 and it started replicating infinitely figure out whyyyy, probably because im spawning it because player age is under 12
+        public override void DoAIInterval()
         {
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {
                 return;
+            }
+
+            if (IsAnyPlayerLookingAtMe())
+            {
+                timeSinceRandTeleport = 0;
             }
 
             switch (currentBehaviourStateIndex)
@@ -113,8 +108,8 @@ namespace SCP956
                     if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this, make sure configSecretLab is set to true when testing you idiot
                     {
                         logger.LogDebug("Teleporting");
-                        Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
-                        Teleport(pos);
+                        //Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                        //Teleport(pos); // TODO: Test this
                         timeSinceRandTeleport = 0;
                     }
                     break;
@@ -164,8 +159,7 @@ namespace SCP956
                 for (int i = 0; i < candiesCount; i++)
                 {
                     Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
-                    int scrapValue = (int)UnityEngine.Random.Range(configCandyMinValue.Value, configCandyMaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
-                    NetworkHandler.Instance.SpawnItemServerRpc(0, candies[UnityEngine.Random.Range(0, 6)].itemName, scrapValue, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f));
+                    NetworkHandler.Instance.SpawnItemServerRpc(0, candies[UnityEngine.Random.Range(0, 6)].itemName, 0, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f), false, false, true);
                 }
 
                 NetworkHandler.Instance.FrozenPlayers.Remove(player.actualClientId);
@@ -228,12 +222,24 @@ namespace SCP956
             base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
         }
 
-        public void Teleport(Vector3 teleportPos) // Unneeded?
+        public void Teleport(Vector3 teleportPos)
         {
             serverPosition = teleportPos;
             transform.position = teleportPos;
             agent.Warp(teleportPos);
             SyncPositionToClients();
+        }
+
+        public bool IsAnyPlayerLookingAtMe()
+        {
+            foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
+            {
+                if (player.isPlayerControlled && player.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // RPC's

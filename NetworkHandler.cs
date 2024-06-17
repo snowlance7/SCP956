@@ -40,12 +40,15 @@ namespace SCP956
         {
             if (clientId == localPlayer.actualClientId)
             {
-                GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
+                if (localPlayer.ItemSlots.Where(x => x == null).Any()) // TODO: Test this
+                {
+                    GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
 
-                localPlayer.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
-                localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
-                grabbableItem.parentObject = localPlayer.localItemHolder;
-                grabbableItem.GrabItemOnClient();
+                    localPlayer.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
+                    localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
+                    grabbableItem.parentObject = localPlayer.localItemHolder;
+                    grabbableItem.GrabItemOnClient();
+                }
             }
         }
 
@@ -115,12 +118,14 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false)
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false, bool pinataCandy = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == _itemName).FirstOrDefault();
                 logger.LogDebug("Got item");
+                
+                if (pinataCandy && !configSecretLab.Value) { item.itemName = "SCP-956-1"; }
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 logger.LogDebug("Got obj");
@@ -133,7 +138,6 @@ namespace SCP956
 
                 if (grabItem)
                 {
-                    
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
                     logger.LogDebug("grabbed obj");
                 }

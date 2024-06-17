@@ -73,8 +73,6 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static ConfigEntry<int> configHeadbuttDamage;
 
         // SCP0956-1 Configs
-        public static ConfigEntry<int> configCandyMinValue;
-        public static ConfigEntry<int> configCandyMaxValue;
         public static ConfigEntry<int> configCandyMinSpawn;
         public static ConfigEntry<int> configCandyMaxSpawn;
         public static ConfigEntry<int> configCandyDeathChance;
@@ -141,8 +139,6 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
 
             // Candy Configs
-            configCandyMinValue = Config.Bind("Candy", "Candy Min Value", 0, "The minimum scrap value of the candy");
-            configCandyMaxValue = Config.Bind("Candy", "Cany Max Value", 15, "The maximum scrap value of the candy");
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
             configCandyMaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
             configCandyDeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
@@ -247,7 +243,6 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             }
 
             // Getting Candy // TODO: Simplify this
-            CandyBehavior candyScript;
 
             Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
             if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
@@ -271,51 +266,30 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             if (CandyRainbow == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
             LoggerInstance.LogDebug($"Got CandyRainbow prefab");
 
-            candyScript = CandyPink.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyPink.minValue = configCandyMinValue.Value;
-            CandyPink.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
             Utilities.FixMixerGroups(CandyPink.spawnPrefab);
             Items.RegisterScrap(CandyPink);
 
-            candyScript = CandyPurple.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyPurple.minValue = configCandyMinValue.Value;
-            CandyPurple.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyPurple.spawnPrefab);
             Utilities.FixMixerGroups(CandyPurple.spawnPrefab);
             Items.RegisterScrap(CandyPurple);
 
-            candyScript = CandyRed.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyRed.minValue = configCandyMinValue.Value;
-            CandyRed.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyRed.spawnPrefab);
             Utilities.FixMixerGroups(CandyRed.spawnPrefab);
             Items.RegisterScrap(CandyRed);
 
-            candyScript = CandyYellow.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyYellow.minValue = configCandyMinValue.Value;
-            CandyYellow.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyYellow.spawnPrefab);
             Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
             Items.RegisterScrap(CandyYellow);
 
-            candyScript = CandyGreen.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyGreen.minValue = configCandyMinValue.Value;
-            CandyGreen.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
             Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
             Items.RegisterScrap(CandyGreen);
 
-            candyScript = CandyBlue.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyBlue.minValue = configCandyMinValue.Value;
-            CandyBlue.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
             Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
             Items.RegisterScrap(CandyBlue);
 
-            candyScript = CandyRainbow.spawnPrefab.GetComponent<CandyBehavior>();
-            CandyRainbow.minValue = configCandyMinValue.Value;
-            CandyRainbow.maxValue = configCandyMaxValue.Value;
             NetworkPrefabs.RegisterNetworkPrefab(CandyRainbow.spawnPrefab);
             Utilities.FixMixerGroups(CandyRainbow.spawnPrefab);
             Items.RegisterScrap(CandyRainbow);

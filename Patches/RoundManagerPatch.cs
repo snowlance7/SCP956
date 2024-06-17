@@ -20,6 +20,8 @@ namespace SCP956.Patches
         private static ManualLogSource logger = Plugin.LoggerInstance;
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
+        private static bool firstTime = true;
+
         [HarmonyPrefix]
         [HarmonyPatch("SpawnEnemyFromVent")]
         public static bool SpawnEnemyFromVentPreFix(EnemyVent vent) // TODO: Scrap this? May cause errors with other mods?
@@ -104,11 +106,12 @@ namespace SCP956.Patches
         {
             try // TODO: Temp fix until it's fixed
             {
-                if (PlayerAge < 12 && configEnablePinata.Value)
+                if (PlayerAge < 12 && configEnablePinata.Value && firstTime)
                 {
                     if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
                     {
                         NetworkHandler.Instance.SpawnPinataServerRpc();
+                        firstTime = false;
                     }
                 }
             }
@@ -123,6 +126,7 @@ namespace SCP956.Patches
         private static void GenerateNewFloorPostfix()
         {
             logger.LogDebug("In GenerateNewFloorPostfix");
+            firstTime = true;
 
             // Setting up player age
             

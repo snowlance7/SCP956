@@ -37,7 +37,7 @@ namespace SCP956
                 noHands = true;
                 HUDManager.Instance.UIAudio.PlayOneShot(BoneCracksfx, 1f);
                 HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
-                localPlayer.JumpToFearLevel(3f); // TODO: Test this
+                localPlayer.JumpToFearLevel(3f);
                 // TODO: Make it so the players hands are no longer visible
 
                 StatusEffectController.Instance.DamagePlayerOverTime(5, 2, true);
@@ -51,9 +51,7 @@ namespace SCP956
             logger.LogDebug("Got Candy");
             candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = false;
             logger.LogDebug("Set pinataCandy to false");
-            int scrapValue = (int)UnityEngine.Random.Range(configCandyMinValue.Value, configCandyMaxValue.Value * RoundManager.Instance.scrapValueMultiplier);
-            logger.LogDebug("Got scrapValue");
-            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candy.itemName, scrapValue, transform.position, Quaternion.identity, false, true);
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candy.itemName, 0, transform.position, Quaternion.identity, false, true);
             logger.LogDebug("Spawned candy");
             candyTaken++;
             logger.LogDebug("Candy taken: " + candyTaken);
