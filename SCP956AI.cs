@@ -60,7 +60,7 @@ namespace SCP956
                 return;
             }
             timeSinceNewRandPos += Time.deltaTime;
-            //timeSinceRandTeleport += Time.deltaTime;
+            timeSinceRandTeleport += Time.deltaTime;
             //logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
             
             var state = currentBehaviourStateIndex;
@@ -108,14 +108,15 @@ namespace SCP956
                     if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this, make sure configSecretLab is set to true when testing you idiot
                     {
                         logger.LogDebug("Teleporting");
-                        //Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
-                        //Teleport(pos); // TODO: Test this
+                        Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                        Teleport(pos);
                         timeSinceRandTeleport = 0;
                     }
                     break;
 
                 case (int)State.MovingTowardsPlayer:
-                    agent.speed = 1f;
+                    agent.speed = 0.5f;
+                    timeSinceRandTeleport = 0;
                     if (!TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
                         logger.LogDebug("Stop Killing Players");
@@ -126,6 +127,7 @@ namespace SCP956
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
+                    timeSinceRandTeleport = 0;
                     break;
             }
         }

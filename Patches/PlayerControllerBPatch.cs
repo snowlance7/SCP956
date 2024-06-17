@@ -52,9 +52,10 @@ namespace SCP956.Patches
                 if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
 
                 //AudioSource _audioSource = HUDManager.Instance.UIAudio;
+
                 if (_audioSource == null) { logger.LogError("AudioSource is null"); return; } // TODO: ERROR: When opening a new save, this is null
 
-                if (PlayerMeetsConditions()) // TODO: ERROR: THIS ISNT WORKING, CAUSES ERRORS WHEN 956 IS DESPAWNED?????
+                if (PlayerMeetsConditions()) // TODO: ERROR: CAUSES ERRORS WHEN 956 IS DESPAWNED?????
                 {
                     logger.LogDebug("Player meets conditions"); // Temp
                     if (!warningStarted)
@@ -69,7 +70,7 @@ namespace SCP956.Patches
                         logger.LogDebug("Warning started");
                     }
 
-                    if (warningStarted && IsTimeUp()) // TODO: Test this
+                    if (warningStarted && IsTimeUp())
                     {
                         logger.LogDebug("Audio stopped");
                         // Freeze localPlayer
@@ -91,7 +92,7 @@ namespace SCP956.Patches
             }
         }
 
-        private static bool IsTimeUp() // TODO: Test this
+        private static bool IsTimeUp()
         {
             if (!_audioSource.isPlaying) { return true; }
 
@@ -118,6 +119,7 @@ namespace SCP956.Patches
                 {
                     if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
                     {
+                        _audioSource = scp.creatureSFX; // TODO: Test this
                         return true;
                     }
                 }

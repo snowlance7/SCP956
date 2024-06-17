@@ -128,21 +128,15 @@ namespace SCP956.Patches
             logger.LogDebug("In GenerateNewFloorPostfix");
             firstTime = true;
 
-            // Setting up player age
-            
-            if (PlayerAge == 0)
+            // Setting player size
+
+            if (PlayerAge < 12)
             {
-                PlayerAge = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value);
-                logger.LogDebug($"Player age: {PlayerAge}");
-                PlayerOriginalAge = PlayerAge;
-                logger.LogDebug($"Player original age: {PlayerOriginalAge}");
-                if (PlayerAge < 12)
-                {
-                    NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
-                }
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
                 logger.LogDebug("Changed player size");
-                logger.LogInfo($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {PlayerAge}");
             }
+
+            logger.LogInfo($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {PlayerAge}");
         }
     }
 }

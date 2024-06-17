@@ -22,7 +22,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "0.3.0";
+        private const string modVersion = "1.0.0";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -46,7 +46,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static AudioClip? EatCakesfx;
 
         // Secret Lab Configs
-        public static ConfigEntry<bool> configSecretLab;
+        public static ConfigEntry<bool> configSecretLab; // TODO: Change bestiary entry depending on secret lab mode
         public static ConfigEntry<int> config956SpawnRadius;
         public static ConfigEntry<int> config956TeleportTime;
         public static ConfigEntry<int> config956TeleportRange;
@@ -113,9 +113,9 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
             // Secret Lab
             configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");// TODO: temp set to true, change back later // TODO: Make behavior just like SCP Secret Lab
-            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 30, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
+            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 50, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
             config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
-            config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 50, "Range at which SCP-956 will teleport.");
+            config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 100, "Range at which SCP-956 will teleport.");
 
             // Rarity
             configExperimentationLevelRarity = Config.Bind("Rarity", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");

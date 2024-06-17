@@ -8,7 +8,8 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.Timeline;
 using System.Collections;
-using UnityEngine.ProBuilder;
+using UnityEngine.ProBuilder.Poly2Tri;
+using UnityEngine.XR;
 
 namespace SCP956
 {
@@ -17,15 +18,15 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
         public bool pinataCandy = true;
-
-
-        public override void Start()
+        
+        public override void EquipItem()
         {
-            base.Start();
+            base.EquipItem();
             if (!pinataCandy || configSecretLab.Value)
             {
-                itemProperties.toolTips.Add("Put Candy in Bag"); // TODO: Test this
+                itemProperties.toolTips[1] = "Put Candy in Bag [Q]"; // TODO: Test this
             }
+            else itemProperties.toolTips[1] = "";
         }
 
         public override void GrabItem()
@@ -40,8 +41,9 @@ namespace SCP956
             }
         }
 
-        public override void ItemInteractLeftRight(bool right) // TODO: Test this
+        public override void ItemInteractLeftRight(bool right) // TODO: TEST THIS
         {
+            logger.LogDebug("Item interact left right"); // TODO: not working
             base.ItemInteractLeftRight(right);
             if (!right && (!pinataCandy || configSecretLab.Value))
             {

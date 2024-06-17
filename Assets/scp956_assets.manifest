@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1650452397
+CRC: 3546468814
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 959eceb43d4387cfb7f632c3d69977fd
+    Hash: 0f06138f49b35b80a1e29fbf5e9eccbe
   TypeTreeHash:
     serializedVersion: 2
-    Hash: b2b1c3b28cf1ae585d6223eb83b7dbe3
+    Hash: 0d8b02c3f2f712262a68e534b8f12a46
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 959eceb43d4387cfb7f632c3d69977fd
+    Hash: 0f06138f49b35b80a1e29fbf5e9eccbe
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -43,6 +43,16 @@ ClassTypes:
 - Class: 95
   Script: {instanceID: 0}
 - Class: 114
+  Script: {fileID: 11995, guid: 0000000000000000e000000000000000, type: 0}
+- Class: 114
+  Script: {fileID: 11998, guid: 0000000000000000e000000000000000, type: 0}
+- Class: 114
+  Script: {fileID: 19202, guid: 0000000000000000e000000000000000, type: 0}
+- Class: 114
+  Script: {fileID: 19101, guid: 0000000000000000e000000000000000, type: 0}
+- Class: 114
+  Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+- Class: 114
   Script: {fileID: 11500000, guid: 65d3fcb39dd67306e9bb17a603308070, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 04f75356a7e9c978bddc7d568e58a50b, type: 3}
@@ -52,6 +62,10 @@ ClassTypes:
   Script: {fileID: 11500000, guid: 3c36d0a92cbb1f26a39169ef0eae393a, type: 3}
 - Class: 114
   Script: {fileID: -1359219867, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: 747233109, guid: d4457945250164e4394e1272cacb356f, type: 3}
+- Class: 114
+  Script: {fileID: -1577373544, guid: d4457945250164e4394e1272cacb356f, type: 3}
 - Class: 114
   Script: {fileID: 989255763, guid: d4457945250164e4394e1272cacb356f, type: 3}
 - Class: 114
@@ -69,6 +83,8 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
 - Class: 115
+  Script: {instanceID: 0}
+- Class: 128
   Script: {instanceID: 0}
 - Class: 195
   Script: {instanceID: 0}
@@ -91,6 +107,34 @@ SerializeReferenceClassIdentifiers:
   ClassName: EnemyBehaviourState
 - AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.Button/UxmlFactory
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.DynamicAtlasSettings
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleComplexSelector
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleProperty
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleRule
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleSelector
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleSelectorPart
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleSheet/ImportStruct
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleSheets.Dimension
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleSheets.ScalableImage
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.StyleValueHandle
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.UxmlRootElementFactory
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.VisualElement/UxmlFactory
+- AssemblyName: UnityEngine.UIElementsModule
+  ClassName: UnityEngine.UIElements.VisualElementAsset
 Assets:
 - Assets/ModAssets/Pinata/Audio/956WarningLong.mp3
 - Assets/ModAssets/Candy/CandyBlueItem.asset
@@ -110,6 +154,7 @@ Assets:
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
 - Assets/ModAssets/Candy/CandyGreenItem.asset
+- Assets/ModAssets/Candy/BagOfCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/bone-crack.mp3
 - Assets/ModAssets/Pinata/Audio/papers-flapping.mp3
 - Assets/ModAssets/Cake/CakeItem.asset
