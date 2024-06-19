@@ -45,13 +45,7 @@ namespace SCP956
                 return;
             }
 
-            List<Item> candies = StartOfRound.Instance.allItemsList.itemsList.Where(x => CandyNames.Contains(x.itemName)).ToList();
-            logger.LogDebug($"Candy count: {candies.Count}");
-            Item candy = candies[UnityEngine.Random.Range(0, candies.Count)];
-            logger.LogDebug("Got Candy");
-            candy.spawnPrefab.GetComponent<CandyBehavior>().pinataCandy = false;
-            logger.LogDebug("Set pinataCandy to false");
-            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candy.itemName, 0, transform.position, Quaternion.identity, false, true);
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyBehavior.CandyNames[UnityEngine.Random.Range(0, CandyBehavior.CandyNames.Count)], 0, transform.position, Quaternion.identity, true, false);
             logger.LogDebug("Spawned candy");
             candyTaken++;
             logger.LogDebug("Candy taken: " + candyTaken);

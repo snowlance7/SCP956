@@ -15,19 +15,20 @@ namespace SCP956
 
         private PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
-        public Dictionary<string, int> CandyBag = new Dictionary<string, int> // TODO: IMPORTANT Make sure pinata candy isnt allowed in the candy bags
+        public static bool takingCandyOut = false;
+        public Dictionary<string, List<bool>> CandyBag = new Dictionary<string, List<bool>> // TODO: IMPORTANT Make sure pinata candy isnt allowed in the candy bags
         {
-            { "Blue Candy", 0 },
-            { "Green Candy", 0 },
-            { "Pink Candy", 0 },
-            { "Purple Candy", 0 },
-            { "Rainbow Candy", 0 },
-            { "Red Candy", 0 },
-            { "Yellow Candy", 0 },
-            { "Other", 0 }
+            { "Blue Candy", new List<bool>() },
+            { "Green Candy", new List<bool>() },
+            { "Pink Candy", new List < bool >() },
+            { "Purple Candy", new List < bool >() },
+            { "Rainbow Candy", new List<bool>() },
+            { "Red Candy", new List<bool>() },
+            { "Yellow Candy", new List<bool>() },
+            { "Black Candy", new List<bool>() }
         };
 
-        public override void ItemActivate(bool used, bool buttonDown = true)
+        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Test UI and change behavior so that the player can press Q to put a candy in the bag. in the ui the player can left click on a candy to eat it and right click to take it out of the bag
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
@@ -50,17 +51,17 @@ namespace SCP956
 
         public void CandySelected(string candyName) // TODO: TEST THIS
         {
-            Item candy = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == candyName).FirstOrDefault();
+            /*Item candy = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == candyName).FirstOrDefault();
             if (candy == null) { logger.LogError("Candy not found in bag"); return; }
 
-            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candyName, 0, localPlayer.transform.position, Quaternion.identity, false, true);
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candyName, 0, localPlayer.transform.position, Quaternion.identity, true);
 
             CandyBag[candyName]--;
 
             if (!CandyBag.Where(x => x.Value > 0).Any())
             {
                 playerHeldBy.DespawnHeldObject();
-            }
+            }*/
         }
     }
 }

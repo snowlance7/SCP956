@@ -28,7 +28,7 @@ namespace SCP956
         public Button btnRainbow;
         public Button btnRed;
         public Button btnYellow;
-        public Button btnOther;
+        public Button btnBlack;
 
         private void Start()
         {
@@ -84,8 +84,8 @@ namespace SCP956
             btnYellow = root.Q<Button>("btnYellow");
             if (btnYellow == null) { logger.LogError("btnYellow not found."); return; }
 
-            btnOther = root.Q<Button>("btnOther");
-            if (btnOther == null) { logger.LogError("btnOther not found."); return; }
+            btnBlack = root.Q<Button>("btnBlack");
+            if (btnBlack == null) { logger.LogError("btnBlack not found."); return; }
 
             logger.LogDebug("Got Controls for UI");
 
@@ -97,33 +97,41 @@ namespace SCP956
             btnRainbow.clickable.clicked += () => ButtonClicked("Rainbow Candy", Convert.ToInt32(btnRainbow.text));
             btnRed.clickable.clicked += () => ButtonClicked("Red Candy", Convert.ToInt32(btnRed.text));
             btnYellow.clickable.clicked += () => ButtonClicked("Yellow Candy", Convert.ToInt32(btnYellow.text));
-            btnOther.clickable.clicked += () => ButtonClicked("Other", Convert.ToInt32(btnOther.text));
+            btnBlack.clickable.clicked += () => ButtonClicked("Black Candy", Convert.ToInt32(btnBlack.text));
+
+            btnBlue.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Blue Candy", Convert.ToInt32(btnBlue.text));
+                }
+            });
 
             logger.LogDebug("UIControllerScript: Start() complete");
         }
 
         private void Update()
         {
-            if (veMain.style.display == DisplayStyle.Flex && Keyboard.current.escapeKey.wasPressedThisFrame) { HideUI(); }
-            if (showingUI)
+            if (veMain.style.display == DisplayStyle.Flex && (Keyboard.current.escapeKey.wasPressedThisFrame || Keyboard.current.tabKey.wasPressedThisFrame)) { HideUI(); }
+            /*if (showingUI)
             {
                 UnityEngine.Cursor.lockState = CursorLockMode.None;
                 UnityEngine.Cursor.visible = true;
                 IngamePlayerSettings.Instance.playerInput.DeactivateInput();
                 StartOfRound.Instance.localPlayerController.disableLookInput = true;
-            }
+            }*/
         }
 
-        public void ShowUI(Dictionary<string, int> CandyBag)
+        public void ShowUI(Dictionary<string, List<bool>> CandyBag)
         {
-            btnBlue.text = CandyBag["Blue Candy"].ToString();
-            btnBlue.text = CandyBag["Green Candy"].ToString();
-            btnBlue.text = CandyBag["Pink Candy"].ToString();
-            btnBlue.text = CandyBag["Purple Candy"].ToString();
-            btnBlue.text = CandyBag["Rainbow Candy"].ToString();
-            btnBlue.text = CandyBag["Red Candy"].ToString();
-            btnBlue.text = CandyBag["Yellow Candy"].ToString();
-            btnBlue.text = CandyBag["Other Candy"].ToString();
+            btnBlue.text = CandyBag["Blue Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Green Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Pink Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Purple Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Rainbow Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Red Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Yellow Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Black Candy"].Count.ToString();
 
             logger.LogDebug("Showing UI");
             showingUI = true;
@@ -149,11 +157,18 @@ namespace SCP956
 
         private void ButtonClicked(string candyName, int amount)
         {
-            if (amount > 0)
+            logger.LogDebug("Button clicked");
+
+            /*if (amount > 0)
             {
                 GetComponent<CandyBagBehavior>().CandySelected(candyName);
-            }
-            HideUI();
+                HideUI();
+            }*/
+        }
+
+        private void ButtonRightClicked(string candyName, int amount) // TODO: TEST THIS
+        {
+            logger.LogDebug("Button right clicked");
         }
     }
 }

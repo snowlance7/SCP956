@@ -29,8 +29,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         private readonly Harmony harmony = new Harmony(modGUID);
         public static int PlayerAge = 0;
         public static int PlayerOriginalAge;
-
-        public static List<string> CandyNames;
+        public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
 
         public static AssetBundle? ModAssets;
@@ -40,6 +39,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static AudioClip? BoneCracksfx;
         public static AudioClip? PlayerDeathsfx;
         public static AudioClip? CandyCrunchsfx;
+        public static AudioClip? CandyEquipsfx;
         public static AudioClip? CandleBlowsfx;
         public static AudioClip? CakeAppearsfx;
         public static AudioClip? CakeDisappearsfx;
@@ -76,6 +76,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static ConfigEntry<int> configCandyMinSpawn;
         public static ConfigEntry<int> configCandyMaxSpawn;
         public static ConfigEntry<int> configCandyDeathChance;
+        public static ConfigEntry<bool> configEnableCandyBag;
 
         // SCP-559 Configs
         public static ConfigEntry<bool> configEnable559;
@@ -142,6 +143,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
             configCandyMaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
             configCandyDeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
+            configEnableCandyBag = Config.Bind("Candy", "Enable Candy Bag", true, "Makes it so you can place candy into a separate bag.");
             
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
@@ -181,6 +183,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             BoneCracksfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/bone-crack.mp3");
             PlayerDeathsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3");
             CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
+            CandyEquipsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Equip.wav");
             CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
             CakeAppearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_appear.wav");
             CakeDisappearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_disappear.wav");
@@ -192,6 +195,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             if (BoneCracksfx == null) { Logger.LogError("BoneCracksfx is null"); }
             if (PlayerDeathsfx == null) { Logger.LogError("PlayerDeathsfx is null"); }
             if (CandyCrunchsfx == null) { Logger.LogError("CandyCrunchsfx is null"); }
+            if (CandyEquipsfx == null) { Logger.LogError("CandyEquipsfx is null"); }
             if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); }
             if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); }
             LoggerInstance.LogDebug($"Got sounds from assets");
@@ -245,56 +249,51 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             // Getting Candy // TODO: Simplify this
 
             Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
-            if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyPink prefab");
+            if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get CandyPink from assets"); return; }
+            RegisterCandy(CandyPink);
+            LoggerInstance.LogDebug($"Got CandyPink");
             Item CandyPurple = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPurpleItem.asset");
-            if (CandyPurple == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyPurple prefab");
+            if (CandyPurple == null) { LoggerInstance.LogError("Error: Couldnt get CandyPurple from assets"); return; }
+            RegisterCandy(CandyPurple);
+            LoggerInstance.LogDebug($"Got CandyPurple");
             Item CandyRed = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRedItem.asset");
-            if (CandyRed == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyRed prefab");
+            if (CandyRed == null) { LoggerInstance.LogError("Error: Couldnt get CandyRed from assets"); return; }
+            RegisterCandy(CandyRed);
+            LoggerInstance.LogDebug($"Got CandyRed");
             Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyYellowItem.asset");
-            if (CandyYellow == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyYellow prefab");
+            if (CandyYellow == null) { LoggerInstance.LogError("Error: Couldnt get CandyYellow from assets"); return; }
+            RegisterCandy(CandyYellow);
+            LoggerInstance.LogDebug($"Got CandyYellow");
             Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyGreenItem.asset");
-            if (CandyGreen == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyGreen prefab");
+            if (CandyGreen == null) { LoggerInstance.LogError("Error: Couldnt get CandyGreen from assets"); return; }
+            RegisterCandy(CandyGreen);
+            LoggerInstance.LogDebug($"Got CandyGreen");
             Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlueItem.asset");
-            if (CandyBlue == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyBlue prefab");
+            if (CandyBlue == null) { LoggerInstance.LogError("Error: Couldnt get CandyBlue from assets"); return; }
+            RegisterCandy(CandyBlue);
+            LoggerInstance.LogDebug($"Got CandyBlue");
             Item CandyRainbow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRainbowItem.asset");
-            if (CandyRainbow == null) { LoggerInstance.LogError("Error: Couldnt get candy from assets"); return; }
-            LoggerInstance.LogDebug($"Got CandyRainbow prefab");
+            if (CandyRainbow == null) { LoggerInstance.LogError("Error: Couldnt get CandyRainbow from assets"); return; }
+            RegisterCandy(CandyRainbow);
+            LoggerInstance.LogDebug($"Got CandyRainbow");
+            Item CandyBlack = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlackItem.asset");
+            if (CandyBlack == null) { LoggerInstance.LogError("Error: Couldnt get CandyBlack from assets"); return; }
+            RegisterCandy(CandyBlack);
+            LoggerInstance.LogDebug($"Got CandyBlack");
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyPink.spawnPrefab);
-            Utilities.FixMixerGroups(CandyPink.spawnPrefab);
-            Items.RegisterScrap(CandyPink);
+            CandyBehavior.CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName, CandyBlack.itemName };
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyPurple.spawnPrefab);
-            Utilities.FixMixerGroups(CandyPurple.spawnPrefab);
-            Items.RegisterScrap(CandyPurple);
+            // Getting Candy Bag
+            if (configEnableCandyBag.Value)
+            {
+                Item CandyBag = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BagOfCandyItem.asset");
+                if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandyBag from assets"); return; }
+                LoggerInstance.LogDebug($"Got CandyBag");
 
-            NetworkPrefabs.RegisterNetworkPrefab(CandyRed.spawnPrefab);
-            Utilities.FixMixerGroups(CandyRed.spawnPrefab);
-            Items.RegisterScrap(CandyRed);
-
-            NetworkPrefabs.RegisterNetworkPrefab(CandyYellow.spawnPrefab);
-            Utilities.FixMixerGroups(CandyYellow.spawnPrefab);
-            Items.RegisterScrap(CandyYellow);
-
-            NetworkPrefabs.RegisterNetworkPrefab(CandyGreen.spawnPrefab);
-            Utilities.FixMixerGroups(CandyGreen.spawnPrefab);
-            Items.RegisterScrap(CandyGreen);
-
-            NetworkPrefabs.RegisterNetworkPrefab(CandyBlue.spawnPrefab);
-            Utilities.FixMixerGroups(CandyBlue.spawnPrefab);
-            Items.RegisterScrap(CandyBlue);
-
-            NetworkPrefabs.RegisterNetworkPrefab(CandyRainbow.spawnPrefab);
-            Utilities.FixMixerGroups(CandyRainbow.spawnPrefab);
-            Items.RegisterScrap(CandyRainbow);
-
-            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName };
+                NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
+                Utilities.FixMixerGroups(CandyBag.spawnPrefab);
+                Items.RegisterScrap(CandyBag);
+            }
 
             // Getting enemy
             if (configEnablePinata.Value)
@@ -329,17 +328,36 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
         }
 
+        public static void DespawnItemInSlot(int itemSlot)
+        {
+            HUDManager.Instance.itemSlotIcons[itemSlot].enabled = false;
+            
+            if (localPlayer.currentlyHeldObject != localPlayer.ItemSlots[itemSlot])
+            {
+                localPlayer.carryWeight -= Mathf.Clamp(localPlayer.ItemSlots[itemSlot].itemProperties.weight - 1f, 0f, 10f);
+            }
+
+            localPlayer.DestroyItemInSlotAndSync(itemSlot);
+        }
+
         public static bool IsPlayerHoldingCandy(PlayerControllerB player)
         {
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName))
+                if (CandyBehavior.CandyNames.Contains(item.itemProperties.itemName))
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        private void RegisterCandy(Item candy)
+        {
+            NetworkPrefabs.RegisterNetworkPrefab(candy.spawnPrefab);
+            Utilities.FixMixerGroups(candy.spawnPrefab);
+            Items.RegisterScrap(candy);
         }
 
         private static void InitializeNetworkBehaviours()

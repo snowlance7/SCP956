@@ -39,7 +39,7 @@ namespace SCP956
 
                     int newScrapValue = GetComponent<GrabbableObject>().scrapValue * 50;
                     logger.LogDebug("Spawning SCP-559");
-                    NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity, true);
+                    NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity);
                 }
 
                 // Blow out the candles
@@ -51,7 +51,7 @@ namespace SCP956
                 // Spawn cake
                 Item Cake = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == "Cake").FirstOrDefault();
                 logger.LogDebug("Spawning cake");
-                NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, false, true);
+                NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, true);
                 
                 // Spawn SCP-956 if not already spawned
                 if (!StartOfRound.Instance.inShipPhase && configEnablePinata.Value)

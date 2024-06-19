@@ -36,7 +36,7 @@ namespace SCP956
         }
 
         [ClientRpc]
-        private void GrabObjectClientRpc(ulong id, ulong clientId)
+        private void GrabObjectClientRpc(ulong id, ulong clientId) // TODO: Figure out how to turn off grab animation
         {
             if (clientId == localPlayer.actualClientId)
             {
@@ -118,14 +118,12 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool playCakeSFX = false, bool grabItem = false, bool pinataCandy = false)
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool grabItem = false, bool pinataCandy = true)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == _itemName).FirstOrDefault();
                 logger.LogDebug("Got item");
-                
-                if (pinataCandy && !configSecretLab.Value) { item.itemName = "SCP-956-1"; }
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 logger.LogDebug("Got obj");
@@ -136,13 +134,15 @@ namespace SCP956
                 obj.GetComponent<NetworkObject>().Spawn();
                 logger.LogDebug("spawned obj");
 
+                if (CandyBehavior.CandyNames.Contains(_itemName) && !pinataCandy) { obj.GetComponent<CandyBehavior>().pinataCandy = false; }
+
                 if (grabItem)
                 {
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
                     logger.LogDebug("grabbed obj");
                 }
 
-                if (playCakeSFX)
+                if (_itemName == "SCP-559")
                 {
                     obj.GetComponent<AudioSource>().PlayOneShot(CakeAppearsfx);
                     logger.LogDebug("Played cake sfx");

@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3546468814
+CRC: 1781045197
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 0f06138f49b35b80a1e29fbf5e9eccbe
+    Hash: 9157f870cc290573b9fe87eb71a94bb8
   TypeTreeHash:
     serializedVersion: 2
     Hash: 0d8b02c3f2f712262a68e534b8f12a46
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 0f06138f49b35b80a1e29fbf5e9eccbe
+    Hash: 9157f870cc290573b9fe87eb71a94bb8
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -150,6 +150,7 @@ Assets:
 - Assets/ModAssets/Pinata/Pinata.asset
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
 - Assets/ModAssets/Pinata/Audio/956WarningShort.mp3
+- Assets/ModAssets/Candy/Audio/Candy_Equip.wav
 - Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset
@@ -159,6 +160,7 @@ Assets:
 - Assets/ModAssets/Pinata/Audio/papers-flapping.mp3
 - Assets/ModAssets/Cake/CakeItem.asset
 - Assets/ModAssets/Cake/Audio/cake_candle_blow.wav
+- Assets/ModAssets/Candy/CandyBlackItem.asset
 - Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/Candy/BowlOfCandyPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
