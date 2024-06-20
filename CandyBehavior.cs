@@ -19,38 +19,24 @@ namespace SCP956
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
-        public static List<string> CandyNames;
-
         public bool pinataCandy = true;
 
         public override void EquipItem()
         {
             base.EquipItem();
-            if (configEnableCandyBag.Value)
-            {
-                playerHeldBy.equippedUsableItemQE = true;
-                itemProperties.toolTips[1] = "Put candy in bag [Q]";
-            }
+            if (configEnableCandyBag.Value) { playerHeldBy.equippedUsableItemQE = true; }
         }
 
         public override void PocketItem()
         {
             base.PocketItem();
-            if (configEnableCandyBag.Value)
-            {
-                playerHeldBy.equippedUsableItemQE = false;
-                itemProperties.toolTips[1] = "";
-            }
+            if (configEnableCandyBag.Value) { playerHeldBy.equippedUsableItemQE = false; }
         }
 
         public override void DiscardItem()
         {
             base.DiscardItem();
-            if (configEnableCandyBag.Value)
-            {
-                playerHeldBy.equippedUsableItemQE = false;
-                itemProperties.toolTips[1] = "";
-            }
+            if (configEnableCandyBag.Value) { playerHeldBy.equippedUsableItemQE = false; }
         }
 
         public override void ItemInteractLeftRight(bool right)
@@ -65,7 +51,6 @@ namespace SCP956
         public override void GrabItem()
         {
             base.GrabItem();
-            //logger.LogDebug("Pinata candy: " + pinataCandy);
             if (configSecretLab.Value)
             {
                 if (StartOfRound.Instance.localPlayerController.isInsideFactory && RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
@@ -106,8 +91,9 @@ namespace SCP956
             }*/
         }
 
-        public override void ItemActivate(bool used, bool buttonDown = true) // TODO: THIS ISNT WORKING ANYMORE EVEN THOUGH I SET IT BACK TO SCRAP ITEM, CHANCE SCAN NODE HEADER TO "VALUE: " AGAIN? FUCK THIS IMA GO SLEEP
+        public override void ItemActivate(bool used, bool buttonDown = true)
         {
+            logger.LogDebug("Item activate used");
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {

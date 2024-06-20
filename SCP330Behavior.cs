@@ -45,7 +45,7 @@ namespace SCP956
                 return;
             }
 
-            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyBehavior.CandyNames[UnityEngine.Random.Range(0, CandyBehavior.CandyNames.Count)], 0, transform.position, Quaternion.identity, true, false);
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, transform.position, Quaternion.identity, true, false);
             logger.LogDebug("Spawned candy");
             candyTaken++;
             logger.LogDebug("Candy taken: " + candyTaken);

@@ -31,6 +31,8 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static int PlayerOriginalAge;
         public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
+        public static List<string> CandyNames;
+
 
         public static AssetBundle? ModAssets;
 
@@ -281,7 +283,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             RegisterCandy(CandyBlack);
             LoggerInstance.LogDebug($"Got CandyBlack");
 
-            CandyBehavior.CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName, CandyBlack.itemName };
+            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName, CandyBlack.itemName };
 
             // Getting Candy Bag
             if (configEnableCandyBag.Value)
@@ -292,7 +294,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
                 NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
                 Utilities.FixMixerGroups(CandyBag.spawnPrefab);
-                Items.RegisterScrap(CandyBag);
+                Items.RegisterItem(CandyBag);
             }
 
             // Getting enemy
@@ -345,7 +347,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (CandyBehavior.CandyNames.Contains(item.itemProperties.itemName))
+                if (CandyNames.Contains(item.itemProperties.itemName))
                 {
                     return true;
                 }
@@ -355,9 +357,10 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
         private void RegisterCandy(Item candy)
         {
+            if (!configEnableCandyBag.Value) { candy.toolTips[1] = ""; }
             NetworkPrefabs.RegisterNetworkPrefab(candy.spawnPrefab);
             Utilities.FixMixerGroups(candy.spawnPrefab);
-            Items.RegisterScrap(candy);
+            Items.RegisterItem(candy);
         }
 
         private static void InitializeNetworkBehaviours()

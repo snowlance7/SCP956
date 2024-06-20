@@ -134,7 +134,7 @@ namespace SCP956
                 obj.GetComponent<NetworkObject>().Spawn();
                 logger.LogDebug("spawned obj");
 
-                if (CandyBehavior.CandyNames.Contains(_itemName) && !pinataCandy) { obj.GetComponent<CandyBehavior>().pinataCandy = false; }
+                if (CandyNames.Contains(_itemName) && !pinataCandy) { obj.GetComponent<CandyBehavior>().pinataCandy = false; }
 
                 if (grabItem)
                 {
