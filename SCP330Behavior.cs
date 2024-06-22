@@ -27,7 +27,7 @@ namespace SCP956
         {
             logger.LogDebug("Interacting with SCP-330");
 
-            if (candyTaken >= 2)
+            if (candyTaken >= 2 || (PlayerAge < 12 && candyTaken >= 4))
             {
                 logger.LogDebug("Player took too much candy!");
                 localPlayer.DamagePlayer(10);

@@ -19,7 +19,6 @@ namespace SCP956
         public static CandyBagUIController Instance;
 
         public VisualElement veMain;
-        private bool showingUI = false;
 
         public Button btnBlue;
         public Button btnGreen;
@@ -107,6 +106,62 @@ namespace SCP956
                 }
             });
 
+            btnGreen.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Green Candy", Convert.ToInt32(btnGreen.text));
+                }
+            });
+
+            btnPink.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Pink Candy", Convert.ToInt32(btnPink.text));
+                }
+            });
+
+            btnPurple.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Purple Candy", Convert.ToInt32(btnPurple.text));
+                }
+            });
+
+            btnRainbow.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Rainbow Candy", Convert.ToInt32(btnRainbow.text));
+                }
+            });
+
+            btnRed.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Red Candy", Convert.ToInt32(btnRed.text));
+                }
+            });
+
+            btnYellow.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Yellow Candy", Convert.ToInt32(btnYellow.text));
+                }
+            });
+
+            btnBlack.RegisterCallback<PointerDownEvent>(evt =>
+            {
+                if (evt.button == (int)MouseButton.RightMouse)
+                {
+                    ButtonRightClicked("Black Candy", Convert.ToInt32(btnBlack.text));
+                }
+            });
+
             logger.LogDebug("UIControllerScript: Start() complete");
         }
 
@@ -124,18 +179,17 @@ namespace SCP956
 
         public void ShowUI(Dictionary<string, List<bool>> CandyBag)
         {
-            btnBlue.text = CandyBag["Blue Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Green Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Pink Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Purple Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Rainbow Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Red Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Yellow Candy"].Count.ToString();
-            btnBlue.text = CandyBag["Black Candy"].Count.ToString();
-
             logger.LogDebug("Showing UI");
-            showingUI = true;
             veMain.style.display = DisplayStyle.Flex;
+
+            btnBlue.text = CandyBag["Blue Candy"].Count.ToString();
+            btnGreen.text = CandyBag["Green Candy"].Count.ToString();
+            btnPink.text = CandyBag["Pink Candy"].Count.ToString();
+            btnPurple.text = CandyBag["Purple Candy"].Count.ToString();
+            btnRainbow.text = CandyBag["Rainbow Candy"].Count.ToString();
+            btnRed.text = CandyBag["Red Candy"].Count.ToString();
+            btnYellow.text = CandyBag["Yellow Candy"].Count.ToString();
+            btnBlack.text = CandyBag["Black Candy"].Count.ToString();
 
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
@@ -146,7 +200,6 @@ namespace SCP956
         public void HideUI()
         {
             logger.LogDebug("Hiding UI");
-            showingUI = false;
             veMain.style.display = DisplayStyle.None;
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
@@ -159,16 +212,22 @@ namespace SCP956
         {
             logger.LogDebug("Button clicked");
 
-            /*if (amount > 0)
+            if (amount > 0)
             {
-                GetComponent<CandyBagBehavior>().CandySelected(candyName);
+                GetComponent<CandyBagBehavior>().CandySelected(candyName, false);
                 HideUI();
-            }*/
+            }
         }
 
-        private void ButtonRightClicked(string candyName, int amount) // TODO: TEST THIS
+        private void ButtonRightClicked(string candyName, int amount)
         {
             logger.LogDebug("Button right clicked");
+
+            if (amount > 0)
+            {
+                GetComponent<CandyBagBehavior>().CandySelected(candyName, true);
+                HideUI();
+            }
         }
     }
 }

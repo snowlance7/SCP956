@@ -105,7 +105,7 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this, make sure configSecretLab is set to true when testing you idiot
+                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this more
                     {
                         logger.LogDebug("Teleporting");
                         Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
@@ -217,9 +217,15 @@ namespace SCP956
             return;
         }
 
-        public override void HitEnemy(int force = 0, PlayerControllerB? playerWhoHit = null, bool playHitSFX = true, int hitID = -1)
+        public override void HitFromExplosion(float distance)
         {
-            base.HitEnemy(force, playerWhoHit, playHitSFX, hitID);
+            base.HitFromExplosion(distance);
+            KillEnemy(true);
+        }
+
+        public override void HitEnemy(int force = 0, PlayerControllerB playerWhoHit = null, bool playHitSFX = true, int hitID = -1)
+        {
+            base.HitEnemy(0, playerWhoHit, playHitSFX, hitID);
         }
 
         public void Teleport(Vector3 teleportPos)
@@ -264,6 +270,4 @@ namespace SCP956
         }
     }
 }
-// TODO: Make pinata die from explosions
-// TODO: Animation for pinata dying
-// TODO: Make pinata a scrap object that spawns but when conditions are met, it turns into an enemy??
+// TODO: Death animation

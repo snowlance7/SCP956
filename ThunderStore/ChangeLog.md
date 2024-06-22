@@ -5,6 +5,10 @@
 - Secret Lab behavior has its own config section and got completely reworked, more info in README
 - Added Candy Bags
 - Candy no longer has value
+- Added new candy type
+- SCP-956 can now die to explosions
+- When under the age of 12, you move faster and have more stamina
+- Other small tweaks
 
 ## 0.3.0
 - 11 candles instead of 10 for cake

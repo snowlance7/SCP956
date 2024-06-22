@@ -33,7 +33,6 @@ namespace SCP956 // TODO: Make sure wireframe video is working
 
         public static List<string> CandyNames;
 
-
         public static AssetBundle? ModAssets;
 
         public static AudioClip? WarningSoundShortsfx;
@@ -48,7 +47,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static AudioClip? EatCakesfx;
 
         // Secret Lab Configs
-        public static ConfigEntry<bool> configSecretLab; // TODO: Change bestiary entry depending on secret lab mode
+        public static ConfigEntry<bool> configSecretLab; // TODO: Change bestiary entry depending on secret lab mode and if attack everyone is enabled
         public static ConfigEntry<int> config956SpawnRadius;
         public static ConfigEntry<int> config956TeleportTime;
         public static ConfigEntry<int> config956TeleportRange;
@@ -115,7 +114,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             // Configs
 
             // Secret Lab
-            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");// TODO: temp set to true, change back later // TODO: Make behavior just like SCP Secret Lab
+            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", false, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");
             config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 50, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
             config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
             config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 100, "Range at which SCP-956 will teleport.");
@@ -165,6 +164,8 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             configCandyYellowEffects = Config.Bind("Status Effects (Experimental)", "Candy Yellow Effects", "RestoreStamina:25;InfiniteSprint:8;IncreasedMovementSpeed:8,2,true,true;", "Effects when eating yellow candy. See README for more info.");
             configCandyGreenEffects = Config.Bind("Status Effects (Experimental)", "Candy Green Effects", "StatusNegation:30;HealthRegen:1,80;", "Effects when eating green candy. See README for more info.");
             configCandyBlueEffects = Config.Bind("Status Effects (Experimental)", "Candy Blue Effects", "HealPlayer:30,true;", "Effects when eating blue candy. See README for more info.");
+
+            
 
             new StatusEffectController();
 
@@ -248,7 +249,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 Items.RegisterScrap(BowlOfCandyP, config330Rarity.Value, Levels.LevelTypes.All);
             }
 
-            // Getting Candy // TODO: Simplify this
+            // Getting Candy
 
             Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
             if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get CandyPink from assets"); return; }

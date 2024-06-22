@@ -335,16 +335,16 @@ namespace SCP956
 
         private IEnumerator TransformPlayerCoroutine(PlayerControllerB player) // TODO: Test this
         {
-            Vector3 playerPos = player.transform.position;
-
             player.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
+            logger.LogDebug("Killed player");
 
             yield return new WaitForSecondsRealtime(7f);
 
-            UnityEngine.Object.Destroy(player.deadBody.gameObject);
-
-            int index = RoundManager.Instance.currentLevel.Enemies.FindIndex(x => x.enemyType.enemyName == "SCP-956");
-            RoundManager.Instance.SpawnEnemyOnServer(player.transform.position, player.previousYRot, index);
+            Vector3 playerPos = player.deadBody.transform.position;
+            logger.LogDebug("Removing dead body");
+            NetworkHandler.Instance.DespawnDeadPlayerServerRpc(player.actualClientId);
+            logger.LogDebug("Spawning pinata");
+            NetworkHandler.Instance.SpawnPinataServerRpc(playerPos);
         }
     }
 }

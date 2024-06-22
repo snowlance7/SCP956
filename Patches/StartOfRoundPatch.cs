@@ -46,6 +46,8 @@ namespace SCP956.Patches
         {
             logger.LogDebug("In AwakePostfix");
 
+            //NetworkHandler.Instance.SyncConfigsServerRpc(localPlayer.actualClientId); // TODO: Get this working
+
             PlayerAge = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value);
             logger.LogDebug($"Player age: {PlayerAge}");
             PlayerOriginalAge = PlayerAge;

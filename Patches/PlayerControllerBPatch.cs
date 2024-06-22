@@ -9,6 +9,7 @@ using UnityEngine;
 using static SCP956.Plugin;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 namespace SCP956.Patches
 {
@@ -19,7 +20,7 @@ namespace SCP956.Patches
         private static bool warningStarted = false;
         public static bool playerFrozen = false;
 
-        public static AudioSource _audioSource = HUDManager.Instance.UIAudio;
+        public static AudioSource _audioSource { get { return HUDManager.Instance.UIAudio; } set { _audioSource = value; } }
 
         private static ManualLogSource logger = LoggerInstance;
 
@@ -53,9 +54,9 @@ namespace SCP956.Patches
 
                 //AudioSource _audioSource = HUDManager.Instance.UIAudio;
 
-                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; } // TODO: ERROR: When opening a new save, this is null
+                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
 
-                if (PlayerMeetsConditions()) // TODO: ERROR: CAUSES ERRORS WHEN 956 IS DESPAWNED?????
+                if (PlayerMeetsConditions())
                 {
                     logger.LogDebug("Player meets conditions"); // Temp
                     if (!warningStarted)
@@ -126,6 +127,59 @@ namespace SCP956.Patches
             }
             return false;
         }
+
+        /*[HarmonyPrefix] // TODO: Get this working
+        [HarmonyPatch(nameof(PlayerControllerB.GrabObject))]
+        private static bool GrabObjectPrefix(PlayerControllerB __instance)
+        {
+            if (!NetworkHandler.Instance.grabbingSpawnedItem) { yield return null; }
+            __instance.grabbedObjectValidated = false;
+            yield return new WaitForSeconds(0.1f);
+            __instance.currentlyGrabbingObject.parentObject = __instance.localItemHolder;
+            if (__instance.currentlyGrabbingObject.itemProperties.grabSFX != null)
+            {
+                __instance.itemAudio.PlayOneShot(__instance.currentlyGrabbingObject.itemProperties.grabSFX, 1f);
+            }
+            while ((__instance.currentlyGrabbingObject != __instance.currentlyHeldObjectServer || !__instance.currentlyHeldObjectServer.wasOwnerLastFrame) && !__instance.grabInvalidated)
+            {
+                Debug.Log($"grabInvalidated: {__instance.grabInvalidated}");
+                yield return null;
+            }
+            if (__instance.grabInvalidated)
+            {
+                __instance.grabInvalidated = false;
+                Debug.Log("Grab was invalidated on object: " + __instance.currentlyGrabbingObject.name);
+                if (__instance.currentlyGrabbingObject.playerHeldBy != null)
+                {
+                    Debug.Log($"playerHeldBy on currentlyGrabbingObject 2: {__instance.currentlyGrabbingObject.playerHeldBy}");
+                }
+                if (__instance.currentlyGrabbingObject.parentObject == __instance.localItemHolder)
+                {
+                    if (__instance.currentlyGrabbingObject.playerHeldBy != null)
+                    {
+                        Debug.Log($"Grab invalidated; giving grabbed object to the client who got it first; {__instance.currentlyGrabbingObject.playerHeldBy}");
+                        __instance.currentlyGrabbingObject.parentObject = __instance.currentlyGrabbingObject.playerHeldBy.serverItemHolder;
+                    }
+                    else
+                    {
+                        Debug.Log("Grab invalidated; no other client has possession of it, so set its parent object to null.");
+                        __instance.currentlyGrabbingObject.parentObject = null;
+                    }
+                }
+                __instance.twoHanded = false;
+                __instance.carryWeight = Mathf.Clamp(__instance.carryWeight - (__instance.currentlyGrabbingObject.itemProperties.weight - 1f), 0f, 10f);
+                __instance.isGrabbingObjectAnimation = false;
+                __instance.currentlyGrabbingObject = null;
+            }
+            else
+            {
+                __instance.grabbedObjectValidated = true;
+                __instance.currentlyHeldObjectServer.GrabItemOnClient();
+                __instance.isHoldingObject = true;
+                yield return new WaitForSeconds(__instance.grabObjectAnimationTime - 0.2f);
+                __instance.isGrabbingObjectAnimation = false;
+            }
+        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerControllerB.Update))]

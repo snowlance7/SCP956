@@ -18,7 +18,7 @@ Adds SCP-956 to the game along with a few other SCP's (more to come).
 - SCP-330: A dangerous bowl of candy, make sure to read the warning label
 - Custom Candy Effects: See section below for how to use
 
-## Custom Candy Effects (Experimental)
+## Custom Candy Effects
 
 There will be a config for each piece of candy (except rainbow and pink). For each candy you can customize it to give many different status effects based on the config.
 An example on how to format the config entry is shown in the config as the default value. You need to list each effect, followed by its parameters like this in this format: Effect:Param1,Param2;
@@ -33,11 +33,14 @@ A list of all available effects and their parameters are listed below:
 - InfiniteSprint:Seconds(int),TimeStackable(bool);
 - IncreasedMovementSpeed:Seconds(int),Percentage(int),TimeStackable(bool),Stackable(bool);
 
-## Upcoming Plans
+## Secret Lab Behavior
 
-- Ability to kill SCP-956 with explosions
-- Death animation for SCP-956
-- Candy bags for easier candy management
+If this is enabled in configs, how the mod works changes completely:
+
+- All candy will have random effects
+- SCP-956 will teleport around if not looked at for 60 seconds
+- SCP-956 will target players holding candy
+- Shorter activation time for being around SCP-956
 
 ## Known Issues
 

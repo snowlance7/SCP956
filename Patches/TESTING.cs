@@ -34,13 +34,15 @@ namespace SCP956.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
-            CandyBehavior candy = localPlayer.currentlyHeldObjectServer.gameObject.GetComponent<CandyBehavior>();
+            //GameObject burningParticlesContainer = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "burningParticlesContainer").FirstOrDefault();
+            //logger.LogDebug("burningParticlesContainer: " + burningParticlesContainer == null);
 
-            logger.LogDebug("Pinata candy: " + candy.pinataCandy);
+            /*CandyBehavior candy = localPlayer.currentlyHeldObjectServer.gameObject.GetComponent<CandyBehavior>();
+
+            if (candy == null) { return; }
+            logger.LogDebug("Pinata candy: " + candy.pinataCandy);*/
             
-            //StatusEffectController.Instance.TransformPlayer(localPlayer); // TODO: [Error  : Unity Log] [Netcode-Server Sender=1] Destroy a spawned NetworkObject on a non-host client is not valid. Call Destroy or Despawn on the server/host instead.
-
-            //SCP956AI scp = RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault();
+            //StatusEffectController.Instance.TransformPlayer(localPlayer);
 
             //Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(scp.transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
             //scp.Teleport(pos);
