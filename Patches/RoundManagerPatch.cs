@@ -94,10 +94,10 @@ namespace SCP956.Patches
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
             }
 
-            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && NetworkHandler.Instance.FrozenPlayers != null)
+            /*if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && NetworkHandler.Instance.FrozenPlayers != null) // TODO: May not need to do this since scp-956 gets deleted after round ends
             {
                 NetworkHandler.Instance.FrozenPlayers.Clear();
-            }
+            }*/
         }
 
         [HarmonyPostfix]

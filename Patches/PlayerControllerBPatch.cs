@@ -23,7 +23,7 @@ namespace SCP956.Patches
         public static AudioSource _audioSource { get { return HUDManager.Instance.UIAudio; } set { _audioSource = value; } }
 
         private static ManualLogSource logger = LoggerInstance;
-
+        
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         [HarmonyPostfix]
@@ -36,99 +36,10 @@ namespace SCP956.Patches
                 ___fallValue = 0f;
             }*/
 
-            if (!configEnablePinata.Value) { return; }
-            timeSinceLastCheck += Time.deltaTime;
-            if (timeSinceLastCheck > 0.3f)
-            {
-                timeSinceLastCheck = 0f;
-
-                if (playerFrozen) { return; }
-
-                if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
-                {
-                    if (playerFrozen) { playerFrozen = false; }
-                    return;
-                }
-
-                if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
-
-                //AudioSource _audioSource = HUDManager.Instance.UIAudio;
-
-                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
-
-                if (PlayerMeetsConditions())
-                {
-                    logger.LogDebug("Player meets conditions"); // Temp
-                    if (!warningStarted)
-                    {
-                        if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (!(PlayerAge < 12) && configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
-                        if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
-                        _audioSource.loop = false;
-                        _audioSource.Play();
-
-                        warningStarted = true;
-                        logger.LogDebug("Warning started");
-                    }
-
-                    if (warningStarted && IsTimeUp())
-                    {
-                        logger.LogDebug("Audio stopped");
-                        // Freeze localPlayer
-                        playerFrozen = true;
-                        warningStarted = false;
-                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
-
-                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        localPlayer.disableLookInput = true;
-                        if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
-                    }
-                }
-                else if (warningStarted)
-                {
-                    logger.LogDebug("Warning ended");
-                    warningStarted = false;
-                    _audioSource.Stop();
-                }
-            }
+            if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
         }
 
-        private static bool IsTimeUp()
-        {
-            if (!_audioSource.isPlaying) { return true; }
-
-            if (configSecretLab.Value)
-            {
-                if (_audioSource.clip.length < 10) // Player is child
-                {
-                    if (_audioSource.time >= 2.5f) { return true; }
-                }
-                else // Player is holding candy
-                {
-                    if (_audioSource.time >= 20f) { return true; }
-                }
-            }
-
-            return false;
-        }
-
-        public static bool PlayerMeetsConditions()
-        {
-            if (PlayerAge < 12 || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)))
-            {
-                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
-                {
-                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
-                    {
-                        _audioSource = scp.creatureSFX; // TODO: Test this
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        /*[HarmonyPrefix] // TODO: Get this working
+        /*[HarmonyPrefix] // TODO: Get this working?
         [HarmonyPatch(nameof(PlayerControllerB.GrabObject))]
         private static bool GrabObjectPrefix(PlayerControllerB __instance)
         {

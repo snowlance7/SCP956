@@ -20,8 +20,6 @@ namespace SCP956
 
         public static PlayerControllerB PlayerFromId(ulong id) { return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]]; }
 
-        public NetworkList<ulong> FrozenPlayers = new NetworkList<ulong>();
-
         /*// Secret Lab // TODO: Add config syncing
         public NetworkVariable<bool> configSecretLab = new NetworkVariable<bool>();
         public NetworkVariable<int> config956SpawnRadius = new NetworkVariable<int>();
@@ -233,7 +231,7 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 logger.LogDebug($"Adding {clientId} to frozen players list");
-                FrozenPlayers.Add(clientId);
+                //FrozenPlayers.Add(clientId);
             }
         }
 

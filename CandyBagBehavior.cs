@@ -26,7 +26,8 @@ namespace SCP956
             { "Yellow Candy", new List<bool>() },
             { "Black Candy", new List<bool>() }
         };
-
+        // TODO: Make sure this is working properly
+        // TODO: Make it so it adds candy to the bag in a rpc so its synced and candy can be shared between players
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);

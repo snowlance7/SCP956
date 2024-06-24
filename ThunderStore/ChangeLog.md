@@ -1,3 +1,7 @@
+## 1.1.0
+- Made it so SCP-956 targets players holding candy bags on Secret Lab mode
+- 
+
 ## 1.0.0
 - Made it so activation times are shorter when using Secret Lab Behavior
 - Removed behavior system, 'random age' and 'all' behaviors moved to separate configs

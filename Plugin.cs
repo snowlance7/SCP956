@@ -331,7 +331,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
         }
 
-        public static void DespawnItemInSlot(int itemSlot)
+        public static void DespawnItemInSlotOnClient(int itemSlot)
         {
             HUDManager.Instance.itemSlotIcons[itemSlot].enabled = false;
             
@@ -348,7 +348,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName))
+                if (CandyNames.Contains(item.itemProperties.itemName) || item.itemProperties.itemName == "Candy Bag") // TODO: add check for candy bag
                 {
                     return true;
                 }
