@@ -85,6 +85,8 @@ namespace SCP956
             base.OnNetworkSpawn();
             logger.LogDebug("base.OnNetworkSpawn");
 
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) { Plugin.FrozenPlayers = new List<PlayerControllerB>(); }
+
             /*if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 configSecretLab.Value = Plugin.configSecretLab.Value;
@@ -231,7 +233,8 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 logger.LogDebug($"Adding {clientId} to frozen players list");
-                //FrozenPlayers.Add(clientId);
+                PlayerControllerB player = PlayerFromId(clientId);
+                Plugin.FrozenPlayers.Add(player);
             }
         }
 
@@ -244,7 +247,6 @@ namespace SCP956
                 logger.LogDebug("Got item");
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
-                obj.GetComponent<GrabbableObject>().fallTime = 0f;
                 if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
                 obj.GetComponent<NetworkObject>().Spawn();
 
@@ -346,6 +348,7 @@ namespace SCP956
         [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
         public static void Init()
         {
+            logger.LogDebug("Initializing network prefab...");
             if (networkPrefab != null)
                 return;
 

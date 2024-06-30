@@ -2,8 +2,10 @@
 using GameNetcodeStuff;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Collections.LowLevel.Unsafe;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem.Utilities;
 using UnityEngine.UIElements;
 using static SCP956.Plugin;
 
@@ -55,25 +57,54 @@ namespace SCP956
             {
                 logger.LogDebug("Taking candy out of bag");
 
-                bool pinataCandy = CandyBag[candyName].Last();
-                CandyBag[candyName].Remove(CandyBag[candyName].Last());
-
-                NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, candyName, 0, localPlayer.transform.position, Quaternion.identity, true, pinataCandy);
+                RemoveCandyFromBagClientRpc(candyName, true);
             }
             else
             {
                 logger.LogDebug("Eating candy from bag");
 
                 bool pinataCandy = CandyBag[candyName].Last();
-                CandyBag[candyName].Remove(CandyBag[candyName].Last());
+                RemoveCandyFromBagClientRpc(candyName, false);
 
                 CandyBehavior.ActivateCandy(candyName, pinataCandy);
             }
+        }
 
-            if (!CandyBag.Where(x => x.Value.Count() > 0).Any())
+        // RPCs
+
+        [ClientRpc]
+        public void AddCandyToBagClientRpc(string candyName, bool pinataCandy)
+        {
+            CandyBag[candyName].Add(pinataCandy);
+        }
+
+        [ClientRpc]
+        public void RemoveCandyFromBagClientRpc(string candyName, bool spawnCandy)
+        {
+            bool pinataCandy = CandyBag[candyName].Last();
+            CandyBag[candyName].Remove(CandyBag[candyName].Last());
+
+            if (spawnCandy)
+            {
+                Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == candyName).FirstOrDefault();
+
+                GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, playerHeldBy.transform.position, Quaternion.identity, StartOfRound.Instance.propsContainer);
+                //if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
+                obj.GetComponent<NetworkObject>().Spawn();
+
+                obj.GetComponent<CandyBehavior>().pinataCandy = pinataCandy;
+                GrabbableObject grabbable = obj.GetComponent<GrabbableObject>();
+                playerHeldBy.carryWeight += Mathf.Clamp(grabbable.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
+                playerHeldBy.GrabObjectServerRpc(grabbable.NetworkObject);
+                grabbable.parentObject = playerHeldBy.localItemHolder;
+                if (localPlayer == playerHeldBy) { grabbable.GrabItemOnClient(); }
+            }
+
+            
+            if (localPlayer == playerHeldBy && !CandyBag.Where(x => x.Value.Count() > 0).Any())
             {
                 logger.LogDebug("Candy bag empty");
-                playerHeldBy.DespawnHeldObject();
+                DespawnItemInSlotOnClient(playerHeldBy.ItemSlots.IndexOf(this));
             }
         }
     }

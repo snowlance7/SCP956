@@ -1,6 +1,8 @@
 ## 1.1.0
 - Made it so SCP-956 targets players holding candy bags on Secret Lab mode
-- 
+- Made Secret Lab mode default, cange to false to use default behavior
+- Candy bags work better, and synced for all clients
+- Player freezing uses a different list for frozen players, should help with compatibility
 
 ## 1.0.0
 - Made it so activation times are shorter when using Secret Lab Behavior

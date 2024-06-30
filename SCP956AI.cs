@@ -30,9 +30,6 @@ namespace SCP956
         float activationRadius;
         bool secretLabMode;
 
-        List<PlayerControllerB> PlayersUnder12 = new List<PlayerControllerB>();
-        bool warningStarted = false;
-
         enum State
         {
             Dormant,
@@ -113,13 +110,13 @@ namespace SCP956
                 {
 
                 }
-            }*/
+            }
 
             if (PlayersMeetingConditions().Count > 0)
             {
                 logger.LogDebug("Player meets conditions");
             } // TODO: Figure out how to play the sound file for the players in range and find out when it stops playing and stuff, may have to go back to using the player controller patch again
-            
+            */
 
             switch (currentBehaviourStateIndex)
             {
@@ -149,7 +146,7 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
-                    MoveToPlayer();
+                    MoveToTargetPlayer();
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
@@ -188,7 +185,8 @@ namespace SCP956
                     NetworkHandler.Instance.SpawnItemServerRpc(0, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f), false, true);
                 }
 
-                //NetworkHandler.Instance.FrozenPlayers.Remove(player.actualClientId);
+                FrozenPlayers.Remove(player);
+
                 targetPlayer = null;
             }
             if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
@@ -197,36 +195,26 @@ namespace SCP956
             }
             SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
         }
-        
+
         bool TargetFrozenPlayerInRange(float range)
         {
-            //SwitchToBehaviourServerRpc((int)State.HeadButtAttackInProgress); // TODO: Use this
             targetPlayer = null;
-
-
-            /*if (NetworkHandler.Instance.FrozenPlayers == null) { return false; } // TODO: Check chatgpt and learn more about making freezing players more modular and decoupleable
-            if (NetworkHandler.Instance.FrozenPlayers.Count > 0)
+            if (FrozenPlayers == null) { return false; }
+            if (FrozenPlayers.Count > 0)
             {
-                foreach (ulong id in NetworkHandler.Instance.FrozenPlayers)
+                foreach (PlayerControllerB player in FrozenPlayers)
                 {
-                    PlayerControllerB player = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]];
-                    if (player == null || player.disconnectedMidGame || player.isPlayerDead || !player.isPlayerControlled) { NetworkHandler.Instance.FrozenPlayers.Remove(id); continue; }
+                    if (player == null || player.disconnectedMidGame || player.isPlayerDead || !player.isPlayerControlled) { FrozenPlayers.Remove(player); continue; }
                     if (Vector3.Distance(transform.position, player.transform.position) < range && PlayerIsTargetable(player))
                     {
                         targetPlayer = player;
                     }
                 }
             }
-            if (PlayerControllerBPatch.playerFrozen)
-            {
-                targetPlayer = localPlayer;
-            }*/
-
-
             return targetPlayer != null;
         }
 
-        void MoveToPlayer()
+        void MoveToTargetPlayer()
         {
             if (targetPlayer == null)
             {
@@ -246,99 +234,6 @@ namespace SCP956
                 SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
             }
         }
-
-        public List<PlayerControllerB> PlayersMeetingConditions()
-        {
-            List<PlayerControllerB> players = new List<PlayerControllerB>();
-            foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
-            {
-                if (PlayerIsTargetable(player))
-                {
-                    if ((player.thisPlayerBody.localScale.x < 1f && player.thisPlayerBody.localScale.y < 1f && player.thisPlayerBody.localScale.z < 1f) || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(player))) // TODO: See if this works on the client and server
-                    {
-                        if (Vector3.Distance(transform.position, player.transform.position) <= config956ActivationRadius.Value)
-                        {
-                            players.Add(player);
-                        }
-                    }
-                }
-            }
-            return players;
-        }
-
-        /*private static bool IsTimeUp()
-        {
-            if (!_audioSource.isPlaying) { return true; }
-
-            if (configSecretLab.Value)
-            {
-                if (_audioSource.clip.length < 10) // Player is child
-                {
-                    if (_audioSource.time >= 2.5f) { return true; }
-                }
-                else // Player is holding candy
-                {
-                    if (_audioSource.time >= 20f) { return true; }
-                }
-            }
-
-            return false;
-        }*/
-
-          /*if (!configEnablePinata.Value) { return; } // Method from PlayerControllerBPatch
-            timeSinceLastCheck += Time.deltaTime;
-            if (timeSinceLastCheck > 0.5f)
-            {
-                timeSinceLastCheck = 0f;
-
-                if (playerFrozen) { return; }
-
-                if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
-                {
-                    if (playerFrozen) { playerFrozen = false; }
-                    return;
-                }
-
-
-                //AudioSource _audioSource = HUDManager.Instance.UIAudio;
-
-                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
-
-                if (PlayerMeetsConditions()) // TODO: Test and make sure this is working without other mods
-                {
-                    logger.LogDebug("Player meets conditions"); // Temp
-                    if (!warningStarted)
-                    {
-                        if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (!(PlayerAge < 12) && configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
-                        if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
-                        _audioSource.loop = false;
-                        _audioSource.Play();
-
-                        warningStarted = true;
-                        logger.LogDebug("Warning started");
-                    }
-
-                    if (warningStarted && IsTimeUp())
-                    {
-                        logger.LogDebug("Audio stopped");
-                        // Freeze localPlayer
-                        playerFrozen = true;
-                        warningStarted = false;
-                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
-
-                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        localPlayer.disableLookInput = true;
-                        if (localPlayer.currentlyHeldObject != null) { localPlayer.DropItemAheadOfPlayer(); }
-                    }
-                }
-                else if (warningStarted)
-                {
-                    logger.LogDebug("Warning ended");
-                    warningStarted = false;
-                    _audioSource.Stop();
-                }
-            }*/
 
         public override void OnCollideWithPlayer(Collider other)
         {
@@ -377,15 +272,6 @@ namespace SCP956
         }
 
         // RPC's
-
-        [ServerRpc(RequireOwnership = false)]
-        private void TargetPlayerServerRpc(ulong clientId)
-        {
-            /*if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                
-            }*/
-        }
 
         [ClientRpc]
         private void DoAnimationClientRpc(string animationName)

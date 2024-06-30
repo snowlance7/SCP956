@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Unity.Netcode;
 using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -22,7 +23,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "1.0.0";
+        private const string modVersion = "1.1.0";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -30,6 +31,8 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         public static int PlayerAge = 0;
         public static int PlayerOriginalAge;
         public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
+
+        public static List<PlayerControllerB> FrozenPlayers;
 
         public static List<string> CandyNames;
 
@@ -114,7 +117,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             // Configs
 
             // Secret Lab
-            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", false, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");
+            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");
             config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 50, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
             config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
             config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 100, "Range at which SCP-956 will teleport.");
@@ -215,7 +218,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 SCP559.minValue = config559MinValue.Value;
                 SCP559.maxValue = config559MaxValue.Value;
 
-                NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
                 Utilities.FixMixerGroups(SCP559.spawnPrefab);
                 Items.RegisterScrap(SCP559, config559Rarity.Value, Levels.LevelTypes.All);
 
@@ -224,7 +227,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 if (Cake == null) { LoggerInstance.LogError("Error: Couldnt get cake from assets"); return; }
                 LoggerInstance.LogDebug($"Got Cake prefab");
 
-                NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
                 Utilities.FixMixerGroups(Cake.spawnPrefab);
                 Items.RegisterScrap(Cake);
             }
@@ -236,7 +239,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 if (BowlOfCandy == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
                 LoggerInstance.LogDebug($"Got bowl of candy prefab");
 
-                NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
                 Items.RegisterScrap(BowlOfCandy, config330Rarity.Value, Levels.LevelTypes.All);
 
@@ -244,7 +247,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 if (BowlOfCandyP == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
                 LoggerInstance.LogDebug($"Got bowl of candy P prefab");
 
-                NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);
                 Items.RegisterScrap(BowlOfCandyP, config330Rarity.Value, Levels.LevelTypes.All);
             }
@@ -293,7 +296,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
                 if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandyBag from assets"); return; }
                 LoggerInstance.LogDebug($"Got CandyBag");
 
-                NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
                 Utilities.FixMixerGroups(CandyBag.spawnPrefab);
                 Items.RegisterItem(CandyBag);
             }
@@ -322,7 +325,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
             };
                 
                 LoggerInstance.LogDebug("Registering enemy network prefab...");
-                NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
                 LoggerInstance.LogDebug("Registering enemy...");
                 Enemies.RegisterEnemy(Pinata, SCP956LevelRarities, null, PinataTN, PinataTK);
             }
@@ -359,7 +362,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
         private void RegisterCandy(Item candy)
         {
             if (!configEnableCandyBag.Value) { candy.toolTips[1] = ""; }
-            NetworkPrefabs.RegisterNetworkPrefab(candy.spawnPrefab);
+            LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(candy.spawnPrefab);
             Utilities.FixMixerGroups(candy.spawnPrefab);
             Items.RegisterItem(candy);
         }

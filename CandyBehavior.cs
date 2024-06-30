@@ -57,7 +57,7 @@ namespace SCP956
                 if (candyBagObj == null) { logger.LogError("Candy bag not found"); return; }
 
                 CandyBagBehavior candyBag = candyBagObj.gameObject.GetComponent<CandyBagBehavior>();
-                candyBag.CandyBag[itemProperties.itemName].Add(pinataCandy);
+                candyBag.AddCandyToBagClientRpc(itemProperties.itemName, pinataCandy);
             }
         }
 

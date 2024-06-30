@@ -1,6 +1,6 @@
 {
   "name": "SCP956",
-  "version_number": "1.0.0",
+  "version_number": "1.1.0",
   "website_url": "https://ko-fi.com/snowlance",
   "description": "v1.0.0: Candy bags, aggressive behavior, and more. Adds a pinata (and candy) to the game",
   "dependencies": [

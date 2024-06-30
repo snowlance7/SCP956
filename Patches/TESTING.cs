@@ -34,6 +34,11 @@ namespace SCP956.Patches
         [HarmonyPostfix, HarmonyPatch(typeof(HUDManager), "PingScan_performed")]
         public static void PingScan_performedPostFix()
         {
+            /*foreach (PlayerControllerB player in FrozenPlayers)
+            {
+                logger.LogDebug(player.playerUsername);
+            }*/
+
             //GameObject burningParticlesContainer = Resources.FindObjectsOfTypeAll<GameObject>().Where(x => x.name == "burningParticlesContainer").FirstOrDefault();
             //logger.LogDebug("burningParticlesContainer: " + burningParticlesContainer == null);
 
