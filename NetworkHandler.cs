@@ -162,8 +162,8 @@ namespace SCP956
 
             if (size < 1f)
             {
-                playerHeldBy.movementSpeed = 8.5f;
-                playerHeldBy.sprintTime = 22f;
+                playerHeldBy.movementSpeed = 5.7f;
+                playerHeldBy.sprintTime = 17f;
             }
             else
             {

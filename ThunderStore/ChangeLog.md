@@ -1,7 +1,10 @@
+## 1.2.1
+- Lowered movement speed increase when a child
+
 ## 1.2.0
 - Added badhamknibbs-scp914-recipes for compatibility with SCP-914 in SCPFoundationDungeon mod
 - Updated LethalLib dependency to 0.16.0
-- Made it so kids can take 3 pieces of candy from SCP-330
+- Made it so children can take 3 pieces of candy from SCP-330
 - You can now take 2 pieces (or 3) of candy from each instance of SCP-330 instead of the candyTakenCount being shared by all of them
 - Fixed bug with candy causing weight issues
 - SCP-956 can now open doors
