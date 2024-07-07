@@ -88,7 +88,7 @@ namespace SCP956
         
         public override void DoAIInterval()
         {
-            logger.LogDebug("Do AI Interval");
+            //logger.LogDebug("Do AI Interval");
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {

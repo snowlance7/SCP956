@@ -234,7 +234,6 @@ namespace SCP956.Patches
             __instance.disableLookInput = false;
             IngamePlayerSettings.Instance.playerInput.ActivateInput();
             SCP330Behavior.noHands = false;
-            SCP330Behavior.candyTaken = 0;
         }
 
         [HarmonyPrefix]

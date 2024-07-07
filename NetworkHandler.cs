@@ -144,8 +144,8 @@ namespace SCP956
                 if (localPlayer.ItemSlots.Where(x => x == null).Any())
                 {
                     GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
+                    logger.LogDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
 
-                    localPlayer.carryWeight += Mathf.Clamp(grabbableItem.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
                     localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
                     grabbableItem.parentObject = localPlayer.localItemHolder;
                     grabbableItem.GrabItemOnClient();
@@ -248,6 +248,7 @@ namespace SCP956
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
+                logger.LogDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
                 obj.GetComponent<NetworkObject>().Spawn();
 
                 if (Plugin.CandyNames.Contains(_itemName) && !pinataCandy) { obj.GetComponent<CandyBehavior>().pinataCandy = false; }

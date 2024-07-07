@@ -1,6 +1,16 @@
+## 1.2.0
+- Added badhamknibbs-scp914-recipes for compatibility with SCP-914 in SCPFoundationDungeon mod
+- Updated LethalLib dependency to 0.16.0
+- Made it so kids can take 3 pieces of candy from SCP-330
+- You can now take 2 pieces (or 3) of candy from each instance of SCP-330 instead of the candyTakenCount being shared by all of them
+- Fixed bug with candy causing weight issues
+- SCP-956 can now open doors
+- Changed README
+- Made compatible with v56
+
 ## 1.1.0
 - Made it so SCP-956 targets players holding candy bags on Secret Lab mode
-- Made Secret Lab mode default, cange to false to use default behavior
+- Made Secret Lab mode default, change to false to use default behavior
 - Candy bags work better, and synced for all clients
 - Player freezing uses a different list for frozen players, should help with compatibility
 

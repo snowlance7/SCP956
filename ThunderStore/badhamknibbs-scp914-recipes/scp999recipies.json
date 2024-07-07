@@ -1,0 +1,90 @@
+[
+  {
+    "ItemName": "blue candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "green candy", "purple candy", "red candy", "yellow candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "green candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "blue candy", "purple candy", "red candy", "yellow candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "pink candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "blue candy", "green candy", "purple candy", "red candy", "yellow candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "purple candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "pink candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "blue candy", "green candy", "red candy", "yellow candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "rainbow candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "pink candy", "purple candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "black candy", "scp-559", "scp-330" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "black candy", "scp-559", "scp-330" ]
+  },
+  {
+    "ItemName": "red candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "yellow candy", "black candy" ],
+    "FineResults": [ "blue candy", "green candy", "purple candy", "yellow candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "yellow candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "black candy" ],
+    "FineResults": [ "blue candy", "green candy", "purple candy", "red candy" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "black candy" ]
+  },
+  {
+    "ItemName": "black candy",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy" ],
+    "OneToOneResults": [ "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy" ],
+    "FineResults": [ "rainbow candy", "scp-330" ],
+    "VeryFineResults": [ "!scp-999", "!scp-956", "rainbow candy", "scp-330", "scp-559" ]
+  },
+  {
+    "ItemName": "cake",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "*", "candy bag" ],
+    "OneToOneResults": [ "@", "*", "gift" ],
+    "FineResults": [ "scp-330", "@", "@", "@", "gift" "scp-559" ],
+    "VeryFineResults": [ "scp-559", "!scp-956" ]
+  },
+  {
+    "ItemName": "scp-559",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "cake" ],
+    "OneToOneResults": [ "@", "gift", "cake" ],
+    "FineResults": [ "scp-330", "@" ],
+    "VeryFineResults": [ "@", "@", "@", "!scp-956", "scp-330" ]
+  },
+  {
+    "ItemName": "candy bag",
+    "RoughResults": [ "*" ],
+    "CoarseResults": [ "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "OneToOneResults": [ "candy bag", "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "FineResults": [ "candy bag", "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ],
+    "VeryFineResults": [ "candy bag", "candy", "blue candy", "green candy", "pink candy", "purple candy", "rainbow candy", "red candy", "yellow candy", "black candy" ]
+  }
+]

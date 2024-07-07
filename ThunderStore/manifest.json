@@ -1,10 +1,10 @@
 {
   "name": "SCP956",
-  "version_number": "1.1.0",
-  "website_url": "https://ko-fi.com/snowlance",
-  "description": "v1.0.0: Candy bags, aggressive behavior, and more. Adds a pinata (and candy) to the game",
+  "version_number": "1.2.0",
+  "website_url": "https://github.com/snowlance7/SCP956",
+  "description": "Adds a pinata and some sweets to the game",
   "dependencies": [
     "BepInEx-BepInExPack-5.4.2100",
-    "Evaisa-LethalLib-0.15.1"
+    "Evaisa-LethalLib-0.16.0"
   ]
 }

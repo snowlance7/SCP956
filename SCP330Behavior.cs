@@ -20,14 +20,20 @@ namespace SCP956
             }
         }
 
-        public static int candyTaken = 0;
+        private Dictionary<PlayerControllerB, int> PlayersCandyTaken = new Dictionary<PlayerControllerB, int>();
         public static bool noHands = false;
 
         public override void InteractItem()
         {
             logger.LogDebug("Interacting with SCP-330");
 
-            if (candyTaken >= 2 || (PlayerAge < 12 && candyTaken >= 4))
+            KeyValuePair<PlayerControllerB, int> player = PlayersCandyTaken.Where(x => x.Key == localPlayer).FirstOrDefault();
+            if (player.Key == null)
+            {
+                PlayersCandyTaken.Add(localPlayer, 0);
+            }
+
+            if (player.Value >= 4 || (PlayerAge >= 12 && player.Value >= 2))
             {
                 logger.LogDebug("Player took too much candy!");
                 localPlayer.DamagePlayer(10);
@@ -47,8 +53,8 @@ namespace SCP956
 
             NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, transform.position, Quaternion.identity, true, false);
             logger.LogDebug("Spawned candy");
-            candyTaken++;
-            logger.LogDebug("Candy taken: " + candyTaken);
+            PlayersCandyTaken[localPlayer] += 1;
+            logger.LogDebug("Candy taken: " + PlayersCandyTaken[localPlayer]);
         }
     }
 }

@@ -75,7 +75,6 @@ namespace SCP956.Patches
         {
             logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
             PlayerControllerBPatch.playerFrozen = false;
-            SCP330Behavior.candyTaken = 0;
             if (!IngamePlayerSettings.Instance.playerInput.m_InputActive)
             {
                 IngamePlayerSettings.Instance.playerInput.ActivateInput();
