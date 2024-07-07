@@ -23,7 +23,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "1.2.1";
+        private const string modVersion = "1.2.2";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;

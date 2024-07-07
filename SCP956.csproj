@@ -60,6 +60,7 @@
 
     <ItemGroup>
       <Folder Include="Assets\" />
+      <Folder Include="ThunderStore\BepInEx\plugins\SCP956\" />
     </ItemGroup>
 
     <ItemGroup>

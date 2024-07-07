@@ -1,3 +1,6 @@
+## 1.2.2
+- Fixed SCP-914 Recipies
+
 ## 1.2.1
 - Lowered movement speed increase when a child
 
