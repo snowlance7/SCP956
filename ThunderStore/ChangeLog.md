@@ -1,10 +1,7 @@
-## 1.2.2
-- Fixed SCP-914 Recipies
+## 1.2.2 - 1.2.3
+- Fixing SCP-914 Recipies so they actually work
 
-## 1.2.1
-- Lowered movement speed increase when a child
-
-## 1.2.0
+## 1.2.0 - 1.2.1
 - Added badhamknibbs-scp914-recipes for compatibility with SCP-914 in SCPFoundationDungeon mod
 - Updated LethalLib dependency to 0.16.0
 - Made it so children can take 3 pieces of candy from SCP-330
@@ -13,6 +10,7 @@
 - SCP-956 can now open doors
 - Changed README
 - Made compatible with v56
+- Lowered movement speed increase when a child
 
 ## 1.1.0
 - Made it so SCP-956 targets players holding candy bags on Secret Lab mode

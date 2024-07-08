@@ -68,7 +68,7 @@
     "RoughResults": [ "*" ],
     "CoarseResults": [ "*", "candy bag" ],
     "OneToOneResults": [ "@", "*", "gift" ],
-    "FineResults": [ "scp-330", "@", "@", "@", "gift" "scp-559" ],
+    "FineResults": [ "scp-330", "@", "@", "@", "gift", "scp-559" ],
     "VeryFineResults": [ "scp-559", "!scp-956" ]
   },
   {

@@ -15,7 +15,7 @@ using Unity.Networking.Transport;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace SCP956 // TODO: Make sure wireframe video is working
+namespace SCP956
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
@@ -23,7 +23,7 @@ namespace SCP956 // TODO: Make sure wireframe video is working
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "1.2.2";
+        private const string modVersion = "1.2.3";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
