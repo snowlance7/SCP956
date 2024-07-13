@@ -23,7 +23,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "1.2.3";
+        private const string modVersion = "1.2.4";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -357,6 +357,14 @@ namespace SCP956
                 }
             }
             return false;
+        }
+
+        public static void FreezeLocalPlayer(bool on)
+        {
+            localPlayer.disableMoveInput = on;
+            localPlayer.disableLookInput = on;
+            localPlayer.disableInteract = on;
+            if (on) { localPlayer.DropAllHeldItemsAndSync(); }
         }
 
         private void RegisterCandy(Item candy)

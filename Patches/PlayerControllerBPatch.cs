@@ -77,9 +77,7 @@ namespace SCP956.Patches
                         warningStarted = false;
                         NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
 
-                        IngamePlayerSettings.Instance.playerInput.DeactivateInput();
-                        localPlayer.disableLookInput = true;
-                        if (localPlayer.currentlyHeldObject != null) { localPlayer.DropAllHeldItemsAndSync(); }
+                        FreezeLocalPlayer(true);
                     }
                 }
                 else if (warningStarted)

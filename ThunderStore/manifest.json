@@ -1,6 +1,6 @@
 {
   "name": "SCP956",
-  "version_number": "1.2.3",
+  "version_number": "1.2.4",
   "website_url": "https://github.com/snowlance7/SCP956",
   "description": "Adds a pinata and some sweets to the game",
   "dependencies": [

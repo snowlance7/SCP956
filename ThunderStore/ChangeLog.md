@@ -1,3 +1,8 @@
+## 1.2.4
+- Changed code for how freezing player works
+- Fixed a bug with carry weights
+- Candy bags no longer despawn when empty
+
 ## 1.2.2 - 1.2.3
 - Fixing SCP-914 Recipies so they actually work
 

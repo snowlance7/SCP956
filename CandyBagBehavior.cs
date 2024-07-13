@@ -99,13 +99,6 @@ namespace SCP956
                 grabbable.parentObject = playerHeldBy.localItemHolder;
                 if (localPlayer == playerHeldBy) { grabbable.GrabItemOnClient(); }
             }
-
-            
-            if (localPlayer == playerHeldBy && !CandyBag.Where(x => x.Value.Count() > 0).Any())
-            {
-                logger.LogDebug("Candy bag empty");
-                DespawnItemInSlotOnClient(playerHeldBy.ItemSlots.IndexOf(this));
-            }
         }
     }
 }
