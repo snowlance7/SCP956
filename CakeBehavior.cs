@@ -12,13 +12,22 @@ namespace SCP956
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
+        public AudioSource ItemSFX;
+
+        public override void Start()
+        {
+            base.Start();
+
+            ItemSFX.enabled = true;
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
                 logger.LogDebug("Eating cake");
-                HUDManager.Instance.UIAudio.PlayOneShot(EatCakesfx, 1f);
+                ItemSFX.Play();
                 StatusEffectController.Instance.HealPlayer(config559HealAmount.Value);
                 playerHeldBy.DespawnHeldObject();
             }

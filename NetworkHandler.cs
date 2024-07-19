@@ -239,7 +239,7 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool grabItem = false, bool pinataCandy = true)
+        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue, Vector3 pos, UnityEngine.Quaternion rot, bool grabItem = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
@@ -251,18 +251,10 @@ namespace SCP956
                 logger.LogDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
                 obj.GetComponent<NetworkObject>().Spawn();
 
-                if (Plugin.CandyNames.Contains(_itemName) && !pinataCandy) { obj.GetComponent<CandyBehavior>().pinataCandy = false; }
-
                 if (grabItem)
                 {
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
                     logger.LogDebug("Grabbed obj");
-                }
-
-                if (_itemName == "SCP-559")
-                {
-                    obj.GetComponent<AudioSource>().PlayOneShot(Plugin.CakeAppearsfx); // TODO: Play all other audio in project like this?
-                    logger.LogDebug("Played cake sfx");
                 }
             }
         }

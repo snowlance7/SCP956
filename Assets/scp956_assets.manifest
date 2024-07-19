@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1250290
+CRC: 2671510029
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 5d32b318e5777272562e90d3adc15339
+    Hash: caf6cb3817165814bf05000cb996bd0d
   TypeTreeHash:
     serializedVersion: 2
-    Hash: a90afc5c543d7a3e1546305273d19ae5
+    Hash: 9121112cc2802c633ffaccd417a35806
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 5d32b318e5777272562e90d3adc15339
+    Hash: caf6cb3817165814bf05000cb996bd0d
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -154,6 +154,7 @@ Assets:
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
 - Assets/ModAssets/Pinata/Audio/956WarningShort.mp3
 - Assets/ModAssets/Candy/Audio/Candy_Equip.wav
+- Assets/ModAssets/Candy/Audio/slice.mp3
 - Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab
 - Assets/ModAssets/Candy/CandyRedItem.asset
 - Assets/ModAssets/Candy/CandyPinkItem.asset

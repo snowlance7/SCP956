@@ -30,6 +30,12 @@ namespace SCP956
         float activationRadius;
         bool secretLabMode;
 
+        enum AudioClips
+        {
+            BoneCracksfx,
+            PlayerDeathsfx
+        }
+
         enum State
         {
             Dormant,
@@ -128,7 +134,7 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: Test this more
+                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: This is not working as intended, repeats "teleporting"
                     {
                         logger.LogDebug("Teleporting");
                         Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
@@ -138,7 +144,7 @@ namespace SCP956
                     break;
 
                 case (int)State.MovingTowardsPlayer:
-                    agent.speed = 0.5f;
+                    agent.speed = 1f;
                     timeSinceRandTeleport = 0;
                     if (!TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
@@ -150,6 +156,7 @@ namespace SCP956
                     break;
 
                 case (int)State.HeadButtAttackInProgress:
+                    agent.speed = 0f;
                     timeSinceRandTeleport = 0;
                     break;
             }
@@ -168,13 +175,13 @@ namespace SCP956
             yield return new WaitForSeconds(0.5f);
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
             DamageTargetPlayerClientRpc(player.actualClientId);
-            creatureSFX.PlayOneShot(BoneCracksfx);
+            creatureSFX.PlayOneShot(enemyType.audioClips[(int)AudioClips.BoneCracksfx], 1f);
 
             yield return new WaitForSeconds(0.5f);
 
             if (player.isPlayerDead) 
             { 
-                creatureVoice.PlayOneShot(PlayerDeathsfx);
+                creatureVoice.PlayOneShot(enemyType.audioClips[(int)AudioClips.PlayerDeathsfx], 1f);
 
                 logger.LogDebug("Player died, spawning candy");
                 int candiesCount = UnityEngine.Random.Range(configCandyMinSpawn.Value, configCandyMaxSpawn.Value);
@@ -182,7 +189,7 @@ namespace SCP956
                 for (int i = 0; i < candiesCount; i++)
                 {
                     Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInRadius(playerPos, 1.5f, RoundManager.Instance.navHit);
-                    NetworkHandler.Instance.SpawnItemServerRpc(0, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f), false, true);
+                    NetworkHandler.Instance.SpawnItemServerRpc(0, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, pos, Quaternion.Euler(0f, UnityEngine.Random.Range(0f, 361f), 0f), false);
                 }
 
                 FrozenPlayers.Remove(player);
@@ -220,7 +227,8 @@ namespace SCP956
             {
                 return;
             }
-            if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
+            //if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
+            if (agent.remainingDistance <= agent.stoppingDistance + 0.1f && agent.velocity.sqrMagnitude < 0.01f)
             {
                 logger.LogDebug("Headbutt Attack");
                 StartCoroutine(HeadbuttAttack());
@@ -230,8 +238,9 @@ namespace SCP956
             if (timeSinceNewRandPos > 1.5f)
             {
                 timeSinceNewRandPos = 0;
-                Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
-                SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
+                //Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
+                //SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
+                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
             }
         }
 

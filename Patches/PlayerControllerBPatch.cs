@@ -17,6 +17,7 @@ namespace SCP956.Patches
     internal class PlayerControllerBPatch
     {
         private static float timeSinceLastCheck = 0f;
+        private static float timeSinceFrozen = 0f;
         private static bool warningStarted = false;
         public static bool playerFrozen = false;
 
@@ -37,12 +38,25 @@ namespace SCP956.Patches
             }*/
 
             if (!configEnablePinata.Value) { return; }
+
             timeSinceLastCheck += Time.deltaTime;
+
             if (timeSinceLastCheck > 0.3f)
             {
                 timeSinceLastCheck = 0f;
 
-                if (playerFrozen) { return; }
+                if (playerFrozen)
+                {
+                    timeSinceFrozen += Time.deltaTime;
+
+                    if (timeSinceFrozen > configMaxTimeToKillPlayer.Value && !localPlayer.isPlayerDead)
+                    {
+                        localPlayer.KillPlayer(new Vector3(0, 0, 0));
+                        timeSinceFrozen = 0f;
+                    }
+                    return;
+                }
+                else { timeSinceFrozen = 0f; }
 
                 if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
                 {

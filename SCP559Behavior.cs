@@ -13,12 +13,24 @@ namespace SCP956
         private static ManualLogSource logger = Plugin.LoggerInstance;
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
+        public AudioSource ItemSFX;
+        public AudioClip CandleBlowSFX; // TODO: This along with other SFXs arent working correctly
+
+        public override void Start()
+        {
+            base.Start();
+
+            ItemSFX.enabled = true;
+        }
+
         public override void ItemActivate(bool used, bool buttonDown = true) // TODO: Find a way to remove the grab animation so blowing out the candles is instant
         {
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                StatusEffectController.Instance.BlowOutCandles();
+                ItemSFX.PlayOneShot(CandleBlowSFX, 1f);
+                PlayerAge = 11;
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
 
                 // Spawn cake somewhere else
 

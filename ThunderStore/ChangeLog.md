@@ -1,3 +1,14 @@
+## 1.3.0
+- If you havent been killed by SCP-956 in 60 seconds, youll die (Configurable)
+- SCP-956 can open doors faster
+- SCP-956 is now 2x faster
+- SCP-956 AI movement changes
+- Audio changes
+- Fixed some weight issues
+- Removed 'pinata candy' mechanic, candy wont have a chance to kill you anymore (unless its pink or black)
+- More configs for controlling spawning
+- Changed spawn radius from 50 to 100
+
 ## 1.2.4
 - Changed code for how freezing player works
 - Fixed a bug with carry weights

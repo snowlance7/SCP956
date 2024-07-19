@@ -317,17 +317,6 @@ namespace SCP956
 
         // Other methods
 
-        public void BlowOutCandles() { StartCoroutine(BlowOutCandlesCoroutine()); }
-
-        private IEnumerator BlowOutCandlesCoroutine()
-        {
-            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CandleBlowsfx, 1f);
-            yield return new WaitForSecondsRealtime(1f);
-            Plugin.PlayerAge = 11;
-            NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
-            HUDManager.Instance.UIAudio.PlayOneShot(Plugin.CakeAppearsfx, 1f);
-        }
-
         public void TransformPlayer(PlayerControllerB player)
         {
             StartCoroutine(TransformPlayerCoroutine(player));

@@ -23,6 +23,15 @@ namespace SCP956
         private Dictionary<PlayerControllerB, int> PlayersCandyTaken = new Dictionary<PlayerControllerB, int>();
         public static bool noHands = false;
 
+        public AudioSource ItemSFX; // TODO: Set audio clip to a slicing sound
+
+        public override void Start()
+        {
+            base.Start();
+
+            ItemSFX.enabled = true;
+        }
+
         public override void InteractItem()
         {
             logger.LogDebug("Interacting with SCP-330");
@@ -41,7 +50,7 @@ namespace SCP956
                 localPlayer.MakeCriticallyInjured(true);
                 localPlayer.DropAllHeldItemsAndSync();
                 noHands = true;
-                HUDManager.Instance.UIAudio.PlayOneShot(BoneCracksfx, 1f);
+                ItemSFX.Play();
                 HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
                 localPlayer.JumpToFearLevel(3f);
                 // TODO: Make it so the players hands are no longer visible
@@ -51,7 +60,7 @@ namespace SCP956
                 return;
             }
 
-            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, transform.position, Quaternion.identity, true, false);
+            NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, transform.position, Quaternion.identity, true);
             logger.LogDebug("Spawned candy");
             PlayersCandyTaken[localPlayer] += 1;
             logger.LogDebug("Candy taken: " + PlayersCandyTaken[localPlayer]);

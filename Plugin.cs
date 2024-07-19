@@ -6,6 +6,7 @@ using HarmonyLib;
 using LethalLib.Modules;
 using Steamworks.Data;
 using Steamworks.Ugc;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace SCP956
     {
         private const string modGUID = "Snowlance.Pinata";
         private const string modName = "Pinata";
-        private const string modVersion = "1.2.4";
+        private const string modVersion = "1.3.0";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -40,58 +41,43 @@ namespace SCP956
 
         public static AudioClip? WarningSoundShortsfx;
         public static AudioClip? WarningSoundLongsfx;
-        public static AudioClip? BoneCracksfx;
-        public static AudioClip? PlayerDeathsfx;
-        public static AudioClip? CandyCrunchsfx;
-        public static AudioClip? CandyEquipsfx;
-        public static AudioClip? CandleBlowsfx;
-        public static AudioClip? CakeAppearsfx;
         public static AudioClip? CakeDisappearsfx;
-        public static AudioClip? EatCakesfx;
 
         // Secret Lab Configs
         public static ConfigEntry<bool> configSecretLab; // TODO: Change bestiary entry depending on secret lab mode and if attack everyone is enabled
-        public static ConfigEntry<int> config956SpawnRadius;
+        public static ConfigEntry<int> config956SpawnRadius; // TODO: Change how this works?
         public static ConfigEntry<int> config956TeleportTime;
         public static ConfigEntry<int> config956TeleportRange;
 
-        // SCP-956 Rarity Configs
-        public static ConfigEntry<int> configExperimentationLevelRarity;
-        public static ConfigEntry<int> configAssuranceLevelRarity;
-        public static ConfigEntry<int> configVowLevelRarity;
-        public static ConfigEntry<int> configOffenseLevelRarity;
-        public static ConfigEntry<int> configMarchLevelRarity;
-        public static ConfigEntry<int> configRendLevelRarity;
-        public static ConfigEntry<int> configDineLevelRarity;
-        public static ConfigEntry<int> configTitanLevelRarity;
-        public static ConfigEntry<int> configModdedLevelRarity;
-        public static ConfigEntry<int> configOtherLevelRarity;
-
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
+        private ConfigEntry<string> config956LevelRarities;
+        private ConfigEntry<string> config956CustomLevelRarities;
         public static ConfigEntry<bool> configTargetAllPlayers;
         public static ConfigEntry<float> config956ActivationRadius;
         public static ConfigEntry<int> configMinAge;
         public static ConfigEntry<int> configMaxAge;
         public static ConfigEntry<bool> configPlayWarningSound;
         public static ConfigEntry<int> configHeadbuttDamage;
+        public static ConfigEntry<float> configMaxTimeToKillPlayer;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> configCandyMinSpawn;
         public static ConfigEntry<int> configCandyMaxSpawn;
-        public static ConfigEntry<int> configCandyDeathChance;
         public static ConfigEntry<bool> configEnableCandyBag;
 
         // SCP-559 Configs
         public static ConfigEntry<bool> configEnable559;
-        public static ConfigEntry<int> config559Rarity;
+        private ConfigEntry<string> config559LevelRarities;
+        private ConfigEntry<string> config559CustomLevelRarities;
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
         public static ConfigEntry<int> config559HealAmount;
 
         // SCP-330 Configs
         public static ConfigEntry<bool> configEnable330;
-        public static ConfigEntry<int> config330Rarity;
+        private ConfigEntry<string> config330LevelRarities;
+        private ConfigEntry<string> config330CustomLevelRarities;
 
         // Status Effect Configs
         public static ConfigEntry<bool> configEnableCustomStatusEffects;
@@ -118,47 +104,38 @@ namespace SCP956
 
             // Secret Lab
             configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");
-            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 50, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
+            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 100, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
             config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
-            config956TeleportRange = Config.Bind("Secret Lab", "956 Teleport Range", 100, "Range at which SCP-956 will teleport.");
-
-            // Rarity
-            configExperimentationLevelRarity = Config.Bind("Rarity", "ExperimentationLevelRarity", 10, "Experimentation Level Rarity");
-            configAssuranceLevelRarity = Config.Bind("Rarity", "AssuranceLevelRarity", 10, "Assurance Level Rarity");
-            configVowLevelRarity = Config.Bind("Rarity", "VowLevelRarity", 10, "Vow Level Rarity");
-            configOffenseLevelRarity = Config.Bind("Rarity", "OffenseLevelRarity", 30, "Offense Level Rarity");
-            configMarchLevelRarity = Config.Bind("Rarity", "MarchLevelRarity", 50, "March Level Rarity");
-            configRendLevelRarity = Config.Bind("Rarity", "RendLevelRarity", 50, "Rend Level Rarity");
-            configDineLevelRarity = Config.Bind("Rarity", "DineLevelRarity", 50, "Dine Level Rarity");
-            configTitanLevelRarity = Config.Bind("Rarity", "TitanLevelRarity", 80, "Titan Level Rarity");
-            configModdedLevelRarity = Config.Bind("Rarity", "ModdedLevelRarity", 30, "Modded Level Rarity");
-            configOtherLevelRarity = Config.Bind("Rarity", "OtherLevelRarity", 30, "Other Level Rarity");
 
             // SCP-956 Configs
             configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
+            config956LevelRarities = Config.Bind("SCP-956 Rarities", "Level Rarities", "ExperimentationLevel:10, AssuranceLevel:10, VowLevel:10, OffenseLevel:30, AdamanceLevel:50, MarchLevel:50, RendLevel:50, DineLevel:50, TitanLevel:80, ArtificeLevel:80, EmbrionLevel:100, All:30, Modded:30", "Rarities for each level. See default for formatting.");
+            config956CustomLevelRarities = Config.Bind("SCP-956 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
             configTargetAllPlayers = Config.Bind("SCP-956", "Target All Players", false, "Set to true if you want 956 to target all players regardless of conditions.");
             config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 15f, "The radius in which SCP-956 will target players that meet the required conditions.");
             configMinAge = Config.Bind("SCP-956", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
             configMaxAge = Config.Bind("SCP-956", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
             configPlayWarningSound = Config.Bind("SCP-956", "Play Warning Sound", true, "Play warning sound when inside SCP-956's radius and conditions are met.");
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
+            configMaxTimeToKillPlayer = Config.Bind("SCP-956", "Max Time To Kill Player", 60f, "If SCP-956 doesnt kill a player in this amount of time, the player will die. (in lore people exposed to SCP-956 and moved away die from candy growing in their guts)");
 
             // Candy Configs
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
             configCandyMaxSpawn = Config.Bind("Candy", "Max Candy Spawn", 30, "The maximum amount of candy to spawn when player dies to SCP-956");
-            configCandyDeathChance = Config.Bind("Candy", "Death Chance", 5, "The chance of the Player being killed by pinata candy");
             configEnableCandyBag = Config.Bind("Candy", "Enable Candy Bag", true, "Makes it so you can place candy into a separate bag.");
             
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
-            config559Rarity = Config.Bind("SCP-559", "Rarity", 40, "How often SCP-559 will spawn.");
+            config559LevelRarities = Config.Bind("SCP-559 Rarities", "Level Rarities", "ExperimentationLevel:25, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:60, EmbrionLevel:25, All:40, Modded:40", "Rarities for each level. See default for formatting.");
+            config559CustomLevelRarities = Config.Bind("SCP-559 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
             config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
 
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
-            config330Rarity = Config.Bind("SCP-330", "Rarity", 30, "How often SCP-330 will spawn.");
+            config330LevelRarities = Config.Bind("SCP-330 Rarities", "Level Rarities", "ExperimentationLevel:30, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:80, EmbrionLevel:45, All:30, Modded:30", "Rarities for each level. See default for formatting.");
+            config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
 
             // Status Effect Configs
             configEnableCustomStatusEffects = Config.Bind("Status Effects (Experimental)", "Enable Custom Status Effects", false, "Enable custom status effects");
@@ -186,24 +163,10 @@ namespace SCP956
             // Getting Audio
             WarningSoundShortsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");
             WarningSoundLongsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningLong.mp3");
-            BoneCracksfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/bone-crack.mp3");
-            PlayerDeathsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3");
-            CandyCrunchsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Crunch.wav");
-            CandyEquipsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Candy/Audio/Candy_Equip.wav");
-            CandleBlowsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_candle_blow.wav");
-            CakeAppearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_appear.wav");
             CakeDisappearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_disappear.wav");
-            EatCakesfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/Cake_Eat.wav");
-            if (EatCakesfx == null) { Logger.LogError("EatCakesfx is null"); }
-            if (CandleBlowsfx == null) { Logger.LogError("CandleBlowsfx is null"); }
-            if (CakeAppearsfx == null) { Logger.LogError("CakeAppearsfx is null"); }
-            if (CakeDisappearsfx == null) { Logger.LogError("CakeDisappearsfx is null"); }
-            if (BoneCracksfx == null) { Logger.LogError("BoneCracksfx is null"); }
-            if (PlayerDeathsfx == null) { Logger.LogError("PlayerDeathsfx is null"); }
-            if (CandyCrunchsfx == null) { Logger.LogError("CandyCrunchsfx is null"); }
-            if (CandyEquipsfx == null) { Logger.LogError("CandyEquipsfx is null"); }
             if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); }
             if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); }
+            if (CakeDisappearsfx == null) { Logger.LogError("CakeDisappearsfx is null"); }
             LoggerInstance.LogDebug($"Got sounds from assets");
 
             // Getting SCP-559
@@ -220,7 +183,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
                 Utilities.FixMixerGroups(SCP559.spawnPrefab);
-                Items.RegisterScrap(SCP559, config559Rarity.Value, Levels.LevelTypes.All);
+                Items.RegisterScrap(SCP559, GetLevelRarities(config559LevelRarities.Value), GetCustomLevelRarities(config559CustomLevelRarities.Value));
 
                 // Getting Cake
                 Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
@@ -241,7 +204,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
-                Items.RegisterScrap(BowlOfCandy, config330Rarity.Value, Levels.LevelTypes.All);
+                Items.RegisterScrap(BowlOfCandy, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
 
                 Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset");
                 if (BowlOfCandyP == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
@@ -249,7 +212,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);
-                Items.RegisterScrap(BowlOfCandyP, config330Rarity.Value, Levels.LevelTypes.All);
+                Items.RegisterScrap(BowlOfCandyP, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
             }
 
             // Getting Candy
@@ -311,27 +274,88 @@ namespace SCP956
                 TerminalKeyword PinataTK = ModAssets.LoadAsset<TerminalKeyword>("Assets/ModAssets/Pinata/Bestiary/PinataTK.asset");
 
                 LoggerInstance.LogDebug("Setting rarities");
-                var SCP956LevelRarities = new Dictionary<Levels.LevelTypes, int> {
-                {Levels.LevelTypes.ExperimentationLevel, configExperimentationLevelRarity.Value},
-                {Levels.LevelTypes.AssuranceLevel, configAssuranceLevelRarity.Value},
-                {Levels.LevelTypes.VowLevel, configVowLevelRarity.Value},
-                {Levels.LevelTypes.OffenseLevel, configOffenseLevelRarity.Value},
-                {Levels.LevelTypes.MarchLevel, configMarchLevelRarity.Value},
-                {Levels.LevelTypes.RendLevel, configRendLevelRarity.Value},
-                {Levels.LevelTypes.DineLevel, configDineLevelRarity.Value},
-                {Levels.LevelTypes.TitanLevel, configTitanLevelRarity.Value},
-                {Levels.LevelTypes.All, configOtherLevelRarity.Value},
-                {Levels.LevelTypes.Modded, configModdedLevelRarity.Value},
-            };
+
                 
                 LoggerInstance.LogDebug("Registering enemy network prefab...");
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(Pinata.enemyPrefab);
                 LoggerInstance.LogDebug("Registering enemy...");
-                Enemies.RegisterEnemy(Pinata, SCP956LevelRarities, null, PinataTN, PinataTK);
+                Enemies.RegisterEnemy(Pinata, GetLevelRarities(config956LevelRarities.Value), GetCustomLevelRarities(config956CustomLevelRarities.Value), PinataTN, PinataTK);
             }
             
             // Finished
             Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
+        }
+
+        public Dictionary<Levels.LevelTypes, int> GetLevelRarities(string levelsString)
+        {
+            try
+            {
+                Dictionary<Levels.LevelTypes, int> levelRaritiesDict = new Dictionary<Levels.LevelTypes, int>();
+
+                if (levelsString != null && levelsString != "")
+                {
+                    string[] levels = levelsString.Split(',');
+
+                    foreach (string level in levels)
+                    {
+                        string[] levelSplit = level.Split(':');
+                        if (levelSplit.Length != 2) { continue; }
+                        string levelType = levelSplit[0].Trim();
+                        string levelRarity = levelSplit[1].Trim();
+
+                        if (Enum.TryParse<Levels.LevelTypes>(levelType, out Levels.LevelTypes levelTypeEnum) && int.TryParse(levelRarity, out int levelRarityInt))
+                        {
+                            levelRaritiesDict.Add(levelTypeEnum, levelRarityInt);
+                        }
+                        else
+                        {
+                            LoggerInstance.LogError($"Error: Invalid level rarity: {levelType}:{levelRarity}");
+                        }
+                    }
+                }
+                return levelRaritiesDict;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Error: {e}");
+                return null;
+            }
+        }
+
+        public Dictionary<string, int> GetCustomLevelRarities(string levelsString)
+        {
+            try
+            {
+                Dictionary<string, int> customLevelRaritiesDict = new Dictionary<string, int>();
+
+                if (levelsString != null)
+                {
+                    string[] levels = levelsString.Split(',');
+
+                    foreach (string level in levels)
+                    {
+                        string[] levelSplit = level.Split(':');
+                        if (levelSplit.Length != 2) { continue; }
+                        string levelType = levelSplit[0].Trim();
+                        string levelRarity = levelSplit[1].Trim();
+
+                        if (int.TryParse(levelRarity, out int levelRarityInt))
+                        {
+                            customLevelRaritiesDict.Add(levelType, levelRarityInt);
+                        }
+                        else
+                        {
+                            LoggerInstance.LogError($"Error: Invalid level rarity: {levelType}:{levelRarity}");
+                        }
+                    }
+                }
+                return customLevelRaritiesDict;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError($"Error: {e}");
+                return null;
+            }
         }
 
         public static void DespawnItemInSlotOnClient(int itemSlot)

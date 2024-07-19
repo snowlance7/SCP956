@@ -177,23 +177,24 @@ namespace SCP956
             }*/
         }
 
-        public void ShowUI(Dictionary<string, List<bool>> CandyBag)
+        public void ShowUI(Dictionary<string, int> CandyBag)
         {
             logger.LogDebug("Showing UI");
             veMain.style.display = DisplayStyle.Flex;
 
-            btnBlue.text = CandyBag["Blue Candy"].Count.ToString();
-            btnGreen.text = CandyBag["Green Candy"].Count.ToString();
-            btnPink.text = CandyBag["Pink Candy"].Count.ToString();
-            btnPurple.text = CandyBag["Purple Candy"].Count.ToString();
-            btnRainbow.text = CandyBag["Rainbow Candy"].Count.ToString();
-            btnRed.text = CandyBag["Red Candy"].Count.ToString();
-            btnYellow.text = CandyBag["Yellow Candy"].Count.ToString();
-            btnBlack.text = CandyBag["Black Candy"].Count.ToString();
+            btnBlue.text = CandyBag["Blue Candy"].ToString();
+            btnGreen.text = CandyBag["Green Candy"].ToString();
+            btnPink.text = CandyBag["Pink Candy"].ToString();
+            btnPurple.text = CandyBag["Purple Candy"].ToString();
+            btnRainbow.text = CandyBag["Rainbow Candy"].ToString();
+            btnRed.text = CandyBag["Red Candy"].ToString();
+            btnYellow.text = CandyBag["Yellow Candy"].ToString();
+            btnBlack.text = CandyBag["Black Candy"].ToString();
 
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
-            IngamePlayerSettings.Instance.playerInput.DeactivateInput();
+            StartOfRound.Instance.localPlayerController.disableMoveInput = true;
+            StartOfRound.Instance.localPlayerController.disableInteract = true;
             StartOfRound.Instance.localPlayerController.disableLookInput = true;
         }
 
@@ -204,7 +205,8 @@ namespace SCP956
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
             UnityEngine.Cursor.visible = false;
-            IngamePlayerSettings.Instance.playerInput.ActivateInput();
+            StartOfRound.Instance.localPlayerController.disableMoveInput = false;
+            StartOfRound.Instance.localPlayerController.disableInteract = false;
             StartOfRound.Instance.localPlayerController.disableLookInput = false;
         }
 

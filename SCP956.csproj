@@ -50,7 +50,9 @@
         </PackageReference>
         <PackageReference Include="BepInEx.Core" Version="5.*" PrivateAssets="all" />
         <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
-        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="56.0.0-beta.1-ngd.0" Publicize="true" PrivateAssets="all" />
+        <PackageReference Include="Evaisa.LethalLib" Version="0.16.1" />
+        <PackageReference Include="HarmonyX" Version="2.13.0" />
+        <PackageReference Include="LethalCompany.GameLibs.Steam" Version="56.0.1-ngd.0" Publicize="true" PrivateAssets="all" />
         <PackageReference Include="UnityEngine.Modules" Version="2022.3.9" IncludeAssets="compile" PrivateAssets="all" />
     </ItemGroup>
 
@@ -61,15 +63,6 @@
     <ItemGroup>
       <Folder Include="Assets\" />
       <Folder Include="ThunderStore\BepInEx\plugins\SCP956\" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="0Harmony">
-        <HintPath>..\1Resources\1Dependencies\0Harmony.dll</HintPath>
-      </Reference>
-      <Reference Include="LethalLib">
-        <HintPath>..\1Resources\1Assemblies\LethalLib.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
   <Target Name="NetcodePatch" AfterTargets="PostBuildEvent">

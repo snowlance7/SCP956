@@ -11,22 +11,31 @@ using static SCP956.Plugin;
 
 namespace SCP956
 {
-    internal class CandyBagBehavior : PhysicsProp
+    internal class CandyBagBehavior : PhysicsProp // TODO: Fix bug where putting candy in bag doesnt show in bag
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 
+        public AudioSource ItemSFX;
+
         private PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
-        public Dictionary<string, List<bool>> CandyBag = new Dictionary<string, List<bool>>
+        public override void Start()
         {
-            { "Blue Candy", new List<bool>() },
-            { "Green Candy", new List<bool>() },
-            { "Pink Candy", new List < bool >() },
-            { "Purple Candy", new List < bool >() },
-            { "Rainbow Candy", new List<bool>() },
-            { "Red Candy", new List<bool>() },
-            { "Yellow Candy", new List<bool>() },
-            { "Black Candy", new List<bool>() }
+            base.Start();
+
+            ItemSFX.enabled = true;
+        }
+
+        public Dictionary<string, int> CandyBag = new Dictionary<string, int>
+        {
+            { "Blue Candy", 0 },
+            { "Green Candy", 0 },
+            { "Pink Candy", 0 },
+            { "Purple Candy", 0 },
+            { "Rainbow Candy", 0 },
+            { "Red Candy", 0 },
+            { "Yellow Candy", 0 },
+            { "Black Candy", 0 }
         };
         // TODO: Make sure this is working properly
         // TODO: Make it so it adds candy to the bag in a rpc so its synced and candy can be shared between players
@@ -63,38 +72,36 @@ namespace SCP956
             {
                 logger.LogDebug("Eating candy from bag");
 
-                bool pinataCandy = CandyBag[candyName].Last();
                 RemoveCandyFromBagClientRpc(candyName, false);
 
-                CandyBehavior.ActivateCandy(candyName, pinataCandy);
+                CandyBehavior.ActivateCandy(candyName);
+                ItemSFX.Play();
             }
         }
 
         // RPCs
 
         [ClientRpc]
-        public void AddCandyToBagClientRpc(string candyName, bool pinataCandy)
+        public void AddCandyToBagClientRpc(string candyName)
         {
-            CandyBag[candyName].Add(pinataCandy);
+            int count = CandyBag[candyName] + 1;
+            CandyBag[candyName] = count;
         }
 
         [ClientRpc]
         public void RemoveCandyFromBagClientRpc(string candyName, bool spawnCandy)
         {
-            bool pinataCandy = CandyBag[candyName].Last();
-            CandyBag[candyName].Remove(CandyBag[candyName].Last());
+            int count = CandyBag[candyName] - 1;
+            CandyBag[candyName] = count;
 
             if (spawnCandy)
             {
                 Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == candyName).FirstOrDefault();
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, playerHeldBy.transform.position, Quaternion.identity, StartOfRound.Instance.propsContainer);
-                //if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
                 obj.GetComponent<NetworkObject>().Spawn();
 
-                obj.GetComponent<CandyBehavior>().pinataCandy = pinataCandy;
                 GrabbableObject grabbable = obj.GetComponent<GrabbableObject>();
-                playerHeldBy.carryWeight += Mathf.Clamp(grabbable.itemProperties.weight - 1f, 0f, 10f); // TODO: Test this
                 playerHeldBy.GrabObjectServerRpc(grabbable.NetworkObject);
                 grabbable.parentObject = playerHeldBy.localItemHolder;
                 if (localPlayer == playerHeldBy) { grabbable.GrabItemOnClient(); }
