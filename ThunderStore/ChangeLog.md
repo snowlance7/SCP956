@@ -8,6 +8,7 @@
 - Removed 'pinata candy' mechanic, candy wont have a chance to kill you anymore (unless its pink or black)
 - More configs for controlling spawning
 - Changed spawn radius from 50 to 100
+- Player can no longer see their hands when they have their hands sliced off by SCP-330
 
 ## 1.2.4
 - Changed code for how freezing player works

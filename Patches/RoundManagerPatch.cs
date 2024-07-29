@@ -78,6 +78,7 @@ namespace SCP956.Patches
             FreezeLocalPlayer(false);
             StatusEffectController.Instance.bulletProofMultiplier = 0;
             SCP330Behavior.noHands = false;
+            localPlayer.thisPlayerModelArms.enabled = true;
 
             if (PlayerAge != PlayerOriginalAge)
             {
