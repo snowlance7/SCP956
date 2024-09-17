@@ -43,7 +43,7 @@ namespace SCP956
                 if (enemy == null) { logger.LogError("Pinata enemy not found"); return; }
                 int index = RoundManager.Instance.currentLevel.Enemies.IndexOf(enemy);
 
-                if (pos != null)
+                if (pos != default)
                 {
                     logger.LogDebug("Spawning SCP-956 at: " + pos);
                     RoundManager.Instance.SpawnEnemyOnServer(pos, Quaternion.identity.y, index);
@@ -104,23 +104,22 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnItemServerRpc(ulong clientId, string _itemName, int newValue = 0, Vector3 pos = default, UnityEngine.Quaternion rot = default, bool grabItem = false)
+        public void SpawnItemServerRpc(ulong clientId, string name, int newValue = 0, Vector3 pos = default, UnityEngine.Quaternion rot = default, bool grabItem = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.itemName == _itemName).FirstOrDefault();
+                Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.name == name).FirstOrDefault();
                 logger.LogDebug("Got item");
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 obj.GetComponent<GrabbableObject>().fallTime = 0;
                 if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
-                logger.LogDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
+                //logger.LogDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
                 obj.GetComponent<NetworkObject>().Spawn();
 
                 if (grabItem)
                 {
                     GrabObjectClientRpc(obj.GetComponent<NetworkObject>().NetworkObjectId, clientId);
-                    logger.LogDebug("Grabbed obj");
                 }
             }
         }
@@ -133,11 +132,12 @@ namespace SCP956
                 if (localPlayer.ItemSlots.Where(x => x == null).Any())
                 {
                     GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
-                    logger.LogDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
+                    //logger.LogDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
 
                     localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
                     grabbableItem.parentObject = localPlayer.localItemHolder;
                     grabbableItem.GrabItemOnClient();
+                    logger.LogDebug("Grabbed item");
                 }
             }
         }

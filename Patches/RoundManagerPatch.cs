@@ -39,7 +39,7 @@ namespace SCP956.Patches
             {
                 if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
                 {
-                    if (firstTime && SCP956AI.YoungPlayers.Count > 0 && configEnablePinata.Value)
+                    if (!StartOfRound.Instance.inShipPhase && firstTime && SCP956AI.YoungPlayers.Count > 0 && configEnablePinata.Value)
                     {
                         if (RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault() == null)
                         {

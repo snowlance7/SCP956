@@ -91,20 +91,20 @@ namespace SCP956.Items.CandyBag
             logger.LogDebug("Got Controls for UI");
 
             // Add event handlers
-            btnBlue.clickable.clicked += () => ButtonClicked("Blue Candy");
-            btnGreen.clickable.clicked += () => ButtonClicked("Green Candy");
-            btnPink.clickable.clicked += () => ButtonClicked("Pink Candy");
-            btnPurple.clickable.clicked += () => ButtonClicked("Purple Candy");
-            btnRainbow.clickable.clicked += () => ButtonClicked("Rainbow Candy");
-            btnRed.clickable.clicked += () => ButtonClicked("Red Candy");
-            btnYellow.clickable.clicked += () => ButtonClicked("Yellow Candy");
-            btnBlack.clickable.clicked += () => ButtonClicked("Black Candy");
+            btnBlue.clickable.clicked += () => ButtonClicked("BlueCandyItem");
+            btnGreen.clickable.clicked += () => ButtonClicked("GreenCandyItem");
+            btnPink.clickable.clicked += () => ButtonClicked("PinkCandyItem");
+            btnPurple.clickable.clicked += () => ButtonClicked("PurpleCandyItem");
+            btnRainbow.clickable.clicked += () => ButtonClicked("RainbowCandyItem");
+            btnRed.clickable.clicked += () => ButtonClicked("RedCandyItem");
+            btnYellow.clickable.clicked += () => ButtonClicked("YellowCandyItem");
+            btnBlack.clickable.clicked += () => ButtonClicked("BlackCandyItem");
 
             btnBlue.RegisterCallback<PointerDownEvent>(evt =>
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Blue Candy");
+                    ButtonRightClicked("BlueCandyItem");
                 }
             });
 
@@ -112,7 +112,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Green Candy");
+                    ButtonRightClicked("GreenCandyItem");
                 }
             });
 
@@ -120,7 +120,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Pink Candy");
+                    ButtonRightClicked("PinkCandyItem");
                 }
             });
 
@@ -128,7 +128,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Purple Candy");
+                    ButtonRightClicked("PurpleCandyItem");
                 }
             });
 
@@ -136,7 +136,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Rainbow Candy");
+                    ButtonRightClicked("RainbowCandyItem");
                 }
             });
 
@@ -144,7 +144,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Red Candy");
+                    ButtonRightClicked("RedCandyItem");
                 }
             });
 
@@ -152,7 +152,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Yellow Candy");
+                    ButtonRightClicked("YellowCandyItem");
                 }
             });
 
@@ -160,7 +160,7 @@ namespace SCP956.Items.CandyBag
             {
                 if (evt.button == (int)MouseButton.RightMouse)
                 {
-                    ButtonRightClicked("Black Candy");
+                    ButtonRightClicked("BlackCandyItem");
                 }
             });
 
@@ -177,14 +177,14 @@ namespace SCP956.Items.CandyBag
             logger.LogDebug("Showing UI");
             veMain.style.display = DisplayStyle.Flex;
 
-            btnBlue.text = CandyBag["Blue Candy"].ToString();
-            btnGreen.text = CandyBag["Green Candy"].ToString();
-            btnPink.text = CandyBag["Pink Candy"].ToString();
-            btnPurple.text = CandyBag["Purple Candy"].ToString();
-            btnRainbow.text = CandyBag["Rainbow Candy"].ToString();
-            btnRed.text = CandyBag["Red Candy"].ToString();
-            btnYellow.text = CandyBag["Yellow Candy"].ToString();
-            btnBlack.text = CandyBag["Black Candy"].ToString();
+            btnBlue.text = CandyBag["BlueCandyItem"].ToString();
+            btnGreen.text = CandyBag["GreenCandyItem"].ToString();
+            btnPink.text = CandyBag["PinkCandyItem"].ToString();
+            btnPurple.text = CandyBag["PurpleCandyItem"].ToString();
+            btnRainbow.text = CandyBag["RainbowCandyItem"].ToString();
+            btnRed.text = CandyBag["RedCandyItem"].ToString();
+            btnYellow.text = CandyBag["YellowCandyItem"].ToString();
+            btnBlack.text = CandyBag["BlackCandyItem"].ToString();
 
             UnityEngine.Cursor.lockState = CursorLockMode.None;
             UnityEngine.Cursor.visible = true;
@@ -205,19 +205,19 @@ namespace SCP956.Items.CandyBag
             StartOfRound.Instance.localPlayerController.disableLookInput = false;
         }
 
-        private void ButtonClicked(string candyName)
+        private void ButtonClicked(string name)
         {
             logger.LogDebug("Button clicked");
 
-            GetComponent<CandyBagBehavior>().CandySelected(candyName, false);
+            GetComponent<CandyBagBehavior>().CandySelected(name, false);
             HideUI();
         }
 
-        private void ButtonRightClicked(string candyName)
+        private void ButtonRightClicked(string name)
         {
             logger.LogDebug("Button right clicked");
 
-            GetComponent<CandyBagBehavior>().CandySelected(candyName, true);
+            GetComponent<CandyBagBehavior>().CandySelected(name, true);
             HideUI();
         }
     }

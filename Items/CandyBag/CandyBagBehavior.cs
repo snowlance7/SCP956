@@ -23,22 +23,58 @@ namespace SCP956.Items.CandyBag
         public ScanNodeProperties ScanNode = null!;
 #pragma warning restore 0649
 
-        public Dictionary<string, int> CandyInBag = new Dictionary<string, int>()
+        public Dictionary<string, int> CandyInBag
         {
-            {"Black Candy", 0},
-            {"Blue Candy", 0 },
-            {"Green Candy", 0 },
-            {"Pink Candy", 0 },
-            {"Purple Candy", 0 },
-            {"Rainbow Candy", 0 },
-            {"Red Candy", 0 },
-            {"Yellow Candy", 0 }
-        };
+            get
+            {
+                return new Dictionary<string, int>()
+                {
+                    {"BlackCandyItem", BlackCandyItem.Value },
+                    {"BlueCandyItem", BlueCandyItem.Value },
+                    {"GreenCandyItem", GreenCandyItem.Value },
+                    {"PinkCandyItem", PinkCandyItem.Value },
+                    {"PurpleCandyItem", PurpleCandyItem.Value },
+                    {"RainbowCandyItem", RainbowCandyItem.Value },
+                    {"RedCandyItem", RedCandyItem.Value },
+                    {"YellowCandyItem", YellowCandyItem.Value }
+                };
+            }
+        }
+
+        public NetworkVariable<int> BlackCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> BlueCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> GreenCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> PinkCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> PurpleCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> RainbowCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> RedCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+        private NetworkVariable<int> YellowCandyItem = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+
+        /*public Dictionary<string, int> CandyInBag = new Dictionary<string, int>()
+        {
+            {"BlackCandyItem", 0 },
+            {"BlueCandyItem", 0 },
+            {"GreenCandyItem", 0 },
+            {"PinkCandyItem", 0 },
+            {"PurpleCandyItem", 0 },
+            {"RainbowCandyItem", 0 },
+            {"RedCandyItem", 0 },
+            {"YellowCandyItem", 0 }
+        };*/
 
         public override void Start()
         {
             base.Start();
             ScanNode.subText = "Candy in bag: 0";
+        }
+
+        public override void GrabItem()
+        {
+            base.GrabItem();
+            if (!NetworkObject.IsOwner)
+            {
+                ChangeOwnershipServerRpc(playerHeldBy.actualClientId);
+            }
         }
 
         public override void ItemActivate(bool used, bool buttonDown = true)
@@ -71,74 +107,149 @@ namespace SCP956.Items.CandyBag
             ScanNode.subText = $"Candy in bag: {count}";
         }
 
-        public void CandySelected(string candyName, bool right)
+        public void CandySelected(string name, bool right)
         {
-            if (CandyInBag[candyName] == 0) { return; }
+            logger.LogDebug("Selecting candy: " + name);
+            if (CandyInBag[name] == 0) { return; }
 
             if (right)
             {
                 logger.LogDebug("Taking candy out of bag");
 
-                RemoveCandyFromBag(candyName, true);
+                RemoveCandyFromBag(name, true);
             }
             else
             {
                 logger.LogDebug("Eating candy from bag");
 
-                RemoveCandyFromBag(candyName, false);
+                RemoveCandyFromBag(name, false);
 
                 ItemSFX.PlayOneShot(ItemSFX.clip, 1f);
-                CandyBehavior.ActivateCandy(candyName);
+                CandyBehavior.ActivateCandy(name);
             }
 
             UpdateScanNode();
         }
 
-        public void AddCandyToBag(string candyName)
+        public void AddCandyToBag(string name)
         {
-            AddCandyToBagServerRpc(candyName);
+            //AddCandyToBagServerRpc(name);
+            switch (name)
+            {
+                case "BlackCandyItem":
+                    BlackCandyItem.Value += 1;
+                    break;
+                case "BlueCandyItem":
+                    BlueCandyItem.Value += 1;
+                    break;
+                case "GreenCandyItem":
+                    GreenCandyItem.Value += 1;
+                    break;
+                case "PinkCandyItem":
+                    PinkCandyItem.Value += 1;
+                    break;
+                case "PurpleCandyItem":
+                    PurpleCandyItem.Value += 1;
+                    break;
+                case "RainbowCandyItem":
+                    RainbowCandyItem.Value += 1;
+                    break;
+                case "RedCandyItem":
+                    RedCandyItem.Value += 1;
+                    break;
+                case "YellowCandyItem":
+                    YellowCandyItem.Value += 1;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown candy type: " + name);
+                    break;
+            }
         }
 
-        public void RemoveCandyFromBag(string candyName, bool spawnCandy)
+        public void RemoveCandyFromBag(string name, bool spawnCandy)
         {
-            RemoveCandyFromBagServerRpc(candyName, spawnCandy);
+            //RemoveCandyFromBagServerRpc(name, spawnCandy);
+            switch (name)
+            {
+                case "BlackCandyItem":
+                    BlackCandyItem.Value -= 1;
+                    break;
+                case "BlueCandyItem":
+                    BlueCandyItem.Value -= 1;
+                    break;
+                case "GreenCandyItem":
+                    GreenCandyItem.Value -= 1;
+                    break;
+                case "PinkCandyItem":
+                    PinkCandyItem.Value -= 1;
+                    break;
+                case "PurpleCandyItem":
+                    PurpleCandyItem.Value -= 1;
+                    break;
+                case "RainbowCandyItem":
+                    RainbowCandyItem.Value -= 1;
+                    break;
+                case "RedCandyItem":
+                    RedCandyItem.Value -= 1;
+                    break;
+                case "YellowCandyItem":
+                    YellowCandyItem.Value -= 1;
+                    break;
+                default:
+                    Debug.LogWarning("Unknown candy type: " + name);
+                    break;
+            }
+
+            if (spawnCandy)
+            {
+                NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, name, 0, default, default, true);
+            }
         }
 
         // RPCs
 
         [ServerRpc(RequireOwnership = false)]
-        private void AddCandyToBagServerRpc(string candyName)
+        private void ChangeOwnershipServerRpc(ulong clientId)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                AddCandyToBagClientRpc(candyName);
+                NetworkObject.ChangeOwnership(clientId);
+            }
+        }
+
+        /*[ServerRpc(RequireOwnership = false)]
+        private void AddCandyToBagServerRpc(string name)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                AddCandyToBagClientRpc(name);
             }
         }
 
         [ClientRpc]
-        private void AddCandyToBagClientRpc(string candyName)
+        private void AddCandyToBagClientRpc(string name)
         {
-            CandyInBag[candyName] += 1;
+            CandyInBag[name] += 1;
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void RemoveCandyFromBagServerRpc(string candyName, bool spawnCandy)
+        private void RemoveCandyFromBagServerRpc(string name, bool spawnCandy)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 if (spawnCandy)
                 {
-                    NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, candyName, 0, default, default, true);
+                    NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, name, 0, default, default, true);
                 }
 
-                RemoveCandyFromBagClientRpc(candyName);
+                RemoveCandyFromBagClientRpc(name);
             }
         }
 
         [ClientRpc]
-        private void RemoveCandyFromBagClientRpc(string candyName)
+        private void RemoveCandyFromBagClientRpc(string name)
         {
-            CandyInBag[candyName] -= 1;
-        }
+            CandyInBag[name] -= 1;
+        }*/
     }
 }

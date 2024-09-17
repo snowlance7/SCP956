@@ -17,13 +17,6 @@ namespace SCP956.Patches
     [HarmonyPatch(typeof(PlayerControllerB))]
     internal class PlayerControllerBPatch
     {
-        private static float timeSinceLastCheck = 0f;
-        private static float timeSinceFrozen = 0f;
-        private static bool warningStarted = false;
-        public static bool playerFrozen = false;
-
-        public static AudioSource _audioSource { get { return localPlayer.movementAudio; } }
-
         private static ManualLogSource logger = LoggerInstance;
         
         private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
@@ -52,7 +45,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.SpawnDeadBody))]
         private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
         {
-            if (Plugin.IsYoung)
+            if (Plugin.localPlayerIsYoung)
             {
                 ___deadBody.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             }
@@ -62,22 +55,30 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.DamagePlayer))]
         private static void DamagePlayerPrefix(ref int damageNumber, ref CauseOfDeath causeOfDeath)
         {
-            if (StatusEffectController.Instance.damageReductionSeconds > 0)
+            try
             {
-                logger.LogDebug("Applying " + StatusEffectController.Instance.damageReductionPercent + "% damage reduction");
-                float reductionPercent = StatusEffectController.Instance.damageReductionPercent / 100.0f;
-                int reductionAmount = Convert.ToInt32(damageNumber * reductionPercent);
-                int damageAfterReduction = damageNumber - reductionAmount;
-                logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
-                damageNumber = damageAfterReduction;
+                if (StatusEffectController.Instance.damageReductionSeconds > 0)
+                {
+                    logger.LogDebug("Applying " + StatusEffectController.Instance.damageReductionPercent + "% damage reduction");
+                    float reductionPercent = StatusEffectController.Instance.damageReductionPercent / 100.0f;
+                    int reductionAmount = Convert.ToInt32(damageNumber * reductionPercent);
+                    int damageAfterReduction = damageNumber - reductionAmount;
+                    logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                    damageNumber = damageAfterReduction;
+                }
+                if (StatusEffectController.Instance.bulletProofMultiplier != 0 && causeOfDeath == CauseOfDeath.Gunshots)
+                {
+                    float reductionPercent = StatusEffectController.Instance.bulletProofMultiplier * .10f;
+                    int reductionAmount = (int)(damageNumber * reductionPercent);
+                    int damageAfterReduction = damageNumber - reductionAmount;
+                    logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                    damageNumber = damageAfterReduction;
+                }
             }
-            if (StatusEffectController.Instance.bulletProofMultiplier != 0 && causeOfDeath == CauseOfDeath.Gunshots)
+            catch (Exception e)
             {
-                float reductionPercent = StatusEffectController.Instance.bulletProofMultiplier * .10f;
-                int reductionAmount = (int)(damageNumber * reductionPercent);
-                int damageAfterReduction = damageNumber - reductionAmount;
-                logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
-                damageNumber = damageAfterReduction;
+                logger.LogError("Error in DamagePlayerPrefix: " + e);
+                return;
             }
         }
 
@@ -93,10 +94,18 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.BeginGrabObject))]
         private static bool BeginGrabObjectPrefix()
         {
-            if (SCP330Behavior.noHands)
+            try
             {
-                HUDManager.Instance.DisplayTip("Cant grab item", "You dont have hands to grab with!", true);
-                return false;
+                if (SCP330Behavior.noHands)
+                {
+                    HUDManager.Instance.DisplayTip("Cant grab item", "You dont have hands to grab with!", true);
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Error in BeginGrabObjectPrefix: " + e);
+                return true;
             }
             return true;
         }

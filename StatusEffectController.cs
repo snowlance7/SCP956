@@ -1,16 +1,12 @@
 ﻿using BepInEx.Logging;
 using GameNetcodeStuff;
-using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
-using Zeekerss.Core.Singletons;
-using static Netcode.Transports.Facepunch.FacepunchTransport;
+using static SCP956.Plugin;
 
 namespace SCP956
 {
@@ -38,9 +34,7 @@ namespace SCP956
             }
         }
 
-        private static ManualLogSource logger = Plugin.LoggerInstance;
-
-        private PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
+        private static ManualLogSource logger = LoggerInstance;
 
         private Coroutine statusNegationCoroutine;
         private Coroutine damageReductionCoroutine;
@@ -216,6 +210,21 @@ namespace SCP956
         public void DamagePlayerOverTime(int damage, int perSeconds, bool untilDead = false, int totalSeconds = 10)
         {
             StartCoroutine(DamagePlayerOverTimeCoroutine(damage, perSeconds, untilDead, totalSeconds));
+        }
+
+        public void KillLocalPlayerAfterDelay(float delay)
+        {
+            StartCoroutine(KillPlayerAfterDelayCoroutine(delay));
+        }
+
+        private IEnumerator KillPlayerAfterDelayCoroutine(float delay)
+        {
+            yield return new WaitForSecondsRealtime(delay);
+
+            if (!localPlayer.isPlayerDead && localPlayerFrozen)
+            {
+                localPlayer.KillPlayer(Vector3.zero);
+            }
         }
 
         // Coroutines

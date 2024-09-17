@@ -52,10 +52,8 @@ namespace SCP956
             logger.LogDebug("SCP-956 Spawned");
             activationRadius = config956ActivationRadius.Value;
 
-            if (isOutside)
-            {
-                SetEnemyOutside(true);
-            }
+            //SetOutsideOrInside();
+            SetEnemyOutsideClientRpc(true); // TODO: Temp testing
 
             currentBehaviourStateIndex = (int)State.Dormant;
             RoundManager.Instance.SpawnedEnemies.Add(this);
@@ -153,23 +151,70 @@ namespace SCP956
             }
         }
 
+        public void SetOutsideOrInside()
+        {
+            GameObject closestOutsideNode = GetClosestAINode(RoundManager.Instance.outsideAINodes.ToList());
+            GameObject closestInsideNode = GetClosestAINode(RoundManager.Instance.insideAINodes.ToList());
+
+            if (Vector3.Distance(transform.position, closestOutsideNode.transform.position) < Vector3.Distance(transform.position, closestInsideNode.transform.position))
+            {
+                SetEnemyOutsideClientRpc(true);
+            }
+        }
+
+        public GameObject GetClosestAINode(List<GameObject> nodes)
+        {
+            float closestDistance = Mathf.Infinity;
+            GameObject closestNode = null;
+            foreach (GameObject node in nodes)
+            {
+                float distanceToNode = Vector3.Distance(transform.position, node.transform.position);
+                if (distanceToNode < closestDistance)
+                {
+                    closestDistance = distanceToNode;
+                    closestNode = node;
+                }
+            }
+            return closestNode;
+        }
+
         public void FreezeNearbyPlayers()
         {
             foreach (var player in StartOfRound.Instance.allPlayerScripts)
             {
-                if (!player.isPlayerControlled || player.isPlayerDead) { continue; }
-                if (PlayersRecievedWarning.Contains(player) || FrozenPlayers.Contains(player)) { continue; }
-
-                bool holdingCandy = IsPlayerHoldingCandy(player);
-                bool young = YoungPlayers.Contains(player);
-
-                if (young || holdingCandy)
+                if (!player.isPlayerControlled || player.isPlayerDead)
                 {
-                    WarnPlayerClientRpc(player.actualClientId, young, activationRadius);
-                    PlayersRecievedWarning.Add(player);
+                    continue;
+                }
+
+                if (Vector3.Distance(transform.position, player.transform.position) < activationRadius)
+                {
+                    if (PlayersRecievedWarning.Contains(player))
+                    {
+                        logger.LogDebug($"Skipping player {player.actualClientId}: Player has already received a warning.");
+                        continue;
+                    }
+
+                    if (FrozenPlayers.Contains(player))
+                    {
+                        logger.LogDebug($"Skipping player {player.actualClientId}: Player is already frozen.");
+                        continue;
+                    }
+
+                    bool holdingCandy = IsPlayerHoldingCandy(player);
+
+                    bool young = YoungPlayers.Contains(player);
+
+                    if (young || holdingCandy)
+                    {
+                        logger.LogDebug($"Warning player {player.actualClientId}. Young: {young}, Radius: {activationRadius}");
+                        WarnPlayerClientRpc(player.actualClientId, young, activationRadius);
+                        PlayersRecievedWarning.Add(player);
+                    }
                 }
             }
         }
+
 
         public void TeleportToRandomPlayer()
         {
@@ -306,17 +351,34 @@ namespace SCP956
         public IEnumerator PlayWarningCoroutine(bool young, float radius)
         {
             bool outOfRange = false;
-            if (young) { creatureVoice.clip = WarningShortSFX; }
-            else { creatureVoice.clip = WarningLongSFX; }
+            logger.LogDebug($"Starting PlayWarningCoroutine. Young: {young}, Radius: {radius}");
+
+            if (young)
+            {
+                creatureVoice.clip = WarningShortSFX;
+                logger.LogDebug("Set creature voice to WarningShortSFX.");
+            }
+            else
+            {
+                creatureVoice.clip = WarningLongSFX;
+                logger.LogDebug("Set creature voice to WarningLongSFX.");
+            }
+
             creatureVoice.volume = configWarningSoundVolume.Value;
+            logger.LogDebug($"Set creature voice volume to {creatureVoice.volume}.");
+
             creatureVoice.Play();
+            logger.LogDebug("Playing creature voice sound.");
 
             while (creatureVoice.isPlaying)
             {
-                if (Vector3.Distance(transform.position, localPlayer.transform.position) > radius)
+                float distance = Vector3.Distance(transform.position, localPlayer.transform.position);
+
+                if (distance > radius)
                 {
                     outOfRange = true;
                     creatureVoice.Stop();
+                    logger.LogDebug("Player out of range. Stopping creature voice.");
                     break;
                 }
 
@@ -325,17 +387,26 @@ namespace SCP956
 
             if (outOfRange)
             {
+                logger.LogDebug($"Player is out of range. Removing player with ID {localPlayer.actualClientId} from being warned.");
                 RemoveFromPlayersBeingWarnedServerRpc(localPlayer.actualClientId);
             }
             else
             {
+                logger.LogDebug("Player is in range. Freezing local player and initiating kill after delay.");
                 FreezeLocalPlayer(true);
-                KillLocalPlayerAfterDelay(configMaxTimeToKillPlayer.Value);
+                StatusEffectController.Instance.KillLocalPlayerAfterDelay(configMaxTimeToKillPlayer.Value);
                 AddPlayerToFrozenPlayersServerRpc(localPlayer.actualClientId);
             }
         }
 
+
         // RPC's
+
+        [ClientRpc]
+        private void SetEnemyOutsideClientRpc(bool value)
+        {
+            SetEnemyOutside(value);
+        }
 
         [ClientRpc]
         private void DoAnimationClientRpc(string animationName)
@@ -358,7 +429,8 @@ namespace SCP956
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                PlayersRecievedWarning.Remove(NetworkHandler.PlayerFromId(clientId));
+                PlayerControllerB player = NetworkHandler.PlayerFromId(clientId);
+                PlayersRecievedWarning.Remove(player);
             }
         }
 
@@ -367,7 +439,8 @@ namespace SCP956
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                FrozenPlayers.Add(NetworkHandler.PlayerFromId(clientId));
+                PlayerControllerB player = NetworkHandler.PlayerFromId(clientId);
+                FrozenPlayers.Add(player);
             }
         }
     }

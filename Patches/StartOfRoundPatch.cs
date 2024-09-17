@@ -29,8 +29,8 @@ namespace SCP956.Patches
                 ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
                 logger.LogDebug("Got itemgroups");
 
-                Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "BowlOfCandyItem").First();
-                Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "BowlOfCandyPItem").First();
+                Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
+                Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlPItem").First();
                 logger.LogDebug("Got items");
 
                 scp330.spawnPositionTypes.Clear();

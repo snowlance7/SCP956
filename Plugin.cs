@@ -41,8 +41,8 @@ namespace SCP956
 
         public static AudioClip? CakeDisappearsfx;
 
-        static bool PlayerFrozen = false;
-        public static bool IsYoung = false;
+        public static bool localPlayerFrozen = false;
+        public static bool localPlayerIsYoung = false;
 
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
@@ -243,7 +243,7 @@ namespace SCP956
             RegisterCandy(CandyBlack);
             LoggerInstance.LogDebug($"Got CandyBlack");
 
-            CandyNames = new List<string> { CandyPink.itemName, CandyPurple.itemName, CandyRed.itemName, CandyYellow.itemName, CandyGreen.itemName, CandyBlue.itemName, CandyRainbow.itemName, CandyBlack.itemName };
+            CandyNames = new List<string> { CandyPink.name, CandyPurple.name, CandyRed.name, CandyYellow.name, CandyGreen.name, CandyBlue.name, CandyRainbow.name, CandyBlack.name };
 
             // Getting Candy Bag
             if (configEnableCandyBag.Value)
@@ -362,7 +362,7 @@ namespace SCP956
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName) || item.itemProperties.itemName == "Candy Bag")
+                if (CandyNames.Contains(item.itemProperties.name) || item.itemProperties.name == "CandyBagItem")
                 {
                     return true;
                 }
@@ -372,13 +372,13 @@ namespace SCP956
 
         public static void ResetConditions(bool endOfRound = false)
         {
-            PlayerFrozen = false;
+            localPlayerFrozen = false;
             FreezeLocalPlayer(false);
             StatusEffectController.Instance.bulletProofMultiplier = 0;
             SCP330Behavior.noHands = false;
             localPlayer.thisPlayerModelArms.enabled = true;
 
-            if (IsYoung)
+            if (localPlayerIsYoung)
             {
                 ChangePlayerAge(false);
             }
@@ -389,24 +389,6 @@ namespace SCP956
                 SCP956AI.YoungPlayers.Clear();
                 SCP956AI.PlayersRecievedWarning.Clear();
             }
-        }
-
-        public static void KillLocalPlayerAfterDelay(float delay)
-        {
-            PluginInstance.StartCoroutine(PluginInstance.KillPlayerAfterDelayCoroutine(delay));
-        }
-
-        private IEnumerator KillPlayerAfterDelayCoroutine(float delay)
-        {
-            float time = delay;
-            while (time > 0)
-            {
-                time -= Time.deltaTime;
-                if (localPlayer.isPlayerDead) { break; }
-                yield return null;
-            }
-
-            localPlayer.KillPlayer(Vector3.zero);
         }
 
         public static void ChangePlayerAge(bool young)
@@ -422,12 +404,12 @@ namespace SCP956
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
             }
 
-            IsYoung = young;
+            localPlayerIsYoung = young;
         }
 
         public static void FreezeLocalPlayer(bool on)
         {
-            PlayerFrozen = on;
+            localPlayerFrozen = on;
             localPlayer.disableMoveInput = on;
             localPlayer.disableLookInput = on;
             localPlayer.disableInteract = on;

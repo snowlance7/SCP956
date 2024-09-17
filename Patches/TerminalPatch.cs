@@ -20,7 +20,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(Terminal.BeginUsingTerminal))]
         public static void BeginUsingTerminalPostfix()
         {
-            if (IsYoung)
+            if (localPlayerIsYoung)
             {
                 localPlayer.thisPlayerBody.localScale = new Vector3(1f, 1f, 1f);
             }
@@ -30,7 +30,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(Terminal.QuitTerminal))]
         public static void QuitTerminalPostfix()
         {
-            if (IsYoung)
+            if (localPlayerIsYoung)
             {
                 localPlayer.thisPlayerBody.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             }

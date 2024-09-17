@@ -28,11 +28,11 @@ namespace SCP956.Items.Cake
                 }*/
 
                 playerHeldBy.itemAudio.PlayOneShot(CandleBlowSFX, 1f);
-                if (localPlayer == playerHeldBy && config559ReversesAgeReblow.Value && IsYoung)
+                if (localPlayer == playerHeldBy && config559ReversesAgeReblow.Value && localPlayerIsYoung)
                 {
                     ChangePlayerAge(false);
                 }
-                else if (!IsYoung) { ChangePlayerAge(true); }
+                else if (!localPlayerIsYoung) { ChangePlayerAge(true); }
 
                 // Spawn cake somewhere else
 
@@ -53,7 +53,7 @@ namespace SCP956.Items.Cake
 
                     int newScrapValue = GetComponent<GrabbableObject>().scrapValue * 50;
                     logger.LogDebug("Spawning SCP-559");
-                    NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.itemName, newScrapValue, pos, Quaternion.identity);
+                    NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, itemProperties.name, newScrapValue, pos, Quaternion.identity);
                 }
 
                 // Blow out the candles
@@ -65,7 +65,7 @@ namespace SCP956.Items.Cake
                 // Spawn cake
                 Item Cake = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.name == "Cake559Item").FirstOrDefault();
                 logger.LogDebug("Spawning cake");
-                NetworkHandler.Instance.SpawnItemServerRpc(tempPlayer.actualClientId, Cake.itemName, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, true);
+                NetworkHandler.Instance.SpawnItemServerRpc(tempPlayer.actualClientId, Cake.name, newScrapValue2, tempPlayer.transform.position, Quaternion.identity, true);
 
                 // Spawn SCP-956 if not already spawned
                 if (!StartOfRound.Instance.inShipPhase && configEnablePinata.Value)

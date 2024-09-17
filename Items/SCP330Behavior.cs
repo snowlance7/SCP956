@@ -40,7 +40,7 @@ namespace SCP956.Items
                 PlayersCandyTaken.Add(localPlayer, 0);
             }
 
-            if (PlayersCandyTaken[localPlayer] >= 4 || (!IsYoung && PlayersCandyTaken[localPlayer] >= 2))
+            if (PlayersCandyTaken[localPlayer] >= 4 || (!localPlayerIsYoung && PlayersCandyTaken[localPlayer] >= 2))
             {
                 logger.LogDebug("Player took too much candy!");
                 localPlayer.DamagePlayer(10);
