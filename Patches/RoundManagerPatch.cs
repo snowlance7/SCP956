@@ -22,73 +22,30 @@ namespace SCP956.Patches
 
         private static bool firstTime = true;
 
-        [HarmonyPrefix]
-        [HarmonyPatch("SpawnEnemyFromVent")]
-        public static bool SpawnEnemyFromVentPreFix(EnemyVent vent) // TODO: Scrap this? May cause errors with other mods?
-        {
-            try // TODO: Temp fix until it's fixed
-            {
-                logger.LogDebug(vent.enemyTypeIndex);
-                logger.LogDebug(vent.enemyType);
-
-                if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-                {
-                    if (vent.enemyType.enemyName == "SCP-956")
-                    {
-                        // Getting random scrap spawn
-
-                        List<RandomScrapSpawn> list = UnityEngine.Object.FindObjectsOfType<RandomScrapSpawn>().Where(x => x.spawnUsed == false).ToList();
-                        int index = UnityEngine.Random.Range(0, list.Count);
-                        RandomScrapSpawn randomScrapSpawn = list[index];
-                        Vector3 pos = randomScrapSpawn.transform.position;
-                        if (randomScrapSpawn.spawnedItemsCopyPosition)
-                        {
-                            list.RemoveAt(index);
-                        }
-                        else
-                        {
-                            pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(randomScrapSpawn.transform.position, randomScrapSpawn.itemSpawnRange, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom); // TODO: Test this
-                        }
-
-                        // Spawning
-
-                        logger.LogDebug("Spawning");
-                        RoundManager.Instance.SpawnEnemyOnServer(pos, UnityEngine.Random.Range(0f, 360f), vent.enemyTypeIndex);
-                        Debug.Log("Spawned pinata from vent");
-                        vent.OpenVentClientRpc();
-                        vent.occupied = false;
-                        return false;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                logger.LogError("Error with spawning pinata from vent: " + e);
-                return true;
-            }
-            return true;
-        }
-
         [HarmonyPostfix]
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
-        private static void DespawnPropsAtEndOfRoundPostfix()
+        private static void DespawnPropsAtEndOfRoundPostfix() // TODO: Check if this is run for all clients
         {
             logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
             ResetConditions(endOfRound: true);
+            firstTime = true;
         }
 
         [HarmonyPostfix]
         [HarmonyPatch("SpawnInsideEnemiesFromVentsIfReady")]
         private static void SpawnInsideEnemiesFromVentsIfReadyPostfix()
         {
-            try // TODO: Temp fix until it's fixed
+            try
             {
-                if (IsYoung && configEnablePinata.Value && firstTime)
+                if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
                 {
-                    if (RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault() == null)
+                    if (firstTime && SCP956AI.YoungPlayers.Count > 0 && configEnablePinata.Value)
                     {
-                        NetworkHandler.Instance.SpawnPinataServerRpc();
-                        firstTime = false;
+                        if (RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault() == null)
+                        {
+                            NetworkHandler.Instance.SpawnPinataServerRpc();
+                            firstTime = false;
+                        }
                     }
                 }
             }
@@ -96,25 +53,6 @@ namespace SCP956.Patches
             {
                 logger.LogError("Error when spawning pinata from vent: " + e);
             }
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(RoundManager.GenerateNewFloor))]
-        private static void GenerateNewFloorPostfix()
-        {
-            logger.LogDebug("In GenerateNewFloorPostfix");
-            firstTime = true;
-            ResetConditions();
-
-            // Setting player size
-
-            if (IsYoung)
-            {
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
-                logger.LogDebug("Changed player size");
-            }
-
-            logger.LogInfo($"{StartOfRound.Instance.localPlayerController.playerUsername}'s age is {PlayerAge}");
         }
     }
 }

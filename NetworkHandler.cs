@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,11 +12,6 @@ using static SCP956.Plugin;
 
 namespace SCP956
 {
-    public List<PlayerControllerB> YoungPlayers
-    {
-
-    }
-
     public class NetworkHandler : NetworkBehaviour
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
@@ -23,25 +19,6 @@ namespace SCP956
         public static NetworkHandler Instance { get; private set; }
 
         public static PlayerControllerB PlayerFromId(ulong id) { return StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[id]]; }
-
-        public NetworkList<ulong> YoungPlayersIds = new NetworkList<ulong>();
-        public NetworkList<ulong> FrozenPlayersIds = new NetworkList<ulong>();
-
-        public List<PlayerControllerB> YoungPlayers
-        {
-            get
-            {
-                return StartOfRound.Instance.allPlayerScripts.Where(x => YoungPlayersIds.Contains(x.actualClientId)).ToList();
-            }
-        }
-
-        public List<PlayerControllerB> FrozenPlayers
-        {
-            get
-            {
-                return StartOfRound.Instance.allPlayerScripts.Where(x => FrozenPlayersIds.Contains(x.actualClientId)).ToList();
-            }
-        }
 
         public override void OnNetworkSpawn()
         {
@@ -58,7 +35,7 @@ namespace SCP956
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void SpawnPinataServerRpc(Vector3? pos = null)
+        public void SpawnPinataServerRpc(Vector3 pos = default)
         {
             if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && Plugin.configEnablePinata.Value)
             {
@@ -69,7 +46,7 @@ namespace SCP956
                 if (pos != null)
                 {
                     logger.LogDebug("Spawning SCP-956 at: " + pos);
-                    RoundManager.Instance.SpawnEnemyOnServer(pos.Value, Quaternion.identity.y, index);
+                    RoundManager.Instance.SpawnEnemyOnServer(pos, Quaternion.identity.y, index);
                     return;
                 }
 
@@ -93,13 +70,14 @@ namespace SCP956
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
+                PlayerControllerB player = PlayerFromId(clientId);
                 if (size < 1f)
                 {
-                    if (!YoungPlayersIds.Contains(clientId)) { YoungPlayersIds.Add(clientId); }
+                    SCP956AI.YoungPlayers.Add(player);
                 }
                 else
                 {
-                    if (YoungPlayersIds.Contains(clientId)) { YoungPlayersIds.Remove(clientId); }
+                    SCP956AI.YoungPlayers.Remove(player);
                 }
 
                 ChangePlayerSizeClientRpc(clientId, size);
@@ -109,30 +87,19 @@ namespace SCP956
         [ClientRpc]
         private void ChangePlayerSizeClientRpc(ulong clientId, float size)
         {
-            PlayerControllerB playerHeldBy = StartOfRound.Instance.allPlayerScripts[StartOfRound.Instance.ClientPlayerList[clientId]];
+            PlayerControllerB player = PlayerFromId(clientId);
 
-            playerHeldBy.thisPlayerBody.localScale = new Vector3(size, size, size);
+            player.thisPlayerBody.localScale = new Vector3(size, size, size);
 
             if (size < 1f)
             {
-                playerHeldBy.movementSpeed = 5.7f;
-                playerHeldBy.sprintTime = 17f;
+                player.movementSpeed = 5f;
+                player.sprintTime = 20f;
             }
             else
             {
-                playerHeldBy.movementSpeed = 4.6f;
-                playerHeldBy.sprintTime = 11f;
-            }
-        }
-
-        [ServerRpc(RequireOwnership = false)]
-        public void AddToFrozenPlayersListServerRpc(ulong clientId)
-        {
-            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
-            {
-                logger.LogDebug($"Adding {clientId} to frozen players list");
-                PlayerControllerB player = PlayerFromId(clientId);
-                Plugin.FrozenPlayers.Add(player);
+                player.movementSpeed = 4.6f;
+                player.sprintTime = 11f;
             }
         }
 

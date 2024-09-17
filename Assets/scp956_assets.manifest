@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 3827216269
+CRC: 325625651
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 78cb0cd974ee6e89d58ecf1a2977da19
+    Hash: 7362e9c938031b608ddba6dbfafc49c4
   TypeTreeHash:
     serializedVersion: 2
-    Hash: f3b765cc1b84c5ff826c1b2f2cc5ba4a
+    Hash: 466b7348c7dd51bc257f545607f889d1
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 78cb0cd974ee6e89d58ecf1a2977da19
+    Hash: 7362e9c938031b608ddba6dbfafc49c4
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -61,20 +61,6 @@ ClassTypes:
 - Class: 114
   Script: {fileID: 11500000, guid: 3c36d0a92cbb1f26a39169ef0eae393a, type: 3}
 - Class: 114
-  Script: {fileID: -1359219867, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: 747233109, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: -1577373544, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: 989255763, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: 965613704, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: -570734816, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
-  Script: {fileID: -581893392, guid: d4457945250164e4394e1272cacb356f, type: 3}
-- Class: 114
   Script: {fileID: 11500000, guid: 6d7127b8f98ca8ec9896b384a71d39a2, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: 0e80ae96b3eb9177eea5c8f9dadbcda1, type: 3}
@@ -82,6 +68,22 @@ ClassTypes:
   Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
 - Class: 114
   Script: {fileID: 11500000, guid: d3cecf05b78b173605122a700874719c, type: 3}
+- Class: 114
+  Script: {fileID: -342977429, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: -32140114, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: 1692093402, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: 1024309484, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: -213439241, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: -513352302, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: -6212531, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: -581893392, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -139,15 +141,15 @@ SerializeReferenceClassIdentifiers:
   ClassName: UnityEngine.UIElements.VisualElementAsset
 Assets:
 - Assets/ModAssets/Pinata/Audio/956WarningLong.mp3
-- Assets/ModAssets/Candy/CandyBlueItem.asset
-- Assets/ModAssets/Candy/BowlOfCandyItem.asset
+- Assets/ModAssets/Candy/BlueCandyItem.asset
+- Assets/ModAssets/CandyBowl/CandyBowlItem.asset
 - Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3
-- Assets/ModAssets/Candy/CandyYellowItem.asset
+- Assets/ModAssets/Candy/YellowCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
-- Assets/ModAssets/Candy/CandyRainbowItem.asset
+- Assets/ModAssets/Candy/RainbowCandyItem.asset
 - Assets/ModAssets/Candy/Audio/Grab_Candy.wav
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
-- Assets/ModAssets/Candy/CandyPurpleItem.asset
+- Assets/ModAssets/Candy/PurpleCandyItem.asset
 - Assets/ModAssets/Cake/SCP559Item.asset
 - Assets/ModAssets/Pinata/Pinata.asset
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
@@ -155,15 +157,15 @@ Assets:
 - Assets/ModAssets/Candy/Audio/Candy_Equip.wav
 - Assets/ModAssets/Candy/Audio/slice.mp3
 - Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab
-- Assets/ModAssets/Candy/CandyRedItem.asset
-- Assets/ModAssets/Candy/CandyPinkItem.asset
-- Assets/ModAssets/Candy/CandyGreenItem.asset
-- Assets/ModAssets/Candy/BagOfCandyItem.asset
+- Assets/ModAssets/Candy/RedCandyItem.asset
+- Assets/ModAssets/Candy/PinkCandyItem.asset
+- Assets/ModAssets/Candy/GreenCandyItem.asset
+- Assets/ModAssets/CandyBag/CandyBagItem.asset
 - Assets/ModAssets/Pinata/Audio/bone-crack.mp3
-- Assets/ModAssets/Cake/CakeItem.asset
-- Assets/ModAssets/Candy/CandyBlackItem.asset
+- Assets/ModAssets/Cake/Cake559Item.asset
+- Assets/ModAssets/Candy/BlackCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/papers-flapping.wav
 - Assets/ModAssets/Cake/Audio/cake_disappear.wav
-- Assets/ModAssets/Candy/BowlOfCandyPItem.asset
+- Assets/ModAssets/CandyBowl/CandyBowlPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 Dependencies: []

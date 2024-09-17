@@ -32,104 +32,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
         private static void UpdatePostfix(ref bool ___inTerminalMenu, ref Transform ___thisPlayerBody, ref float ___fallValue)
         {
-            /*if (___inTerminalMenu) // TODO: Get this working
-            {
-                ___thisPlayerBody.position = new Vector3(___thisPlayerBody.position.x, 0.29f, ___thisPlayerBody.position.z);
-                ___fallValue = 0f;
-            }*/
-
-            if (!configEnablePinata.Value) { return; }
-
-            timeSinceLastCheck += Time.deltaTime;
-
-            if (timeSinceLastCheck > 0.2f)
-            {
-                timeSinceLastCheck = 0f;
-
-                if (playerFrozen)
-                {
-                    timeSinceFrozen += Time.deltaTime;
-
-                    if (timeSinceFrozen > configMaxTimeToKillPlayer.Value && !localPlayer.isPlayerDead)
-                    {
-                        localPlayer.KillPlayer(new Vector3(0, 0, 0));
-                        timeSinceFrozen = 0f;
-                    }
-                    return;
-                }
-                else { timeSinceFrozen = 0f; }
-
-                if (StartOfRound.Instance == null || localPlayer == null || !localPlayer.isPlayerControlled || localPlayer.isPlayerDead)
-                {
-                    if (playerFrozen) { playerFrozen = false; }
-                    return;
-                }
-
-                if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
-
-                if (_audioSource == null) { logger.LogError("AudioSource is null"); return; }
-
-                if (PlayerMeetsConditions())
-                {
-                    logger.LogDebug("Player meets conditions"); // Temp
-                    if (!warningStarted)
-                    {
-                        if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (!(IsYoung) && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
-                        if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
-                        _audioSource.loop = false;
-                        _audioSource.Play();
-
-                        warningStarted = true;
-                        logger.LogDebug("Warning started");
-                    }
-
-                    if (warningStarted && IsTimeUp())
-                    {
-                        logger.LogDebug("Audio stopped");
-                        // Freeze localPlayer
-                        playerFrozen = true;
-                        warningStarted = false;
-                        NetworkHandler.Instance.AddToFrozenPlayersListServerRpc(localPlayer.actualClientId);
-
-                        FreezeLocalPlayer(true);
-                    }
-                }
-                else if (warningStarted)
-                {
-                    logger.LogDebug("Warning ended");
-                    warningStarted = false;
-                    _audioSource.Stop();
-                }
-            }
-        }
-
-        private static bool IsTimeUp()
-        {
-            if (!_audioSource.isPlaying) { return true; }
-
-            if (_audioSource.clip.length < 10) // Player is child
-            {
-                if (_audioSource.time >= 2.5f) { return true; }
-            }
-            else if (_audioSource.time >= 20f) { return true; }// Player is holding candy
-
-            return false;
-        }
-
-        public static bool PlayerMeetsConditions()
-        {
-            if (IsYoung || configTargetAllPlayers.Value || IsPlayerHoldingCandy(localPlayer))
-            {
-                foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
-                {
-                    if (scp.PlayerIsTargetable(localPlayer) && Vector3.Distance(scp.transform.position, localPlayer.transform.position) <= config956ActivationRadius.Value)
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            if (StatusEffectController.Instance.infiniteSprintSeconds > 0) { localPlayer.sprintMeter = StatusEffectController.Instance.freezeSprintMeter; }
         }
 
         [HarmonyPrefix]
@@ -149,7 +52,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.SpawnDeadBody))]
         private static void SpawnDeadBodyPostfix(ref DeadBodyInfo ___deadBody)
         {
-            if (Plugin.PlayerAge < 12)
+            if (Plugin.IsYoung)
             {
                 ___deadBody.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f);
             }

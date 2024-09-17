@@ -28,11 +28,11 @@ namespace SCP956.Items.Cake
                 }*/
 
                 playerHeldBy.itemAudio.PlayOneShot(CandleBlowSFX, 1f);
-                if (localPlayer == playerHeldBy && config559ReversesAgeReblow.Value && PlayerAge != PlayerOriginalAge)
+                if (localPlayer == playerHeldBy && config559ReversesAgeReblow.Value && IsYoung)
                 {
-                    ChangePlayerAge(PlayerOriginalAge);
+                    ChangePlayerAge(false);
                 }
-                else { ChangePlayerAge(11); }
+                else if (!IsYoung) { ChangePlayerAge(true); }
 
                 // Spawn cake somewhere else
 

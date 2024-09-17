@@ -10,6 +10,7 @@ using SCP956.Patches;
 using Steamworks.Data;
 using Steamworks.Ugc;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,25 +22,27 @@ using UnityEngine.Rendering;
 
 namespace SCP956
 {
-    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
     public class Plugin : BaseUnityPlugin
     {
+        public const string PLUGIN_NAME = "SCP956";
+        public const string PLUGIN_GUID = "Snowlance.SCP956";
+        public const string PLUGIN_VERSION = "2.0.0";
+
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
-        private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
-        //public static int PlayerAge = 0;
-        //public static int PlayerOriginalAge;
-        //public static bool IsYoung { get { if (PlayerAge < 12) { return true; } else { return false; } } }
-        public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
+        private readonly Harmony harmony = new Harmony(PLUGIN_GUID);
+        public static PlayerControllerB localPlayer { get { return GameNetworkManager.Instance.localPlayerController; } }
 
         public static List<string> CandyNames;
 
         public static AssetBundle? ModAssets;
 
-        public static AudioClip? WarningSoundShortsfx;
-        public static AudioClip? WarningSoundLongsfx;
         public static AudioClip? CakeDisappearsfx;
+
+        static bool PlayerFrozen = false;
+        public static bool IsYoung = false;
 
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
@@ -47,13 +50,12 @@ namespace SCP956
         private ConfigEntry<string> config956CustomLevelRarities;
         public static ConfigEntry<bool> configTargetAllPlayers;
         public static ConfigEntry<float> config956ActivationRadius;
-        public static ConfigEntry<int> configMinAge;
-        public static ConfigEntry<int> configMaxAge;
-        public static ConfigEntry<bool> configPlayWarningSound;
+        public static ConfigEntry<float> configWarningSoundVolume;
         public static ConfigEntry<int> configHeadbuttDamage;
         public static ConfigEntry<float> configMaxTimeToKillPlayer;
         public static ConfigEntry<int> config956TeleportTime;
         public static ConfigEntry<int> config956TeleportRange;
+        public static ConfigEntry<bool> config956TeleportNearPlayers;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> configCandyMinSpawn;
@@ -104,14 +106,13 @@ namespace SCP956
             config956CustomLevelRarities = Config.Bind("SCP-956 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
             configTargetAllPlayers = Config.Bind("SCP-956", "Target All Players", false, "Set to true if you want 956 to target all players regardless of conditions.");
             config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 15f, "The radius in which SCP-956 will target players that meet the required conditions.");
-            configMinAge = Config.Bind("SCP-956", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
-            configMaxAge = Config.Bind("SCP-956", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
-            configPlayWarningSound = Config.Bind("SCP-956", "Play Warning Sound", true, "Play warning sound when inside SCP-956's radius and conditions are met.");
+            configWarningSoundVolume = Config.Bind("SCP-956", "Warning Sound Volume", 1f, "The volume of SCP-956's warning sound. Range from 0 to 1");
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
             configMaxTimeToKillPlayer = Config.Bind("SCP-956", "Max Time To Kill Player", 60f, "If SCP-956 doesnt kill a player in this amount of time, the player will die. (in lore people exposed to SCP-956 and moved away die from candy growing in their guts)");
 
-            config956TeleportTime = Config.Bind("SCP-956", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
-            config956TeleportRange = Config.Bind("SCP-956", "956 Teleport Range", 500, "Max range around SCP-956 in which he will teleport.");
+            config956TeleportTime = Config.Bind("SCP-956", "Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
+            config956TeleportRange = Config.Bind("SCP-956", "Teleport Range", 300, "Max range around SCP-956 in which he will teleport.");
+            config956TeleportNearPlayers = Config.Bind("SCP-956", "Teleport Near Players", false, "Should SCP-956 teleport around players?");
 
             // Candy Configs
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
@@ -157,11 +158,7 @@ namespace SCP956
             LoggerInstance.LogDebug($"Got AssetBundle at: {Path.Combine(sAssemblyLocation, "scp956_assets")}");
 
             // Getting Audio
-            WarningSoundShortsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningShort.mp3");
-            WarningSoundLongsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Pinata/Audio/956WarningLong.mp3");
             CakeDisappearsfx = ModAssets.LoadAsset<AudioClip>("Assets/ModAssets/Cake/Audio/cake_disappear.wav");
-            if (WarningSoundShortsfx == null) { Logger.LogError("WarningSoundShortsfx is null"); }
-            if (WarningSoundLongsfx == null) { Logger.LogError("WarningSoundLongsfx is null"); }
             if (CakeDisappearsfx == null) { Logger.LogError("CakeDisappearsfx is null"); }
             LoggerInstance.LogDebug($"Got sounds from assets");
 
@@ -182,7 +179,7 @@ namespace SCP956
                 LethalLib.Modules.Items.RegisterScrap(SCP559, GetLevelRarities(config559LevelRarities.Value), GetCustomLevelRarities(config559CustomLevelRarities.Value));
 
                 // Getting Cake
-                Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
+                Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/Cake559Item.asset");
                 if (Cake == null) { LoggerInstance.LogError("Error: Couldnt get cake from assets"); return; }
                 LoggerInstance.LogDebug($"Got Cake prefab");
 
@@ -194,7 +191,7 @@ namespace SCP956
             // Getting SCP-330
             if (configEnable330.Value)
             {
-                Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyItem.asset");
+                Item BowlOfCandy = ModAssets.LoadAsset<Item>("Assets/ModAssets/CandyBowl/CandyBowlItem.asset");
                 if (BowlOfCandy == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
                 LoggerInstance.LogDebug($"Got bowl of candy prefab");
 
@@ -202,7 +199,7 @@ namespace SCP956
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
                 LethalLib.Modules.Items.RegisterScrap(BowlOfCandy, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
 
-                Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset");
+                Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/CandyBowl/CandyBowlPItem.asset");
                 if (BowlOfCandyP == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
                 LoggerInstance.LogDebug($"Got bowl of candy P prefab");
 
@@ -213,35 +210,35 @@ namespace SCP956
 
             // Getting Candy
 
-            Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPinkItem.asset");
+            Item CandyPink = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/PinkCandyItem.asset");
             if (CandyPink == null) { LoggerInstance.LogError("Error: Couldnt get CandyPink from assets"); return; }
             RegisterCandy(CandyPink);
             LoggerInstance.LogDebug($"Got CandyPink");
-            Item CandyPurple = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyPurpleItem.asset");
+            Item CandyPurple = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/PurpleCandyItem.asset");
             if (CandyPurple == null) { LoggerInstance.LogError("Error: Couldnt get CandyPurple from assets"); return; }
             RegisterCandy(CandyPurple);
             LoggerInstance.LogDebug($"Got CandyPurple");
-            Item CandyRed = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRedItem.asset");
+            Item CandyRed = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/RedCandyItem.asset");
             if (CandyRed == null) { LoggerInstance.LogError("Error: Couldnt get CandyRed from assets"); return; }
             RegisterCandy(CandyRed);
             LoggerInstance.LogDebug($"Got CandyRed");
-            Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyYellowItem.asset");
+            Item CandyYellow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/YellowCandyItem.asset");
             if (CandyYellow == null) { LoggerInstance.LogError("Error: Couldnt get CandyYellow from assets"); return; }
             RegisterCandy(CandyYellow);
             LoggerInstance.LogDebug($"Got CandyYellow");
-            Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyGreenItem.asset");
+            Item CandyGreen = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/GreenCandyItem.asset");
             if (CandyGreen == null) { LoggerInstance.LogError("Error: Couldnt get CandyGreen from assets"); return; }
             RegisterCandy(CandyGreen);
             LoggerInstance.LogDebug($"Got CandyGreen");
-            Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlueItem.asset");
+            Item CandyBlue = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BlueCandyItem.asset");
             if (CandyBlue == null) { LoggerInstance.LogError("Error: Couldnt get CandyBlue from assets"); return; }
             RegisterCandy(CandyBlue);
             LoggerInstance.LogDebug($"Got CandyBlue");
-            Item CandyRainbow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyRainbowItem.asset");
+            Item CandyRainbow = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/RainbowCandyItem.asset");
             if (CandyRainbow == null) { LoggerInstance.LogError("Error: Couldnt get CandyRainbow from assets"); return; }
             RegisterCandy(CandyRainbow);
             LoggerInstance.LogDebug($"Got CandyRainbow");
-            Item CandyBlack = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/CandyBlackItem.asset");
+            Item CandyBlack = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BlackCandyItem.asset");
             if (CandyBlack == null) { LoggerInstance.LogError("Error: Couldnt get CandyBlack from assets"); return; }
             RegisterCandy(CandyBlack);
             LoggerInstance.LogDebug($"Got CandyBlack");
@@ -251,9 +248,9 @@ namespace SCP956
             // Getting Candy Bag
             if (configEnableCandyBag.Value)
             {
-                Item CandyBag = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BagOfCandyItem.asset");
-                if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandiesInBag from assets"); return; }
-                LoggerInstance.LogDebug($"Got CandiesInBag");
+                Item CandyBag = ModAssets.LoadAsset<Item>("Assets/ModAssets/CandyBag/CandyBagItem.asset");
+                if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandyBag from assets"); return; }
+                LoggerInstance.LogDebug($"Got CandyBag prefab");
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
                 Utilities.FixMixerGroups(CandyBag.spawnPrefab);
@@ -279,7 +276,7 @@ namespace SCP956
             }
             
             // Finished
-            Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
+            Logger.LogInfo($"{PLUGIN_GUID} v{PLUGIN_VERSION} has loaded!");
         }
 
         public Dictionary<Levels.LevelTypes, int> GetLevelRarities(string levelsString)
@@ -375,40 +372,62 @@ namespace SCP956
 
         public static void ResetConditions(bool endOfRound = false)
         {
-            PlayerControllerBPatch.playerFrozen = false;
+            PlayerFrozen = false;
             FreezeLocalPlayer(false);
             StatusEffectController.Instance.bulletProofMultiplier = 0;
             SCP330Behavior.noHands = false;
             localPlayer.thisPlayerModelArms.enabled = true;
 
-            if (PlayerAge != PlayerOriginalAge)
+            if (IsYoung)
             {
-                ChangePlayerAge(PlayerOriginalAge);
+                ChangePlayerAge(false);
             }
 
-            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && FrozenPlayers != null && endOfRound)
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && endOfRound)
             {
-                FrozenPlayers.Clear();
+                SCP956AI.FrozenPlayers.Clear();
+                SCP956AI.YoungPlayers.Clear();
+                SCP956AI.PlayersRecievedWarning.Clear();
             }
         }
 
-        public static void ChangePlayerAge(int ageChange)
+        public static void KillLocalPlayerAfterDelay(float delay)
         {
-            if (IsYoung && ageChange >= 12)
+            PluginInstance.StartCoroutine(PluginInstance.KillPlayerAfterDelayCoroutine(delay));
+        }
+
+        private IEnumerator KillPlayerAfterDelayCoroutine(float delay)
+        {
+            float time = delay;
+            while (time > 0)
             {
-                HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
+                time -= Time.deltaTime;
+                if (localPlayer.isPlayerDead) { break; }
+                yield return null;
             }
-            else
+
+            localPlayer.KillPlayer(Vector3.zero);
+        }
+
+        public static void ChangePlayerAge(bool young)
+        {
+            if (young)
             {
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
                 // TODO: Make players voice higher in pitch if they are a child
             }
-            PlayerAge = ageChange;
+            else
+            {
+                HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
+            }
+
+            IsYoung = young;
         }
 
         public static void FreezeLocalPlayer(bool on)
         {
+            PlayerFrozen = on;
             localPlayer.disableMoveInput = on;
             localPlayer.disableLookInput = on;
             localPlayer.disableInteract = on;

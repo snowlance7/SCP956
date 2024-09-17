@@ -39,19 +39,5 @@ namespace SCP956.Patches
                 scp330p.spawnPositionTypes.Add(GeneralItemClass);
             }
         }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(nameof(StartOfRound.Awake))]
-        public static void AwakePostfix()
-        {
-            logger.LogDebug("In AwakePostfix");
-
-            //NetworkHandler.Instance.SyncConfigsServerRpc(localPlayer.actualClientId); // TODO: Get this working
-
-            PlayerAge = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value);
-            logger.LogDebug($"Player age: {PlayerAge}");
-            PlayerOriginalAge = PlayerAge;
-            logger.LogDebug($"Player original age: {PlayerOriginalAge}");
-        }
     }
 }

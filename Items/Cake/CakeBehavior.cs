@@ -26,9 +26,9 @@ namespace SCP956.Items.Cake
                 playerHeldBy.itemAudio.PlayOneShot(CakeEatSFX, 0.5f);
                 StatusEffectController.Instance.HealPlayer(config559HealAmount.Value);
 
-                if (localPlayer == playerHeldBy && config559CakeReversesAge.Value && PlayerAge != PlayerOriginalAge)
+                if (localPlayer == playerHeldBy && config559CakeReversesAge.Value && IsYoung)
                 {
-                    ChangePlayerAge(PlayerOriginalAge);
+                    ChangePlayerAge(false);
                 }
 
                 playerHeldBy.DespawnHeldObject();

@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using static Netcode.Transports.Facepunch.FacepunchTransport;
 using SCP956.Patches;
 using System.Drawing;
+using Unity.Netcode.Components;
 
 namespace SCP956
 {
@@ -25,12 +26,18 @@ namespace SCP956
         public Transform turnCompass = null!;
         public AudioClip BoneCrackSFX = null!;
         public AudioClip PlayerDeathSFX = null!;
+        public AudioClip WarningShortSFX = null!;
+        public AudioClip WarningLongSFX = null!;
 #pragma warning restore 0649
 
-        bool isDeadAnimationDone;
         float timeSinceNewPos;
         float timeSinceRandTeleport;
         float activationRadius;
+        bool firstTimeTeleport;
+
+        public static List<PlayerControllerB> YoungPlayers = new List<PlayerControllerB>();
+        public static List<PlayerControllerB> PlayersRecievedWarning = new List<PlayerControllerB>();
+        public static List<PlayerControllerB> FrozenPlayers = new List<PlayerControllerB>();
 
         enum State
         {
@@ -43,7 +50,6 @@ namespace SCP956
         {
             base.Start();
             logger.LogDebug("SCP-956 Spawned");
-            isDeadAnimationDone = false;
             activationRadius = config956ActivationRadius.Value;
 
             if (isOutside)
@@ -70,9 +76,9 @@ namespace SCP956
                     //turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
                     //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
 
-                    if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 60f))
+                    if (localPlayer.HasLineOfSightToPosition(transform.position, 60f))
                     {
-                        GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.2f);
+                        localPlayer.IncreaseFearLevelOverTime(0.2f);
                     }
                 }
                 else if (currentBehaviourStateIndex == (int)State.HeadButtAttackInProgress)
@@ -98,6 +104,8 @@ namespace SCP956
                 timeSinceRandTeleport = 0;
             }
 
+            FreezeNearbyPlayers();
+
             switch (currentBehaviourStateIndex)
             {
                 case (int)State.Dormant:
@@ -108,12 +116,19 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (timeSinceRandTeleport > config956TeleportTime.Value) // TODO: This is not working as intended, repeats "teleporting"
+                    if (timeSinceRandTeleport > config956TeleportTime.Value || (timeSinceRandTeleport > 30f && !firstTimeTeleport)) // TODO: This is not working as intended, repeats "teleporting"
                     {
                         logger.LogDebug("Teleporting");
-                        //Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
-                        
-                        Teleport(pos);
+                        firstTimeTeleport = true;
+                        if (config956TeleportNearPlayers.Value)
+                        {
+                            TeleportToRandomPlayer();
+                        }
+                        else
+                        {
+                            Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                            Teleport(pos);
+                        }
                         timeSinceRandTeleport = 0;
                     }
                     break;
@@ -138,9 +153,39 @@ namespace SCP956
             }
         }
 
+        public void FreezeNearbyPlayers()
+        {
+            foreach (var player in StartOfRound.Instance.allPlayerScripts)
+            {
+                if (!player.isPlayerControlled || player.isPlayerDead) { continue; }
+                if (PlayersRecievedWarning.Contains(player) || FrozenPlayers.Contains(player)) { continue; }
+
+                bool holdingCandy = IsPlayerHoldingCandy(player);
+                bool young = YoungPlayers.Contains(player);
+
+                if (young || holdingCandy)
+                {
+                    WarnPlayerClientRpc(player.actualClientId, young, activationRadius);
+                    PlayersRecievedWarning.Add(player);
+                }
+            }
+        }
+
         public void TeleportToRandomPlayer()
         {
-            
+            List<PlayerControllerB> players = new List<PlayerControllerB>();
+            foreach (var player in StartOfRound.Instance.allPlayerScripts)
+            {
+                if (YoungPlayers.Contains(player) || IsPlayerHoldingCandy(player))
+                {
+                    players.Add(player);
+                }
+            }
+
+            int randomIndex = UnityEngine.Random.Range(0, players.Count);
+            PlayerControllerB player2 = players[randomIndex];
+            Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(player2.transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+            Teleport(pos);
         }
 
         public IEnumerator HeadbuttAttack()
@@ -155,7 +200,7 @@ namespace SCP956
             
             yield return new WaitForSeconds(0.5f);
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
-            DamageTargetPlayerClientRpc(player.actualClientId);
+            player.DamagePlayer(configHeadbuttDamage.Value, true, true, CauseOfDeath.Bludgeoning, 7);
             creatureSFX.PlayOneShot(BoneCrackSFX, 1f);
 
             yield return new WaitForSeconds(0.5f);
@@ -218,7 +263,7 @@ namespace SCP956
                 timeSinceNewPos = 0;
                 //Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
                 //SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
-                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: true); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
+                SetDestinationToPosition(targetPlayer.transform.position); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
             }
         }
 
@@ -258,24 +303,71 @@ namespace SCP956
             return false;
         }
 
+        public IEnumerator PlayWarningCoroutine(bool young, float radius)
+        {
+            bool outOfRange = false;
+            if (young) { creatureVoice.clip = WarningShortSFX; }
+            else { creatureVoice.clip = WarningLongSFX; }
+            creatureVoice.volume = configWarningSoundVolume.Value;
+            creatureVoice.Play();
+
+            while (creatureVoice.isPlaying)
+            {
+                if (Vector3.Distance(transform.position, localPlayer.transform.position) > radius)
+                {
+                    outOfRange = true;
+                    creatureVoice.Stop();
+                    break;
+                }
+
+                yield return null;
+            }
+
+            if (outOfRange)
+            {
+                RemoveFromPlayersBeingWarnedServerRpc(localPlayer.actualClientId);
+            }
+            else
+            {
+                FreezeLocalPlayer(true);
+                KillLocalPlayerAfterDelay(configMaxTimeToKillPlayer.Value);
+                AddPlayerToFrozenPlayersServerRpc(localPlayer.actualClientId);
+            }
+        }
+
         // RPC's
 
         [ClientRpc]
         private void DoAnimationClientRpc(string animationName)
         {
-            logger.LogDebug("Animation: " + animationName);
+            logger.LogDebug($"Doing animation: {animationName}");
             creatureAnimator.SetTrigger(animationName);
         }
 
         [ClientRpc]
-        private void DamageTargetPlayerClientRpc(ulong clientId)
+        private void WarnPlayerClientRpc(ulong clientId, bool young, float radius)
         {
-            PlayerControllerB player = StartOfRound.Instance.localPlayerController;
-            if (player.actualClientId == clientId)
+            if (localPlayer.actualClientId == clientId)
             {
-                player.DamagePlayer(configHeadbuttDamage.Value);
+                StartCoroutine(PlayWarningCoroutine(young, radius));
+            }
+        }
 
-                if (player.isPlayerDead) { PlayerControllerBPatch.playerFrozen = false; }
+        [ServerRpc(RequireOwnership = false)]
+        private void RemoveFromPlayersBeingWarnedServerRpc(ulong clientId)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                PlayersRecievedWarning.Remove(NetworkHandler.PlayerFromId(clientId));
+            }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void AddPlayerToFrozenPlayersServerRpc(ulong clientId)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                FrozenPlayers.Add(NetworkHandler.PlayerFromId(clientId));
             }
         }
     }

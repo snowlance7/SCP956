@@ -45,11 +45,13 @@
         <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
     </PropertyGroup>
     <ItemGroup>
-      <None Remove=".gitattributes" />
-      <None Remove=".gitignore" />
+      <Compile Remove="obj\**" />
+      <EmbeddedResource Remove="obj\**" />
+      <None Remove="obj\**" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Include="obj\Debug\netstandard2.1\MyPluginInfo.cs" />
+      <None Remove=".gitattributes" />
+      <None Remove=".gitignore" />
     </ItemGroup>
 
     <!-- Primary Package References -->
