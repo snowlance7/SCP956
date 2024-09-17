@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2671510029
+CRC: 3827216269
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: caf6cb3817165814bf05000cb996bd0d
+    Hash: 78cb0cd974ee6e89d58ecf1a2977da19
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 9121112cc2802c633ffaccd417a35806
+    Hash: f3b765cc1b84c5ff826c1b2f2cc5ba4a
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: caf6cb3817165814bf05000cb996bd0d
+    Hash: 78cb0cd974ee6e89d58ecf1a2977da19
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -149,7 +149,6 @@ Assets:
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
 - Assets/ModAssets/Candy/CandyPurpleItem.asset
 - Assets/ModAssets/Cake/SCP559Item.asset
-- Assets/ModAssets/Cake/Audio/Cake_Eat.wav
 - Assets/ModAssets/Pinata/Pinata.asset
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
 - Assets/ModAssets/Pinata/Audio/956WarningShort.mp3
@@ -162,11 +161,9 @@ Assets:
 - Assets/ModAssets/Candy/BagOfCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/bone-crack.mp3
 - Assets/ModAssets/Cake/CakeItem.asset
-- Assets/ModAssets/Cake/Audio/cake_candle_blow.wav
 - Assets/ModAssets/Candy/CandyBlackItem.asset
-- Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/Pinata/Audio/papers-flapping.wav
+- Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/Candy/BowlOfCandyPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
-- Assets/ModAssets/Cake/Audio/cake_appear.wav
 Dependencies: []

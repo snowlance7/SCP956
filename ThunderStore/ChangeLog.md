@@ -1,5 +1,5 @@
-## 1.3.0
-- If you havent been killed by SCP-956 in 60 seconds, youll die (Configurable)
+## 2.0.0
+- If you havent been killed by SCP-956 in 60 seconds, youll die from the candy growing inside you
 - SCP-956 can open doors faster
 - SCP-956 is now 2x faster
 - SCP-956 AI movement changes
@@ -9,6 +9,7 @@
 - More configs for controlling spawning
 - Changed spawn radius from 50 to 100
 - Player can no longer see their hands when they have their hands sliced off by SCP-330
+- Removed Secret Lab behavior
 
 ## 1.2.4
 - Changed code for how freezing player works

@@ -23,18 +23,14 @@ namespace SCP956
 
         #pragma warning disable 0649
         public Transform turnCompass = null!;
-        #pragma warning restore 0649
+        public AudioClip BoneCrackSFX = null!;
+        public AudioClip PlayerDeathSFX = null!;
+#pragma warning restore 0649
+
         bool isDeadAnimationDone;
-        float timeSinceNewRandPos;
+        float timeSinceNewPos;
         float timeSinceRandTeleport;
         float activationRadius;
-        bool secretLabMode;
-
-        enum AudioClips
-        {
-            BoneCracksfx,
-            PlayerDeathsfx
-        }
 
         enum State
         {
@@ -49,7 +45,11 @@ namespace SCP956
             logger.LogDebug("SCP-956 Spawned");
             isDeadAnimationDone = false;
             activationRadius = config956ActivationRadius.Value;
-            secretLabMode = configSecretLab.Value;
+
+            if (isOutside)
+            {
+                SetEnemyOutside(true);
+            }
 
             currentBehaviourStateIndex = (int)State.Dormant;
             RoundManager.Instance.SpawnedEnemies.Add(this);
@@ -58,37 +58,29 @@ namespace SCP956
         public override void Update()
         {
             base.Update();
-            if (isEnemyDead)
-            {
-                if (!isDeadAnimationDone)
-                {
-                    logger.LogDebug("Stopping enemy voice with janky code.");
-                    isDeadAnimationDone = true;
-                    creatureVoice.Stop();
-                    creatureVoice.PlayOneShot(dieSFX);
-                }
-                return;
-            }
-            timeSinceNewRandPos += Time.deltaTime;
-            if (secretLabMode) { timeSinceRandTeleport += Time.deltaTime; }
+
+            timeSinceNewPos += Time.deltaTime;
+            timeSinceRandTeleport += Time.deltaTime;
             //logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
-            
-            var state = currentBehaviourStateIndex;
 
-            if (targetPlayer != null && state == (int)State.MovingTowardsPlayer)
+            if (targetPlayer != null)
             {
-                turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
-
-                if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 60f))
+                if (currentBehaviourStateIndex == (int)State.MovingTowardsPlayer)
                 {
-                    GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.2f);
+                    //turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
+                    //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
+
+                    if (GameNetworkManager.Instance.localPlayerController.HasLineOfSightToPosition(transform.position, 60f))
+                    {
+                        GameNetworkManager.Instance.localPlayerController.IncreaseFearLevelOverTime(0.2f);
+                    }
                 }
-            }
-            else if (targetPlayer != null && state == (int)State.HeadButtAttackInProgress)
-            {
-                turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
+                else if (currentBehaviourStateIndex == (int)State.HeadButtAttackInProgress)
+                {
+                    agent.speed = 0f;
+                    turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
+                }
             }
         }
         
@@ -101,43 +93,26 @@ namespace SCP956
                 return;
             }
 
-            if (secretLabMode && IsAnyPlayerLookingAtMe())
+            if (IsAnyPlayerLookingAtMe())
             {
                 timeSinceRandTeleport = 0;
             }
-
-            /*foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
-            {
-                if (!PlayerIsTargetable(player)) { continue; }
-                
-
-                if (PlayersUnder12.Contains(player)
-                    || )
-                {
-
-                }
-            }
-
-            if (PlayersMeetingConditions().Count > 0)
-            {
-                logger.LogDebug("Player meets conditions");
-            } // TODO: Figure out how to play the sound file for the players in range and find out when it stops playing and stuff, may have to go back to using the player controller patch again
-            */
 
             switch (currentBehaviourStateIndex)
             {
                 case (int)State.Dormant:
                     agent.speed = 0f;
-                    if (TargetFrozenPlayerInRange(config956ActivationRadius.Value))
+                    if (TargetFrozenPlayerInRange(activationRadius))
                     {
                         logger.LogDebug("Start Killing Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (configSecretLab.Value && timeSinceRandTeleport > config956TeleportTime.Value) // TODO: This is not working as intended, repeats "teleporting"
+                    if (timeSinceRandTeleport > config956TeleportTime.Value) // TODO: This is not working as intended, repeats "teleporting"
                     {
                         logger.LogDebug("Teleporting");
-                        Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                        //Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                        
                         Teleport(pos);
                         timeSinceRandTeleport = 0;
                     }
@@ -145,6 +120,7 @@ namespace SCP956
 
                 case (int)State.MovingTowardsPlayer:
                     agent.speed = 1f;
+                    agent.stoppingDistance = 3f;
                     timeSinceRandTeleport = 0;
                     if (!TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
@@ -162,6 +138,11 @@ namespace SCP956
             }
         }
 
+        public void TeleportToRandomPlayer()
+        {
+            
+        }
+
         public IEnumerator HeadbuttAttack()
         {
             SwitchToBehaviourClientRpc((int)State.HeadButtAttackInProgress);
@@ -175,13 +156,13 @@ namespace SCP956
             yield return new WaitForSeconds(0.5f);
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
             DamageTargetPlayerClientRpc(player.actualClientId);
-            creatureSFX.PlayOneShot(enemyType.audioClips[(int)AudioClips.BoneCracksfx], 1f);
+            creatureSFX.PlayOneShot(BoneCrackSFX, 1f);
 
             yield return new WaitForSeconds(0.5f);
 
             if (player.isPlayerDead) 
             { 
-                creatureVoice.PlayOneShot(enemyType.audioClips[(int)AudioClips.PlayerDeathsfx], 1f);
+                creatureVoice.PlayOneShot(PlayerDeathSFX, 1f);
 
                 logger.LogDebug("Player died, spawning candy");
                 int candiesCount = UnityEngine.Random.Range(configCandyMinSpawn.Value, configCandyMaxSpawn.Value);
@@ -221,26 +202,23 @@ namespace SCP956
             return targetPlayer != null;
         }
 
-        void MoveToTargetPlayer()
+        void MoveToTargetPlayer() // TODO: Test this more
         {
-            if (targetPlayer == null)
-            {
-                return;
-            }
-            //if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
-            if (agent.remainingDistance <= agent.stoppingDistance + 0.1f && agent.velocity.sqrMagnitude < 0.01f)
+            if (targetPlayer == null) { return; }
+
+            if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
             {
                 logger.LogDebug("Headbutt Attack");
                 StartCoroutine(HeadbuttAttack());
                 return;
             }
 
-            if (timeSinceNewRandPos > 1.5f)
+            if (timeSinceNewPos > 1.5f)
             {
-                timeSinceNewRandPos = 0;
+                timeSinceNewPos = 0;
                 //Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
                 //SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
-                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: false); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
+                SetDestinationToPosition(targetPlayer.transform.position, checkForPath: true); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
             }
         }
 
@@ -272,7 +250,7 @@ namespace SCP956
         {
             foreach (PlayerControllerB player in StartOfRound.Instance.allPlayerScripts)
             {
-                if (player.isPlayerControlled && player.HasLineOfSightToPosition(transform.position, 45f, 60, config956SpawnRadius.Value))
+                if (player.isPlayerControlled && player.HasLineOfSightToPosition(transform.position, 45f, 60, activationRadius * 2.5f))
                 {
                     return true;
                 }

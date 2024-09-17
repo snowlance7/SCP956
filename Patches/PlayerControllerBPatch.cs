@@ -10,6 +10,7 @@ using static SCP956.Plugin;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using System.Collections;
+using SCP956.Items;
 
 namespace SCP956.Patches
 {
@@ -41,7 +42,7 @@ namespace SCP956.Patches
 
             timeSinceLastCheck += Time.deltaTime;
 
-            if (timeSinceLastCheck > 0.3f)
+            if (timeSinceLastCheck > 0.2f)
             {
                 timeSinceLastCheck = 0f;
 
@@ -74,7 +75,7 @@ namespace SCP956.Patches
                     if (!warningStarted)
                     {
                         if (WarningSoundShortsfx == null || WarningSoundLongsfx == null) { logger.LogError("Warning sounds not set!"); return; }
-                        if (!(PlayerAge < 12) && configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
+                        if (!(IsYoung) && IsPlayerHoldingCandy(localPlayer)) { _audioSource.clip = WarningSoundLongsfx; } else { _audioSource.clip = WarningSoundShortsfx; }
                         if (!configPlayWarningSound.Value) { _audioSource.volume = 0f; } else { _audioSource.volume = 1f; }
                         _audioSource.loop = false;
                         _audioSource.Play();
@@ -107,24 +108,18 @@ namespace SCP956.Patches
         {
             if (!_audioSource.isPlaying) { return true; }
 
-            if (configSecretLab.Value)
+            if (_audioSource.clip.length < 10) // Player is child
             {
-                if (_audioSource.clip.length < 10) // Player is child
-                {
-                    if (_audioSource.time >= 2.5f) { return true; }
-                }
-                else // Player is holding candy
-                {
-                    if (_audioSource.time >= 20f) { return true; }
-                }
+                if (_audioSource.time >= 2.5f) { return true; }
             }
+            else if (_audioSource.time >= 20f) { return true; }// Player is holding candy
 
             return false;
         }
 
         public static bool PlayerMeetsConditions()
         {
-            if (PlayerAge < 12 || configTargetAllPlayers.Value || (configSecretLab.Value && IsPlayerHoldingCandy(localPlayer)))
+            if (IsYoung || configTargetAllPlayers.Value || IsPlayerHoldingCandy(localPlayer))
             {
                 foreach (EnemyAI scp in RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956"))
                 {
@@ -136,59 +131,6 @@ namespace SCP956.Patches
             }
             return false;
         }
-
-        /*[HarmonyPrefix] // TODO: Get this working?
-        [HarmonyPatch(nameof(PlayerControllerB.GrabObject))]
-        private static bool GrabObjectPrefix(PlayerControllerB __instance)
-        {
-            if (!NetworkHandler.Instance.grabbingSpawnedItem) { yield return null; }
-            __instance.grabbedObjectValidated = false;
-            yield return new WaitForSeconds(0.1f);
-            __instance.currentlyGrabbingObject.parentObject = __instance.localItemHolder;
-            if (__instance.currentlyGrabbingObject.itemProperties.grabSFX != null)
-            {
-                __instance.itemAudio.PlayOneShot(__instance.currentlyGrabbingObject.itemProperties.grabSFX, 1f);
-            }
-            while ((__instance.currentlyGrabbingObject != __instance.currentlyHeldObjectServer || !__instance.currentlyHeldObjectServer.wasOwnerLastFrame) && !__instance.grabInvalidated)
-            {
-                Debug.Log($"grabInvalidated: {__instance.grabInvalidated}");
-                yield return null;
-            }
-            if (__instance.grabInvalidated)
-            {
-                __instance.grabInvalidated = false;
-                Debug.Log("Grab was invalidated on object: " + __instance.currentlyGrabbingObject.name);
-                if (__instance.currentlyGrabbingObject.playerHeldBy != null)
-                {
-                    Debug.Log($"playerHeldBy on currentlyGrabbingObject 2: {__instance.currentlyGrabbingObject.playerHeldBy}");
-                }
-                if (__instance.currentlyGrabbingObject.parentObject == __instance.localItemHolder)
-                {
-                    if (__instance.currentlyGrabbingObject.playerHeldBy != null)
-                    {
-                        Debug.Log($"Grab invalidated; giving grabbed object to the client who got it first; {__instance.currentlyGrabbingObject.playerHeldBy}");
-                        __instance.currentlyGrabbingObject.parentObject = __instance.currentlyGrabbingObject.playerHeldBy.serverItemHolder;
-                    }
-                    else
-                    {
-                        Debug.Log("Grab invalidated; no other client has possession of it, so set its parent object to null.");
-                        __instance.currentlyGrabbingObject.parentObject = null;
-                    }
-                }
-                __instance.twoHanded = false;
-                __instance.carryWeight = Mathf.Clamp(__instance.carryWeight - (__instance.currentlyGrabbingObject.itemProperties.weight - 1f), 0f, 10f);
-                __instance.isGrabbingObjectAnimation = false;
-                __instance.currentlyGrabbingObject = null;
-            }
-            else
-            {
-                __instance.grabbedObjectValidated = true;
-                __instance.currentlyHeldObjectServer.GrabItemOnClient();
-                __instance.isHoldingObject = true;
-                yield return new WaitForSeconds(__instance.grabObjectAnimationTime - 0.2f);
-                __instance.isGrabbingObjectAnimation = false;
-            }
-        }*/
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(PlayerControllerB.Update))]
@@ -241,11 +183,7 @@ namespace SCP956.Patches
         private static void KillPlayerPostfix(PlayerControllerB __instance)
         {
             logger.LogDebug("killing player");
-            NetworkHandler.Instance.ChangePlayerSizeServerRpc(__instance.actualClientId, 1f);
-            PlayerAge = PlayerOriginalAge;
-            __instance.disableLookInput = false;
-            IngamePlayerSettings.Instance.playerInput.ActivateInput();
-            SCP330Behavior.noHands = false;
+            ResetConditions();
         }
 
         [HarmonyPrefix]
@@ -254,7 +192,7 @@ namespace SCP956.Patches
         {
             if (SCP330Behavior.noHands)
             {
-                HUDManager.Instance.DisplayTip("Cant grab item", "You dont have hands to grab with!");
+                HUDManager.Instance.DisplayTip("Cant grab item", "You dont have hands to grab with!", true);
                 return false;
             }
             return true;

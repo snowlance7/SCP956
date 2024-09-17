@@ -4,6 +4,9 @@ using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using LethalLib.Modules;
+using SCP956.Items;
+using SCP956.Items.Cake;
+using SCP956.Patches;
 using Steamworks.Data;
 using Steamworks.Ugc;
 using System;
@@ -18,22 +21,17 @@ using UnityEngine.Rendering;
 
 namespace SCP956
 {
-    [BepInPlugin(modGUID, modName, modVersion)]
+    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
     public class Plugin : BaseUnityPlugin
     {
-        private const string modGUID = "Snowlance.Pinata";
-        private const string modName = "Pinata";
-        private const string modVersion = "1.3.0";
-
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
-        private readonly Harmony harmony = new Harmony(modGUID);
-        public static int PlayerAge = 0;
-        public static int PlayerOriginalAge;
+        private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+        //public static int PlayerAge = 0;
+        //public static int PlayerOriginalAge;
+        //public static bool IsYoung { get { if (PlayerAge < 12) { return true; } else { return false; } } }
         public static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
-
-        public static List<PlayerControllerB> FrozenPlayers;
 
         public static List<string> CandyNames;
 
@@ -42,12 +40,6 @@ namespace SCP956
         public static AudioClip? WarningSoundShortsfx;
         public static AudioClip? WarningSoundLongsfx;
         public static AudioClip? CakeDisappearsfx;
-
-        // Secret Lab Configs
-        public static ConfigEntry<bool> configSecretLab; // TODO: Change bestiary entry depending on secret lab mode and if attack everyone is enabled
-        public static ConfigEntry<int> config956SpawnRadius; // TODO: Change how this works?
-        public static ConfigEntry<int> config956TeleportTime;
-        public static ConfigEntry<int> config956TeleportRange;
 
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
@@ -60,6 +52,8 @@ namespace SCP956
         public static ConfigEntry<bool> configPlayWarningSound;
         public static ConfigEntry<int> configHeadbuttDamage;
         public static ConfigEntry<float> configMaxTimeToKillPlayer;
+        public static ConfigEntry<int> config956TeleportTime;
+        public static ConfigEntry<int> config956TeleportRange;
 
         // SCP0956-1 Configs
         public static ConfigEntry<int> configCandyMinSpawn;
@@ -73,6 +67,8 @@ namespace SCP956
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
         public static ConfigEntry<int> config559HealAmount;
+        public static ConfigEntry<bool> config559CakeReversesAge;
+        public static ConfigEntry<bool> config559ReversesAgeReblow;
 
         // SCP-330 Configs
         public static ConfigEntry<bool> configEnable330;
@@ -102,11 +98,6 @@ namespace SCP956
 
             // Configs
 
-            // Secret Lab
-            configSecretLab = Config.Bind("Secret Lab", "Secret Lab", true, "Enables Secret Lab mode. SCP-956 will have a lot of the same functionality from SCP Secret Lab. Acts like a Hard mode. See README for more info.");
-            config956SpawnRadius = Config.Bind("Secret Lab", "956 Spawn Radius", 100, "Radius at which SCP-956 will spawn around the player when their age is below 12 or candy is collected.");
-            config956TeleportTime = Config.Bind("Secret Lab", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
-
             // SCP-956 Configs
             configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
             config956LevelRarities = Config.Bind("SCP-956 Rarities", "Level Rarities", "ExperimentationLevel:10, AssuranceLevel:10, VowLevel:10, OffenseLevel:30, AdamanceLevel:50, MarchLevel:50, RendLevel:50, DineLevel:50, TitanLevel:80, ArtificeLevel:80, EmbrionLevel:100, All:30, Modded:30", "Rarities for each level. See default for formatting.");
@@ -118,6 +109,9 @@ namespace SCP956
             configPlayWarningSound = Config.Bind("SCP-956", "Play Warning Sound", true, "Play warning sound when inside SCP-956's radius and conditions are met.");
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
             configMaxTimeToKillPlayer = Config.Bind("SCP-956", "Max Time To Kill Player", 60f, "If SCP-956 doesnt kill a player in this amount of time, the player will die. (in lore people exposed to SCP-956 and moved away die from candy growing in their guts)");
+
+            config956TeleportTime = Config.Bind("SCP-956", "956 Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
+            config956TeleportRange = Config.Bind("SCP-956", "956 Teleport Range", 500, "Max range around SCP-956 in which he will teleport.");
 
             // Candy Configs
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
@@ -131,6 +125,8 @@ namespace SCP956
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
             config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
+            config559CakeReversesAge = Config.Bind("SCP-559", "Cake Reverses Age", false, "When the cake is eaten, it will reverse the players age back to their original age.");
+            config559ReversesAgeReblow = Config.Bind("SCP-559", "Blowing out Reverses Age", false, "If you find another 559 cake and blow out the candles, it will reverse your age back to your original age.");
 
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
@@ -183,7 +179,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(SCP559.spawnPrefab);
                 Utilities.FixMixerGroups(SCP559.spawnPrefab);
-                Items.RegisterScrap(SCP559, GetLevelRarities(config559LevelRarities.Value), GetCustomLevelRarities(config559CustomLevelRarities.Value));
+                LethalLib.Modules.Items.RegisterScrap(SCP559, GetLevelRarities(config559LevelRarities.Value), GetCustomLevelRarities(config559CustomLevelRarities.Value));
 
                 // Getting Cake
                 Item Cake = ModAssets.LoadAsset<Item>("Assets/ModAssets/Cake/CakeItem.asset");
@@ -192,7 +188,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(Cake.spawnPrefab);
                 Utilities.FixMixerGroups(Cake.spawnPrefab);
-                Items.RegisterScrap(Cake);
+                LethalLib.Modules.Items.RegisterScrap(Cake);
             }
 
             // Getting SCP-330
@@ -204,7 +200,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandy.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandy.spawnPrefab);
-                Items.RegisterScrap(BowlOfCandy, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
+                LethalLib.Modules.Items.RegisterScrap(BowlOfCandy, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
 
                 Item BowlOfCandyP = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BowlOfCandyPItem.asset");
                 if (BowlOfCandyP == null) { LoggerInstance.LogError("Error: Couldnt get bowl of candy from assets"); return; }
@@ -212,7 +208,7 @@ namespace SCP956
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(BowlOfCandyP.spawnPrefab);
                 Utilities.FixMixerGroups(BowlOfCandyP.spawnPrefab);
-                Items.RegisterScrap(BowlOfCandyP, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
+                LethalLib.Modules.Items.RegisterScrap(BowlOfCandyP, GetLevelRarities(config330LevelRarities.Value), GetCustomLevelRarities(config330CustomLevelRarities.Value));
             }
 
             // Getting Candy
@@ -256,12 +252,12 @@ namespace SCP956
             if (configEnableCandyBag.Value)
             {
                 Item CandyBag = ModAssets.LoadAsset<Item>("Assets/ModAssets/Candy/BagOfCandyItem.asset");
-                if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandyBag from assets"); return; }
-                LoggerInstance.LogDebug($"Got CandyBag");
+                if (CandyBag == null) { LoggerInstance.LogError("Error: Couldnt get CandiesInBag from assets"); return; }
+                LoggerInstance.LogDebug($"Got CandiesInBag");
 
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
                 Utilities.FixMixerGroups(CandyBag.spawnPrefab);
-                Items.RegisterItem(CandyBag);
+                LethalLib.Modules.Items.RegisterItem(CandyBag);
             }
 
             // Getting enemy
@@ -283,7 +279,7 @@ namespace SCP956
             }
             
             // Finished
-            Logger.LogInfo($"{modGUID} v{modVersion} has loaded!");
+            Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
         }
 
         public Dictionary<Levels.LevelTypes, int> GetLevelRarities(string levelsString)
@@ -358,29 +354,57 @@ namespace SCP956
             }
         }
 
-        public static void DespawnItemInSlotOnClient(int itemSlot)
+        /*public static void DespawnItemInSlotOnClient(int itemSlot)
         {
             HUDManager.Instance.itemSlotIcons[itemSlot].enabled = false;
-            
-            if (localPlayer.currentlyHeldObject != localPlayer.ItemSlots[itemSlot])
-            {
-                localPlayer.carryWeight -= Mathf.Clamp(localPlayer.ItemSlots[itemSlot].itemProperties.weight - 1f, 0f, 10f);
-            }
-
             localPlayer.DestroyItemInSlotAndSync(itemSlot);
-        }
+        }*/
 
-        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player) // TODO: Test if this works on network
         {
             foreach (GrabbableObject item in player.ItemSlots)
             {
                 if (item == null) { continue; }
-                if (CandyNames.Contains(item.itemProperties.itemName) || item.itemProperties.itemName == "Candy Bag") // TODO: add check for candy bag
+                if (CandyNames.Contains(item.itemProperties.itemName) || item.itemProperties.itemName == "Candy Bag")
                 {
                     return true;
                 }
             }
             return false;
+        }
+
+        public static void ResetConditions(bool endOfRound = false)
+        {
+            PlayerControllerBPatch.playerFrozen = false;
+            FreezeLocalPlayer(false);
+            StatusEffectController.Instance.bulletProofMultiplier = 0;
+            SCP330Behavior.noHands = false;
+            localPlayer.thisPlayerModelArms.enabled = true;
+
+            if (PlayerAge != PlayerOriginalAge)
+            {
+                ChangePlayerAge(PlayerOriginalAge);
+            }
+
+            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && FrozenPlayers != null && endOfRound)
+            {
+                FrozenPlayers.Clear();
+            }
+        }
+
+        public static void ChangePlayerAge(int ageChange)
+        {
+            if (IsYoung && ageChange >= 12)
+            {
+                HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
+            }
+            else
+            {
+                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
+                // TODO: Make players voice higher in pitch if they are a child
+            }
+            PlayerAge = ageChange;
         }
 
         public static void FreezeLocalPlayer(bool on)
@@ -396,7 +420,7 @@ namespace SCP956
             if (!configEnableCandyBag.Value) { candy.toolTips[1] = ""; }
             LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(candy.spawnPrefab);
             Utilities.FixMixerGroups(candy.spawnPrefab);
-            Items.RegisterItem(candy);
+            LethalLib.Modules.Items.RegisterItem(candy);
         }
 
         private static void InitializeNetworkBehaviours()

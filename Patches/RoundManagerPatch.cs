@@ -74,26 +74,7 @@ namespace SCP956.Patches
         private static void DespawnPropsAtEndOfRoundPostfix()
         {
             logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
-            PlayerControllerBPatch.playerFrozen = false;
-            FreezeLocalPlayer(false);
-            StatusEffectController.Instance.bulletProofMultiplier = 0;
-            SCP330Behavior.noHands = false;
-            localPlayer.thisPlayerModelArms.enabled = true;
-
-            if (PlayerAge != PlayerOriginalAge)
-            {
-                PlayerAge = PlayerOriginalAge;
-                HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
-            }
-            if (PlayerAge >= 12)
-            {
-                NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
-            }
-
-            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && FrozenPlayers != null)
-            {
-                FrozenPlayers.Clear();
-            }
+            ResetConditions(endOfRound: true);
         }
 
         [HarmonyPostfix]
@@ -102,9 +83,9 @@ namespace SCP956.Patches
         {
             try // TODO: Temp fix until it's fixed
             {
-                if (PlayerAge < 12 && configEnablePinata.Value && firstTime)
+                if (IsYoung && configEnablePinata.Value && firstTime)
                 {
-                    if (RoundManager.Instance.SpawnedEnemies.Where(x => x.enemyType.enemyName == "SCP-956").FirstOrDefault() == null)
+                    if (RoundManager.Instance.SpawnedEnemies.OfType<SCP956AI>().FirstOrDefault() == null)
                     {
                         NetworkHandler.Instance.SpawnPinataServerRpc();
                         firstTime = false;
@@ -123,10 +104,11 @@ namespace SCP956.Patches
         {
             logger.LogDebug("In GenerateNewFloorPostfix");
             firstTime = true;
+            ResetConditions();
 
             // Setting player size
 
-            if (PlayerAge < 12)
+            if (IsYoung)
             {
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(StartOfRound.Instance.localPlayerController.actualClientId, 0.7f);
                 logger.LogDebug("Changed player size");
