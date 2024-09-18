@@ -153,6 +153,26 @@ namespace SCP956
                 UnityEngine.Object.Destroy(player.deadBody.gameObject);
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void GetAgeServerRpc(ulong clientId)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                int age = UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value + 1);
+                SendAgeClientRpc(clientId, age);
+            }
+        }
+
+        [ClientRpc]
+        private void SendAgeClientRpc(ulong clientId, int age)
+        {
+            if (localPlayer.actualClientId == clientId)
+            {
+                PlayerOriginalAge = age;
+                ChangePlayerAge(age);
+            }
+        }
     }
 
     [HarmonyPatch]

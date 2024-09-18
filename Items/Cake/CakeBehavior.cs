@@ -28,7 +28,7 @@ namespace SCP956.Items.Cake
 
                 if (localPlayer == playerHeldBy && config559CakeReversesAge.Value && localPlayerIsYoung)
                 {
-                    ChangePlayerAge(false);
+                    ChangePlayerAge(PlayerOriginalAge);
                 }
 
                 playerHeldBy.DespawnHeldObject();

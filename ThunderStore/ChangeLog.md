@@ -1,13 +1,14 @@
 ## 2.0.0
-- If you havent been killed by SCP-956 in 60 seconds, youll die from the candy growing inside you
+- If you havent been killed by SCP-956 in 60 seconds, youll die from the candy growing inside you (time is configurable)
 - SCP-956 can open doors faster
 - SCP-956 is now 2x faster
 - SCP-956 AI movement changes
+- Lots of Optimizations
 - Audio changes
 - Fixed some weight issues
 - Removed 'pinata candy' mechanic, candy wont have a chance to kill you anymore (unless its pink or black)
 - More configs for controlling spawning
-- Changed spawn radius from 50 to 100
+- Changed spawn radius around player from 50 to 100
 - Player can no longer see their hands when they have their hands sliced off by SCP-330
 - Removed Secret Lab behavior
 

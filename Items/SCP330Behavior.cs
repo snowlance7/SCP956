@@ -25,7 +25,7 @@ namespace SCP956.Items
         public override void Start()
         {
             base.Start();
-            ScanNode.subText = "";
+            ScanNode.subText = "Take two pieces of candy";
         }
 
         public override void InteractItem()

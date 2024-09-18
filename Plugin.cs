@@ -41,8 +41,10 @@ namespace SCP956
 
         public static AudioClip? CakeDisappearsfx;
 
-        public static bool localPlayerFrozen = false;
-        public static bool localPlayerIsYoung = false;
+        public static bool localPlayerFrozen;
+        public static bool localPlayerIsYoung { get { return PlayerAge < 12; } }
+        public static int PlayerAge;
+        public static int PlayerOriginalAge;
 
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
@@ -53,11 +55,16 @@ namespace SCP956
         public static ConfigEntry<float> configWarningSoundVolume;
         public static ConfigEntry<int> configHeadbuttDamage;
         public static ConfigEntry<float> configMaxTimeToKillPlayer;
+
         public static ConfigEntry<int> config956TeleportTime;
         public static ConfigEntry<int> config956TeleportRange;
         public static ConfigEntry<bool> config956TeleportNearPlayers;
 
-        // SCP0956-1 Configs
+        public static ConfigEntry<int> configMinAge;
+        public static ConfigEntry<int> configMaxAge;
+        public static ConfigEntry<bool> configRandomizeAgeAfterRound;
+
+        // Candy Configs
         public static ConfigEntry<int> configCandyMinSpawn;
         public static ConfigEntry<int> configCandyMaxSpawn;
         public static ConfigEntry<bool> configEnableCandyBag;
@@ -112,7 +119,11 @@ namespace SCP956
 
             config956TeleportTime = Config.Bind("SCP-956", "Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
             config956TeleportRange = Config.Bind("SCP-956", "Teleport Range", 300, "Max range around SCP-956 in which he will teleport.");
-            config956TeleportNearPlayers = Config.Bind("SCP-956", "Teleport Near Players", false, "Should SCP-956 teleport around players?");
+            config956TeleportNearPlayers = Config.Bind("SCP-956", "Teleport Near Players", true, "Should SCP-956 teleport around players?");
+
+            configMinAge = Config.Bind("Player Age", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
+            configMaxAge = Config.Bind("Player Age", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
+            configRandomizeAgeAfterRound = Config.Bind("Player Age", "Randomize Age After Round", false, "Should the age of players be randomized after each round?");
 
             // Candy Configs
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
@@ -378,9 +389,14 @@ namespace SCP956
             SCP330Behavior.noHands = false;
             localPlayer.thisPlayerModelArms.enabled = true;
 
-            if (localPlayerIsYoung)
+            if (endOfRound && configRandomizeAgeAfterRound.Value)
             {
-                ChangePlayerAge(false);
+                ChangePlayerAge(UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value + 1));
+                PlayerOriginalAge = PlayerAge;
+            }
+            else
+            {
+                ChangePlayerAge(PlayerOriginalAge);
             }
 
             if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && endOfRound)
@@ -391,9 +407,11 @@ namespace SCP956
             }
         }
 
-        public static void ChangePlayerAge(bool young)
+        public static void ChangePlayerAge(int ageChange)
         {
-            if (young)
+            PlayerAge = ageChange;
+
+            if (localPlayerIsYoung)
             {
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
                 // TODO: Make players voice higher in pitch if they are a child
@@ -403,8 +421,6 @@ namespace SCP956
                 HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
             }
-
-            localPlayerIsYoung = young;
         }
 
         public static void FreezeLocalPlayer(bool on)

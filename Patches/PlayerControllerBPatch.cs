@@ -109,5 +109,13 @@ namespace SCP956.Patches
             }
             return true;
         }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(nameof(PlayerControllerB.ConnectClientToPlayerObject))]
+        private static void ConnectClientToPlayerObjectPostfix()
+        {
+            logger.LogDebug("Getting age from server");
+            NetworkHandler.Instance.GetAgeServerRpc(localPlayer.actualClientId);
+        }
     }
 }

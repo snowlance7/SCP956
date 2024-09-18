@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
 using GameNetcodeStuff;
+using HarmonyLib;
 using LethalLib;
 using System;
 using System.Collections;
@@ -29,16 +30,11 @@ namespace SCP956.Items.CandyBag
         Button btnBlack = null!;
 #pragma warning restore 0649
 
-
+        public static CandyBagUIController? Instance = null!;
 
         private void Start()
         {
             logger.LogDebug("UIController: Start()");
-
-            /*if (Instance == null)
-            {
-                Instance = this;
-            }*/
 
             // Get UIDocument
             logger.LogDebug("Getting UIDocument");
@@ -175,6 +171,7 @@ namespace SCP956.Items.CandyBag
         public void ShowUI(Dictionary<string, int> CandyBag)
         {
             logger.LogDebug("Showing UI");
+            Instance = this;
             veMain.style.display = DisplayStyle.Flex;
 
             btnBlue.text = CandyBag["BlueCandyItem"].ToString();
@@ -196,6 +193,7 @@ namespace SCP956.Items.CandyBag
         public void HideUI()
         {
             logger.LogDebug("Hiding UI");
+            Instance = null;
             veMain.style.display = DisplayStyle.None;
 
             UnityEngine.Cursor.lockState = CursorLockMode.Locked;
@@ -219,6 +217,47 @@ namespace SCP956.Items.CandyBag
 
             GetComponent<CandyBagBehavior>().CandySelected(name, true);
             HideUI();
+        }
+    }
+    [HarmonyPatch]
+    internal class Patches
+    {
+        private static ManualLogSource logger = Plugin.LoggerInstance;
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(QuickMenuManager), nameof(QuickMenuManager.OpenQuickMenu))]
+        private static bool OpenQuickMenuPatch()
+        {
+            try
+            {
+                if (CandyBagUIController.Instance == null) { return true; }
+                if (CandyBagUIController.Instance.veMain == null) { logger.LogError("veMain is null!"); return true; }
+                if (CandyBagUIController.Instance.veMain.style.display == DisplayStyle.Flex) { return false; }
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e);
+                return true;
+            }
+        }
+
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(HUDManager), nameof(HUDManager.PingScan_performed))]
+        private static bool PingScan_performedPatch()
+        {
+            try
+            {
+                if (CandyBagUIController.Instance == null) { return true; }
+                if (CandyBagUIController.Instance.veMain == null) { logger.LogError("veMain is null!"); return true; }
+                if (CandyBagUIController.Instance.veMain.style.display == DisplayStyle.Flex) { return false; }
+                return true;
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e);
+                return true;
+            }
         }
     }
 }

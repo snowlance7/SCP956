@@ -30,9 +30,9 @@ namespace SCP956.Items.Cake
                 playerHeldBy.itemAudio.PlayOneShot(CandleBlowSFX, 1f);
                 if (localPlayer == playerHeldBy && config559ReversesAgeReblow.Value && localPlayerIsYoung)
                 {
-                    ChangePlayerAge(false);
+                    ChangePlayerAge(PlayerOriginalAge);
                 }
-                else if (!localPlayerIsYoung) { ChangePlayerAge(true); }
+                else if (!localPlayerIsYoung) { ChangePlayerAge(11); }
 
                 // Spawn cake somewhere else
 
