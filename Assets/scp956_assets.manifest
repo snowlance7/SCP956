@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 1849624704
+CRC: 2991796264
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 7502519f768178b2cd695250c9a5dd9a
+    Hash: 2904e6f3b866dbfa3986c78b118ad95f
   TypeTreeHash:
     serializedVersion: 2
-    Hash: c8cfa73dafc120cb17182e44cd41f56e
+    Hash: d727875f8d2565e973e4d10fdb1859c6
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 7502519f768178b2cd695250c9a5dd9a
+    Hash: 2904e6f3b866dbfa3986c78b118ad95f
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -86,6 +86,8 @@ ClassTypes:
   Script: {fileID: -6212531, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 114
   Script: {fileID: -581893392, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
+  Script: {fileID: 936510800, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -111,6 +113,8 @@ SerializeReferenceClassIdentifiers:
   ClassName: EnemyBehaviourState
 - AssemblyName: Assembly-CSharp
   ClassName: NavSizeLimit
+- AssemblyName: Unity.Netcode.Runtime
+  ClassName: Unity.Netcode.NetworkVariable`1[System.Int32]
 - AssemblyName: UnityEngine.UIElementsModule
   ClassName: UnityEngine.UIElements.Button/UxmlFactory
 - AssemblyName: UnityEngine.UIElementsModule
@@ -148,6 +152,7 @@ Assets:
 - Assets/ModAssets/Pinata/Audio/Pinata_attack.mp3
 - Assets/ModAssets/Candy/YellowCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/paper-rip.mp3
+- Assets/ModAssets/Pizza/Audio/cake_disappear.wav
 - Assets/ModAssets/Candy/RainbowCandyItem.asset
 - Assets/ModAssets/Candy/Audio/Grab_Candy.wav
 - Assets/ModAssets/Pinata/Bestiary/PinataTK.asset
@@ -157,6 +162,7 @@ Assets:
 - Assets/ModAssets/Candy/Audio/Candy_Crunch.wav
 - Assets/ModAssets/Pinata/Audio/956WarningShort.mp3
 - Assets/ModAssets/Candy/Audio/Candy_Equip.wav
+- Assets/ModAssets/Pizza/SCP458Item.asset
 - Assets/ModAssets/Candy/Audio/slice.mp3
 - Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab
 - Assets/ModAssets/Candy/RedCandyItem.asset
@@ -167,7 +173,6 @@ Assets:
 - Assets/ModAssets/Cake/Cake559Item.asset
 - Assets/ModAssets/Candy/BlackCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/papers-flapping.wav
-- Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/CandyBowl/CandyBowlPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 Dependencies: []

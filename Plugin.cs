@@ -393,6 +393,7 @@ namespace SCP956
             {
                 ChangePlayerAge(UnityEngine.Random.Range(configMinAge.Value, configMaxAge.Value + 1));
                 PlayerOriginalAge = PlayerAge;
+                //SoundManager.Instance.playerVoicePitches[localPlayer.actualClientId]
             }
             else
             {
@@ -415,6 +416,17 @@ namespace SCP956
             {
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
                 // TODO: Make players voice higher in pitch if they are a child
+                /*
+                 float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
+		if (num11 > 0.15f)
+		{
+			SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
+		}
+		else
+		{
+			SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
+		}
+                 */
             }
             else
             {

@@ -8,9 +8,12 @@
 - Fixed some weight issues
 - Removed 'pinata candy' mechanic, candy wont have a chance to kill you anymore (unless its pink or black)
 - More configs for controlling spawning
-- Changed spawn radius around player from 50 to 100
+- Changed spawn radius around player from 50 to 500
 - Player can no longer see their hands when they have their hands sliced off by SCP-330
 - Removed Secret Lab behavior
+- Fixed a lot of issues with the candy bag
+- Players voice now changes with age
+- Added SCP-458 (Includes a reference if anyone gets it ill let you pick the next SCP lol)
 
 ## 1.2.4
 - Changed code for how freezing player works

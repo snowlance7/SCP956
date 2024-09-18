@@ -56,6 +56,16 @@ namespace SCP956
         private readonly string[] effectNames = { "HealPlayer", "RestoreStamina", "HealthRegen", "StatusNegation", "DamageReduction", "InfiniteSprint", "IncreasedMovementSpeed" };
         private Dictionary<string, MethodInfo> effectMethods;
 
+        private Coroutine pizzaHealingCoroutine;
+        public static float PlayerFullness = 0f;
+
+        public static float pizzaFillAmount = 0.1f;
+        static float metabolismRate = 0.01f;
+        static int healAmount = 1;
+        static float sprintMultiplier = 2f;
+        static float crouchMultiplier = 3f;
+
+
         private void Awake()
         {
             if (_instance == null)
@@ -72,7 +82,7 @@ namespace SCP956
                 }
             }
 
-            effectMethods = new Dictionary<string, MethodInfo>();
+            /*effectMethods = new Dictionary<string, MethodInfo>();
             foreach (var method in typeof(StatusEffectController).GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (effectNames.Contains(method.Name))
@@ -80,7 +90,42 @@ namespace SCP956
                     effectMethods[method.Name] = method;
                 }
             }
-            logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
+            logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");*/
+        }
+
+        public void EatPizza()
+        {
+            PlayerFullness += pizzaFillAmount;
+
+            if (pizzaHealingCoroutine == null) { pizzaHealingCoroutine = StartCoroutine(PizzaHealingCoroutine()); }
+        }
+
+        private IEnumerator PizzaHealingCoroutine()
+        {
+            while (PlayerFullness > 0f)
+            {
+                yield return new WaitForSecondsRealtime(1.5f);
+
+                int healing = healAmount;
+                float metabolize = metabolismRate;
+
+                if (localPlayer.isCrouching)
+                {
+                    healing *= (int)crouchMultiplier;
+                    metabolize *= crouchMultiplier;
+                }
+                else if (localPlayer.isSprinting)
+                {
+                    healing *= (int)sprintMultiplier;
+                    metabolize *= sprintMultiplier;
+                }
+
+                PlayerFullness -= metabolize;
+                HealPlayer(healing);
+            }
+
+            PlayerFullness = 0f;
+            pizzaHealingCoroutine = null;
         }
 
         public void ApplyCandyEffects(string config)
