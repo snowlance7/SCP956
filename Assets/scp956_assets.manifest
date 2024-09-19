@@ -1,15 +1,15 @@
 ManifestFileVersion: 0
-CRC: 2991796264
+CRC: 1051663308
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: 2904e6f3b866dbfa3986c78b118ad95f
+    Hash: daac056caa41cee45aafc2178b7d6bfa
   TypeTreeHash:
     serializedVersion: 2
-    Hash: d727875f8d2565e973e4d10fdb1859c6
+    Hash: a0e2c08ace81b25d3accc4efa41d3f8c
   IncrementalBuildHash:
     serializedVersion: 2
-    Hash: 2904e6f3b866dbfa3986c78b118ad95f
+    Hash: daac056caa41cee45aafc2178b7d6bfa
 HashAppended: 0
 ClassTypes:
 - Class: 1
@@ -83,11 +83,11 @@ ClassTypes:
 - Class: 114
   Script: {fileID: -513352302, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 114
+  Script: {fileID: 936510800, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
+- Class: 114
   Script: {fileID: -6212531, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 114
   Script: {fileID: -581893392, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
-- Class: 114
-  Script: {fileID: 936510800, guid: fc502c6de7655cd4997079bbf033fc35, type: 3}
 - Class: 115
   Script: {instanceID: 0}
 - Class: 128
@@ -173,6 +173,7 @@ Assets:
 - Assets/ModAssets/Cake/Cake559Item.asset
 - Assets/ModAssets/Candy/BlackCandyItem.asset
 - Assets/ModAssets/Pinata/Audio/papers-flapping.wav
+- Assets/ModAssets/Cake/Audio/cake_disappear.wav
 - Assets/ModAssets/CandyBowl/CandyBowlPItem.asset
 - Assets/ModAssets/Pinata/Bestiary/PinataTN.asset
 Dependencies: []

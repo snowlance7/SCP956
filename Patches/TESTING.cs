@@ -34,15 +34,7 @@ namespace SCP956.Patches
             // Comment these out
             if (args[0] == "/setVoice") // TODO: Test this
             {
-                float num = StartOfRound.Instance.drunknessSideEffect.Evaluate(float.Parse(args[1]));
-                if (num > 0.15f)
-                {
-                    SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f + num;
-                }
-                else
-                {
-                    SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f;
-                }
+                StatusEffectController.Instance.pitchAdjust = float.Parse(args[1]);
             }
         }
         /*

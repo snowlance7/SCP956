@@ -14,6 +14,7 @@
 - Fixed a lot of issues with the candy bag
 - Players voice now changes with age
 - Added SCP-458 (Includes a reference if anyone gets it ill let you pick the next SCP lol)
+- Added new status effect: `PizzaHealing`!
 
 ## 1.2.4
 - Changed code for how freezing player works

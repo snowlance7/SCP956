@@ -28,7 +28,7 @@ namespace SCP956.Items
             if (StatusEffectController.PlayerFullness + StatusEffectController.pizzaFillAmount <= 1f)
             {
                 playerHeldBy.itemAudio.PlayOneShot(PizzaEatSFX, 1f);
-                StatusEffectController.Instance.EatPizza();
+                StatusEffectController.Instance.PizzaHealing();
             }
         }
     }

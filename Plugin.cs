@@ -48,8 +48,8 @@ namespace SCP956
 
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
-        private ConfigEntry<string> config956LevelRarities;
-        private ConfigEntry<string> config956CustomLevelRarities;
+        public static ConfigEntry<string> config956LevelRarities;
+        public static ConfigEntry<string> config956CustomLevelRarities;
         public static ConfigEntry<bool> configTargetAllPlayers;
         public static ConfigEntry<float> config956ActivationRadius;
         public static ConfigEntry<float> configWarningSoundVolume;
@@ -71,8 +71,8 @@ namespace SCP956
 
         // SCP-559 Configs
         public static ConfigEntry<bool> configEnable559;
-        private ConfigEntry<string> config559LevelRarities;
-        private ConfigEntry<string> config559CustomLevelRarities;
+        public static ConfigEntry<string> config559LevelRarities;
+        public static ConfigEntry<string> config559CustomLevelRarities;
         public static ConfigEntry<int> config559MinValue;
         public static ConfigEntry<int> config559MaxValue;
         public static ConfigEntry<int> config559HealAmount;
@@ -81,8 +81,22 @@ namespace SCP956
 
         // SCP-330 Configs
         public static ConfigEntry<bool> configEnable330;
-        private ConfigEntry<string> config330LevelRarities;
-        private ConfigEntry<string> config330CustomLevelRarities;
+        public static ConfigEntry<string> config330LevelRarities;
+        public static ConfigEntry<string> config330CustomLevelRarities;
+
+        // SCP-458 Configs
+        public static ConfigEntry<bool> configEnable458;
+        public static ConfigEntry<string> config458LevelRarities;
+        public static ConfigEntry<string> config458CustomLevelRarities;
+        public static ConfigEntry<int> config458MinValue;
+        public static ConfigEntry<int> config458MaxValue;
+
+        public static ConfigEntry<float> config458PizzaFillAmount;
+        public static ConfigEntry<float> config458MetabolismRate;
+        public static ConfigEntry<int> config458HealAmount;
+        public static ConfigEntry<float> config458SprintMultiplier;
+        public static ConfigEntry<float> config458CrouchMultiplier;
+        public static ConfigEntry<float> config458DrainRate;
 
         // Status Effect Configs
         public static ConfigEntry<bool> configEnableCustomStatusEffects;
@@ -144,6 +158,20 @@ namespace SCP956
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
             config330LevelRarities = Config.Bind("SCP-330 Rarities", "Level Rarities", "ExperimentationLevel:30, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:80, EmbrionLevel:45, All:30, Modded:30", "Rarities for each level. See default for formatting.");
             config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
+
+            // SCP-458 Configs
+            configEnable458 = Config.Bind("SCP-458", "Enable SCP-458", true, "Set to false to disable spawning SCP-458.");
+            config458LevelRarities = Config.Bind("SCP-458 Rarities", "Level Rarities", "ExperimentationLevel:3, AssuranceLevel:4, VowLevel:4, OffenseLevel:7, AdamanceLevel:7, MarchLevel:7, RendLevel:20, DineLevel:25, TitanLevel:10, ArtificeLevel:13, EmbrionLevel:15, All:5, Modded:5", "Rarities for each level. See default for formatting.");
+            config458CustomLevelRarities = Config.Bind("SCP-458 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
+            config458MinValue = Config.Bind("SCP-458", "SCP-458 Min Value", 1, "The minimum scrap value of SCP-458.");
+            config458MaxValue = Config.Bind("SCP-458", "SCP-458 Max Value", 750, "The maximum scrap value of SCP-458.");
+
+            config458PizzaFillAmount = Config.Bind("SCP-458 Pizza", "Pizza Fill Amount", 0.1f, "How much of the fill meter eating a slice of pizza will fill up. Range from 0 to 1.");
+            config458MetabolismRate = Config.Bind("SCP-458 Pizza", "Metabolism Rate", 0.01f, "How much of the fill meter that will be drained per x seconds. Range from 0 to 1.");
+            config458HealAmount = Config.Bind("SCP-458 Pizza", "Heal Amount", 1, "The amount of health you will heal every time the fill meter is drained.");
+            config458SprintMultiplier = Config.Bind("SCP-458 Pizza", "Sprint Multiplier", 2f, "How much the fill meter will be drained while sprinting. The Metabolism Rate will be multiplied by this value when sprinting.");
+            config458CrouchMultiplier = Config.Bind("SCP-458 Pizza", "Crouch Multiplier", 3f, "How much the fill meter will be drained while crouching. The Metabolism Rate will be multiplied by this value when crouching and not moving.");
+            config458DrainRate = Config.Bind("SCP-458 Pizza", "Drain Rate", 1.5f, "The Fill Meter will be drained by this many seconds.");
 
             // Status Effect Configs
             configEnableCustomStatusEffects = Config.Bind("Status Effects (Experimental)", "Enable Custom Status Effects", false, "Enable custom status effects");
@@ -266,6 +294,20 @@ namespace SCP956
                 LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(CandyBag.spawnPrefab);
                 Utilities.FixMixerGroups(CandyBag.spawnPrefab);
                 LethalLib.Modules.Items.RegisterItem(CandyBag);
+            }
+
+            if (configEnable458.Value)
+            {
+                Item Pizza = ModAssets.LoadAsset<Item>("Assets/ModAssets/Pizza/SCP458Item.asset");
+                if (Pizza == null) { LoggerInstance.LogError("Error: Couldnt get pizza from assets"); return; }
+                LoggerInstance.LogDebug($"Got pizza prefab");
+
+                Pizza.minValue = config458MinValue.Value;
+                Pizza.maxValue = config458MaxValue.Value;
+
+                LethalLib.Modules.NetworkPrefabs.RegisterNetworkPrefab(Pizza.spawnPrefab);
+                Utilities.FixMixerGroups(Pizza.spawnPrefab);
+                LethalLib.Modules.Items.RegisterScrap(Pizza, GetLevelRarities(config458LevelRarities.Value), GetCustomLevelRarities(config458CustomLevelRarities.Value));
             }
 
             // Getting enemy

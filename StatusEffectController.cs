@@ -53,17 +53,20 @@ namespace SCP956
         public float baseMovementSpeed = 4.6f;
         public int bulletProofMultiplier = 0;
 
-        private readonly string[] effectNames = { "HealPlayer", "RestoreStamina", "HealthRegen", "StatusNegation", "DamageReduction", "InfiniteSprint", "IncreasedMovementSpeed" };
-        private Dictionary<string, MethodInfo> effectMethods;
+        private readonly string[] effectNames = { "HealPlayer", "RestoreStamina", "HealthRegen", "StatusNegation", "DamageReduction", "InfiniteSprint", "IncreasedMovementSpeed", "PizzaHealing" };
+        private Dictionary<string, MethodInfo> effectMethods = null!;
 
-        private Coroutine pizzaHealingCoroutine;
+        private Coroutine pizzaHealingCoroutine = null!;
         public static float PlayerFullness = 0f;
 
         public static float pizzaFillAmount = 0.1f;
-        static float metabolismRate = 0.01f;
-        static int healAmount = 1;
-        static float sprintMultiplier = 2f;
-        static float crouchMultiplier = 3f;
+        static float pizzaMetabolismRate = 0.01f;
+        static int pizzaHealAmount = 1;
+        static float pizzaSprintMultiplier = 2f;
+        static float pizzaCrouchMultiplier = 3f;
+        static float pizzaDrainRate = 1.5f;
+        
+        public float pitchAdjust;
 
 
         private void Awake()
@@ -82,7 +85,14 @@ namespace SCP956
                 }
             }
 
-            /*effectMethods = new Dictionary<string, MethodInfo>();
+            pizzaFillAmount = config458PizzaFillAmount.Value;
+            pizzaMetabolismRate = config458MetabolismRate.Value;
+            pizzaHealAmount = config458HealAmount.Value;
+            pizzaSprintMultiplier = config458SprintMultiplier.Value;
+            pizzaCrouchMultiplier = config458CrouchMultiplier.Value;
+            pizzaDrainRate = config458DrainRate.Value;
+
+            effectMethods = new Dictionary<string, MethodInfo>();
             foreach (var method in typeof(StatusEffectController).GetMethods(BindingFlags.Instance | BindingFlags.Public))
             {
                 if (effectNames.Contains(method.Name))
@@ -90,34 +100,66 @@ namespace SCP956
                     effectMethods[method.Name] = method;
                 }
             }
-            logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");*/
+            logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
         }
 
-        public void EatPizza()
+        public void Update()
+        {
+            if (pitchAdjust > 0.15f)
+            {
+                float adjustment = 1f + pitchAdjust;
+                LoggerInstance.LogDebug(pitchAdjust.ToString());
+                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = adjustment;
+            }
+            else
+            {
+                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f;
+            }
+            /*float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(pitchAdjust);
+            if (num11 > 0.15f)
+            {
+                float adjustment = 1f + num11;
+                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f + num11;
+            }
+            else
+            {
+                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f;
+            }*/
+        }
+        public void PizzaHealing()
         {
             PlayerFullness += pizzaFillAmount;
 
-            if (pizzaHealingCoroutine == null) { pizzaHealingCoroutine = StartCoroutine(PizzaHealingCoroutine()); }
+            if (pizzaHealingCoroutine != null) { StopCoroutine(pizzaHealingCoroutine); }
+            pizzaHealingCoroutine = StartCoroutine(PizzaHealingCoroutine(pizzaHealAmount, pizzaMetabolismRate, pizzaDrainRate));
         }
 
-        private IEnumerator PizzaHealingCoroutine()
+        public void PizzaHealing(float fillAmount, int healAmount, float metabolismRate, float drainRate)
+        {
+            PlayerFullness += fillAmount;
+
+            if (pizzaHealingCoroutine != null) { StopCoroutine(pizzaHealingCoroutine); }
+            pizzaHealingCoroutine = StartCoroutine(PizzaHealingCoroutine(healAmount, metabolismRate, drainRate));
+        }
+
+        private IEnumerator PizzaHealingCoroutine(int healAmount, float metabolismRate, float drainRate)
         {
             while (PlayerFullness > 0f)
             {
-                yield return new WaitForSecondsRealtime(1.5f);
+                yield return new WaitForSecondsRealtime(drainRate);
 
                 int healing = healAmount;
                 float metabolize = metabolismRate;
 
-                if (localPlayer.isCrouching)
+                if (localPlayer.isCrouching && localPlayer.timeSincePlayerMoving > 0.5f)
                 {
-                    healing *= (int)crouchMultiplier;
-                    metabolize *= crouchMultiplier;
+                    healing *= (int)pizzaCrouchMultiplier;
+                    metabolize *= pizzaCrouchMultiplier;
                 }
                 else if (localPlayer.isSprinting)
                 {
-                    healing *= (int)sprintMultiplier;
-                    metabolize *= sprintMultiplier;
+                    healing *= (int)pizzaSprintMultiplier;
+                    metabolize *= pizzaSprintMultiplier;
                 }
 
                 PlayerFullness -= metabolize;
