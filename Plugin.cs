@@ -147,7 +147,7 @@ namespace SCP956
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
             config559LevelRarities = Config.Bind("SCP-559 Rarities", "Level Rarities", "ExperimentationLevel:25, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:60, EmbrionLevel:25, All:40, Modded:40", "Rarities for each level. See default for formatting.");
-            config559CustomLevelRarities = Config.Bind("SCP-559 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
+            config559CustomLevelRarities = Config.Bind("SCP-559 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
             config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
@@ -157,12 +157,12 @@ namespace SCP956
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
             config330LevelRarities = Config.Bind("SCP-330 Rarities", "Level Rarities", "ExperimentationLevel:30, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:80, EmbrionLevel:45, All:30, Modded:30", "Rarities for each level. See default for formatting.");
-            config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
+            config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
 
             // SCP-458 Configs
             configEnable458 = Config.Bind("SCP-458", "Enable SCP-458", true, "Set to false to disable spawning SCP-458.");
             config458LevelRarities = Config.Bind("SCP-458 Rarities", "Level Rarities", "ExperimentationLevel:3, AssuranceLevel:4, VowLevel:4, OffenseLevel:7, AdamanceLevel:7, MarchLevel:7, RendLevel:20, DineLevel:25, TitanLevel:10, ArtificeLevel:13, EmbrionLevel:15, All:5, Modded:5", "Rarities for each level. See default for formatting.");
-            config458CustomLevelRarities = Config.Bind("SCP-458 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities."); // TODO: Figure out scp level names
+            config458CustomLevelRarities = Config.Bind("SCP-458 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
             config458MinValue = Config.Bind("SCP-458", "SCP-458 Min Value", 1, "The minimum scrap value of SCP-458.");
             config458MaxValue = Config.Bind("SCP-458", "SCP-458 Max Value", 750, "The maximum scrap value of SCP-458.");
 
@@ -410,7 +410,7 @@ namespace SCP956
             localPlayer.DestroyItemInSlotAndSync(itemSlot);
         }*/
 
-        public static bool IsPlayerHoldingCandy(PlayerControllerB player) // TODO: Test if this works on network
+        public static bool IsPlayerHoldingCandy(PlayerControllerB player)
         {
             foreach (GrabbableObject item in player.ItemSlots)
             {
@@ -429,7 +429,10 @@ namespace SCP956
             FreezeLocalPlayer(false);
             StatusEffectController.Instance.bulletProofMultiplier = 0;
             SCP330Behavior.noHands = false;
-            localPlayer.thisPlayerModelArms.enabled = true;
+            if (localPlayer.thisPlayerModelArms.enabled == false)
+            {
+                NetworkHandler.Instance.SetPlayerArmsVisibleServerRpc(localPlayer.actualClientId, true);
+            }
 
             if (endOfRound && configRandomizeAgeAfterRound.Value)
             {
@@ -457,17 +460,16 @@ namespace SCP956
             if (localPlayerIsYoung)
             {
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
-                // TODO: Make players voice higher in pitch if they are a child
-                /*
-                 float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
-		if (num11 > 0.15f)
-		{
-			SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
-		}
-		else
-		{
-			SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
-		}
+                /* // TODO: Make players voice higher in pitch if they are a child
+                float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
+		        if (num11 > 0.15f)
+		        {
+			        SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
+		        }
+		        else
+		        {
+			        SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
+		        }
                  */
             }
             else

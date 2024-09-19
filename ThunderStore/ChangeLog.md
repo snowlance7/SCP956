@@ -12,7 +12,6 @@
 - Player can no longer see their hands when they have their hands sliced off by SCP-330
 - Removed Secret Lab behavior
 - Fixed a lot of issues with the candy bag
-- Players voice now changes with age
 - Added SCP-458 (Includes a reference if anyone gets it ill let you pick the next SCP lol)
 - Added new status effect: `PizzaHealing`!
 

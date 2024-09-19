@@ -2,7 +2,7 @@
 
 ## Description
 
-Adds SCP-956 to the game along with SCP-330 and SCP-559.
+Adds SCP-956 to the game along with SCP-330, SCP-559 and SCP-458.
 
 ## SCP File
 
@@ -38,14 +38,10 @@ Site Director S█████*
 
 - Player Age: A random age is chosen for every player at the start of each game.
 - SCP-956: A Pinata that hates children.
-- Behaviors:
-	= Default intended behavior: SCP-956 will activate whenever someone under the age of 12 stays within its activation zone.
-	- SecretLab: Works similar to the game SCP: Secret Lab. Candy will give random effects (coming soon) and SCP-956 will activate anyone holding candy.
-	- Random Age: Everyone is assigned a random age at the beginning of the game and its possible to be a child.
-	- All: SCP-956 will activate when *anyone* stays within its activation zone, regardless of age.
 - SCP-559: A mysterious cake that can change your age
-- Candy: Mysterious candy with random effects
 - SCP-330: A dangerous bowl of candy, make sure to read the warning label
+- SCP-458: A pizza box with infinite pizza
+- Candy: Mysterious candy with random effects
 - Custom Candy Effects: See section below for how to use
 </details>
 
@@ -66,26 +62,14 @@ A list of all available effects and their parameters are listed below:
 - DamageReduction:Seconds(int),Percentage(int),TimeStackable(bool),Stackable(bool);
 - InfiniteSprint:Seconds(int),TimeStackable(bool);
 - IncreasedMovementSpeed:Seconds(int),Percentage(int),TimeStackable(bool),Stackable(bool);
-</details>
-
-## Secret Lab Behavior
-
-If this is enabled in configs, some mechanics will work differently, similar to the game SCP Secret Lab
-
-<details>
-<summary>Click to reveal spoilers</summary>
-
-- All candy will have random effects
-- SCP-956 will teleport around if not looked at for 60 seconds
-- SCP-956 will target players holding candy
-- Shorter activation time for being around SCP-956
+- PizzaHealing:FillAmount(float),HealAmount(int),MetabolismRate(float),DrainRate(float);
 </details>
 
 ## Future plans
 
 - When a player becomes targeted by SCP-956 and player is facing a wall, SCP-956's navigation can be bugged. Plan to fix this.
 - When player is *overhealed* and takes damage, resets health to 100 rather than taking off damage amount. Plan to fix this.
-- When player loses their hands from SCP-330, make hands being cut off actually visible
+- Ability to take pizza out of box
 
 ## Contact
 

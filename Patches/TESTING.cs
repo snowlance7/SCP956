@@ -1,4 +1,4 @@
-﻿using BepInEx.Logging;
+﻿/*using BepInEx.Logging;
 using GameNetcodeStuff;
 using HarmonyLib;
 using System;
@@ -34,20 +34,12 @@ namespace SCP956.Patches
             // Comment these out
             if (args[0] == "/setVoice") // TODO: Test this
             {
-                StatusEffectController.Instance.pitchAdjust = float.Parse(args[1]);
+                //SoundManager.Instance.playerVoicePitchTargets[(int)((IntPtr)localPlayer.playerClientId)] = float.Parse(args[1]);
+                //SoundManager.Instance.SetPlayerPitch(float.Parse(args[2]), unchecked((int)localPlayer.playerClientId));
+                //StatusEffectController.Instance.pitchAdjust = float.Parse(args[1]);
+                //SoundManager.Instance.SetPlayerPitch(float.Parse(args[1]), (int)localPlayer.actualClientId);
             }
         }
-        /*
-         float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
-if (num11 > 0.15f)
-{
-    SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
-}
-else
-{
-    SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
-}
-         */
 
         public static List<SpawnableEnemyWithRarity> GetEnemies()
         {
@@ -65,4 +57,4 @@ else
             return enemies;
         }
     }
-}
+}*/

@@ -103,29 +103,6 @@ namespace SCP956
             logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
         }
 
-        public void Update()
-        {
-            if (pitchAdjust > 0.15f)
-            {
-                float adjustment = 1f + pitchAdjust;
-                LoggerInstance.LogDebug(pitchAdjust.ToString());
-                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = adjustment;
-            }
-            else
-            {
-                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f;
-            }
-            /*float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(pitchAdjust);
-            if (num11 > 0.15f)
-            {
-                float adjustment = 1f + num11;
-                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f + num11;
-            }
-            else
-            {
-                SoundManager.Instance.playerVoicePitchTargets[localPlayer.actualClientId] = 1f;
-            }*/
-        }
         public void PizzaHealing()
         {
             PlayerFullness += pizzaFillAmount;
@@ -418,7 +395,7 @@ namespace SCP956
             StartCoroutine(TransformPlayerCoroutine(player));
         }
 
-        private IEnumerator TransformPlayerCoroutine(PlayerControllerB player) // TODO: Test this
+        private IEnumerator TransformPlayerCoroutine(PlayerControllerB player) // TODO: Bring back pinata candy somehow so i can use this
         {
             player.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
             logger.LogDebug("Killed player");

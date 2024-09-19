@@ -9,7 +9,7 @@ using static SCP956.Plugin;
 
 namespace SCP956.Items
 {
-    internal class SCP458Behavior : PhysicsProp // TODO: Test this
+    internal class SCP458Behavior : PhysicsProp
     {
         private static ManualLogSource logger = LoggerInstance;
 

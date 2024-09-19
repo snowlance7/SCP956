@@ -173,6 +173,22 @@ namespace SCP956
                 ChangePlayerAge(age);
             }
         }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void SetPlayerArmsVisibleServerRpc(ulong clientId, bool visible)
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                SetPlayerArmsVisibleClientRpc(clientId, visible);
+            }
+        }
+
+        [ClientRpc]
+        private void SetPlayerArmsVisibleClientRpc(ulong clientId, bool visible)
+        {
+            PlayerControllerB player = NetworkHandler.PlayerFromId(clientId);
+            player.thisPlayerModelArms.enabled = visible;
+        }
     }
 
     [HarmonyPatch]

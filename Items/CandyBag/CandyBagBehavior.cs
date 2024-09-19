@@ -128,7 +128,7 @@ namespace SCP956.Items.CandyBag
                 CandyBehavior.ActivateCandy(name);
             }
 
-            UpdateScanNode();
+            UpdateScanNodeServerRpc();
         }
 
         public void AddCandyToBag(string name)
@@ -215,6 +215,21 @@ namespace SCP956.Items.CandyBag
             {
                 NetworkObject.ChangeOwnership(clientId);
             }
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void UpdateScanNodeServerRpc()
+        {
+            if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
+            {
+                UpdateScanNodeClientRpc();
+            }
+        }
+
+        [ClientRpc]
+        private void UpdateScanNodeClientRpc()
+        {
+            UpdateScanNode();
         }
 
         /*[ServerRpc(RequireOwnership = false)]

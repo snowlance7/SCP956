@@ -15,6 +15,7 @@ using static Netcode.Transports.Facepunch.FacepunchTransport;
 using SCP956.Patches;
 using System.Drawing;
 using Unity.Netcode.Components;
+using LethalLib.Modules;
 
 namespace SCP956
 {
@@ -52,8 +53,8 @@ namespace SCP956
             logger.LogDebug("SCP-956 Spawned");
             activationRadius = config956ActivationRadius.Value;
 
-            //SetOutsideOrInside();
-            SetEnemyOutsideClientRpc(true); // TODO: Temp testing
+            SetOutsideOrInside();
+            //SetEnemyOutsideClientRpc(true);
 
             currentBehaviourStateIndex = (int)State.Dormant;
             RoundManager.Instance.SpawnedEnemies.Add(this);
@@ -71,9 +72,6 @@ namespace SCP956
             {
                 if (currentBehaviourStateIndex == (int)State.MovingTowardsPlayer)
                 {
-                    //turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                    //transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 0.8f * Time.deltaTime);
-
                     if (localPlayer.HasLineOfSightToPosition(transform.position, 60f))
                     {
                         localPlayer.IncreaseFearLevelOverTime(0.2f);
@@ -114,7 +112,7 @@ namespace SCP956
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
-                    if (timeSinceRandTeleport > config956TeleportTime.Value || (timeSinceRandTeleport > 30f && !firstTimeTeleport)) // TODO: This is not working as intended, repeats "teleporting"
+                    if (timeSinceRandTeleport > config956TeleportTime.Value || (timeSinceRandTeleport > 30f && !firstTimeTeleport))
                     {
                         logger.LogDebug("Teleporting");
                         firstTimeTeleport = true;
@@ -191,13 +189,13 @@ namespace SCP956
                 {
                     if (PlayersRecievedWarning.Contains(player))
                     {
-                        logger.LogDebug($"Skipping player {player.actualClientId}: Player has already received a warning.");
+                        //logger.LogDebug($"Skipping player {player.actualClientId}: Player has already received a warning.");
                         continue;
                     }
 
                     if (FrozenPlayers.Contains(player))
                     {
-                        logger.LogDebug($"Skipping player {player.actualClientId}: Player is already frozen.");
+                        //logger.LogDebug($"Skipping player {player.actualClientId}: Player is already frozen.");
                         continue;
                     }
 
@@ -245,7 +243,7 @@ namespace SCP956
             
             yield return new WaitForSeconds(0.5f);
             logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
-            player.DamagePlayer(configHeadbuttDamage.Value, true, true, CauseOfDeath.Bludgeoning, 7);
+            DamagePlayerServerRpc(player.actualClientId);
             creatureSFX.PlayOneShot(BoneCrackSFX, 1f);
 
             yield return new WaitForSeconds(0.5f);
@@ -264,7 +262,6 @@ namespace SCP956
                 }
 
                 FrozenPlayers.Remove(player);
-
                 targetPlayer = null;
             }
             if (currentBehaviourStateIndex != (int)State.HeadButtAttackInProgress)
@@ -292,7 +289,7 @@ namespace SCP956
             return targetPlayer != null;
         }
 
-        void MoveToTargetPlayer() // TODO: Test this more
+        void MoveToTargetPlayer()
         {
             if (targetPlayer == null) { return; }
 
@@ -306,9 +303,7 @@ namespace SCP956
             if (timeSinceNewPos > 1.5f)
             {
                 timeSinceNewPos = 0;
-                //Vector3 positionInFrontPlayer = (targetPlayer.transform.forward * 2.9f) + targetPlayer.transform.position;
-                //SetDestinationToPosition(positionInFrontPlayer, checkForPath: false);
-                SetDestinationToPosition(targetPlayer.transform.position); // TODO: This isnt working, doesnt go to player, just stays still and then headbutts player. adjust stopping distance? otherwise switch back to original method
+                SetDestinationToPosition(targetPlayer.transform.position);
             }
         }
 
@@ -351,6 +346,7 @@ namespace SCP956
         public IEnumerator PlayWarningCoroutine(bool young, float radius)
         {
             bool outOfRange = false;
+            bool wasHoldingCandy = false;
             logger.LogDebug($"Starting PlayWarningCoroutine. Young: {young}, Radius: {radius}");
 
             if (young)
@@ -361,6 +357,7 @@ namespace SCP956
             else
             {
                 creatureVoice.clip = WarningLongSFX;
+                wasHoldingCandy = true;
                 logger.LogDebug("Set creature voice to WarningLongSFX.");
             }
 
@@ -374,7 +371,7 @@ namespace SCP956
             {
                 float distance = Vector3.Distance(transform.position, localPlayer.transform.position);
 
-                if (distance > radius)
+                if (distance > radius || (wasHoldingCandy && !IsPlayerHoldingCandy(localPlayer)))
                 {
                     outOfRange = true;
                     creatureVoice.Stop();
@@ -401,6 +398,15 @@ namespace SCP956
 
 
         // RPC's
+
+        [ServerRpc(RequireOwnership = false)]
+        private void DamagePlayerServerRpc(ulong clientId)
+        {
+            if (localPlayer.actualClientId == clientId)
+            {
+                localPlayer.DamagePlayer(configHeadbuttDamage.Value, true, true, CauseOfDeath.Bludgeoning, 7);
+            }
+        }
 
         [ClientRpc]
         private void SetEnemyOutsideClientRpc(bool value)
@@ -441,6 +447,7 @@ namespace SCP956
             {
                 PlayerControllerB player = NetworkHandler.PlayerFromId(clientId);
                 FrozenPlayers.Add(player);
+                PlayersRecievedWarning.Remove(player);
             }
         }
     }

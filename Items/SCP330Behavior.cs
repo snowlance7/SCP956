@@ -15,7 +15,7 @@ namespace SCP956.Items
         private Dictionary<PlayerControllerB, int> PlayersCandyTaken = new Dictionary<PlayerControllerB, int>();
         public static bool noHands = false;
 
-        public int localPlayerCandyTaken = 0; // TODO: Test this
+        public int localPlayerCandyTaken = 0;
 
 #pragma warning disable 0649
         public AudioSource ItemSFX = null!;
@@ -48,10 +48,10 @@ namespace SCP956.Items
                 localPlayer.MakeCriticallyInjured(true);
                 localPlayer.DropAllHeldItemsAndSync();
                 noHands = true;
-                ItemSFX.Play(); // TODO: Test this
+                ItemSFX.Play();
                 HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
                 localPlayer.JumpToFearLevel(1f);
-                localPlayer.thisPlayerModelArms.enabled = false; // TODO: Test this
+                NetworkHandler.Instance.SetPlayerArmsVisibleServerRpc(localPlayer.actualClientId, false);
 
                 StatusEffectController.Instance.DamagePlayerOverTime(5, 2, true);
 
