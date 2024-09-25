@@ -18,8 +18,6 @@ namespace SCP956.Patches
     internal class PlayerControllerBPatch
     {
         private static ManualLogSource logger = LoggerInstance;
-        
-        private static PlayerControllerB localPlayer { get { return StartOfRound.Instance.localPlayerController; } }
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(PlayerControllerB.Update))]

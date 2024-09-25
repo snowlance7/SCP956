@@ -1,3 +1,6 @@
+## 2.0.1
+- Fixed bug where confetti sounds would play when going into orbit and you werent a child changing back
+
 ## 2.0.0
 - If you havent been killed by SCP-956 in 60 seconds, youll die from the candy growing inside you (time is configurable)
 - SCP-956 can open doors faster

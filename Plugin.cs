@@ -28,7 +28,7 @@ namespace SCP956
     {
         public const string PLUGIN_NAME = "SCP956";
         public const string PLUGIN_GUID = "Snowlance.SCP956";
-        public const string PLUGIN_VERSION = "2.0.0";
+        public const string PLUGIN_VERSION = "2.0.1";
 
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
@@ -43,7 +43,7 @@ namespace SCP956
 
         public static bool localPlayerFrozen;
         public static bool localPlayerIsYoung { get { return PlayerAge < 12; } }
-        public static int PlayerAge;
+        public static int PlayerAge = 13;
         public static int PlayerOriginalAge;
 
         // SCP-956 Configs
@@ -455,29 +455,38 @@ namespace SCP956
 
         public static void ChangePlayerAge(int ageChange)
         {
+            // Update the player's age
             PlayerAge = ageChange;
 
-            if (localPlayerIsYoung)
+            // Define the size for a player below age 12 and for a player age 12 and above
+            Vector3 smallSize = new Vector3(0.7f, 0.7f, 0.7f);
+            Vector3 normalSize = new Vector3(1f, 1f, 1f);
+
+            // Check if the player's age is below 12 and their size isn't already set to the smaller size
+            if (PlayerAge <= 12 && localPlayer.thisPlayerBody.localScale != smallSize)
             {
+                // Change the player's size to the smaller size
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 0.7f);
-                /* // TODO: Make players voice higher in pitch if they are a child
-                float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
-		        if (num11 > 0.15f)
-		        {
-			        SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
-		        }
-		        else
-		        {
-			        SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
-		        }
-                 */
             }
-            else
+            // Check if the player's age is 12 or older and their size isn't already set to the normal size
+            else if (PlayerAge > 12 && localPlayer.thisPlayerBody.localScale != normalSize)
             {
+                // Play the sound effect and change the player's size to the normal size
                 HUDManager.Instance.UIAudio.PlayOneShot(CakeDisappearsfx, 1f);
                 NetworkHandler.Instance.ChangePlayerSizeServerRpc(localPlayer.actualClientId, 1f);
             }
         }
+        /* // TODO: Make players voice higher in pitch if they are a child
+        float num11 = StartOfRound.Instance.drunknessSideEffect.Evaluate(drunkness);
+        if (num11 > 0.15f)
+        {
+            SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f + num11;
+        }
+        else
+        {
+            SoundManager.Instance.playerVoicePitchTargets[playerClientId] = 1f;
+        }
+         */
 
         public static void FreezeLocalPlayer(bool on)
         {
