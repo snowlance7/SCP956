@@ -22,18 +22,15 @@ using UnityEngine.Rendering;
 
 namespace SCP956
 {
-    [BepInPlugin(PLUGIN_GUID, PLUGIN_NAME, PLUGIN_VERSION)]
+    [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
     [BepInDependency(LethalLib.Plugin.ModGUID)]
     public class Plugin : BaseUnityPlugin
     {
-        public const string PLUGIN_NAME = "SCP956";
-        public const string PLUGIN_GUID = "Snowlance.SCP956";
-        public const string PLUGIN_VERSION = "2.0.1";
-
         public static Plugin PluginInstance;
         public static ManualLogSource LoggerInstance;
-        private readonly Harmony harmony = new Harmony(PLUGIN_GUID);
+        private readonly Harmony harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
         public static PlayerControllerB localPlayer { get { return GameNetworkManager.Instance.localPlayerController; } }
+        public static bool IsServerOrHost { get { return NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost; } }
 
         public static List<string> CandyNames;
 
@@ -83,6 +80,8 @@ namespace SCP956
         public static ConfigEntry<bool> configEnable330;
         public static ConfigEntry<string> config330LevelRarities;
         public static ConfigEntry<string> config330CustomLevelRarities;
+        public static ConfigEntry<bool> config330ShowNoArmsWhenHandsCut;
+        public static ConfigEntry<bool> config330AllowPickingUpWhenCrouched;
 
         // SCP-458 Configs
         public static ConfigEntry<bool> configEnable458;
@@ -123,17 +122,17 @@ namespace SCP956
 
             // SCP-956 Configs
             configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
-            config956LevelRarities = Config.Bind("SCP-956 Rarities", "Level Rarities", "ExperimentationLevel:10, AssuranceLevel:10, VowLevel:10, OffenseLevel:30, AdamanceLevel:50, MarchLevel:50, RendLevel:50, DineLevel:50, TitanLevel:80, ArtificeLevel:80, EmbrionLevel:100, All:30, Modded:30", "Rarities for each level. See default for formatting.");
-            config956CustomLevelRarities = Config.Bind("SCP-956 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
+            config956LevelRarities = Config.Bind("SCP-956 Rarities", "Level Rarities", "ExperimentationLevel:10, AssuranceLevel:10, VowLevel:10, OffenseLevel:30, AdamanceLevel:50, MarchLevel:50, RendLevel:50, DineLevel:50, TitanLevel:80, ArtificeLevel:80, EmbrionLevel:100, Modded:30", "Rarities for each level. See default for formatting.");
+            config956CustomLevelRarities = Config.Bind("SCP-956 Rarities", "Custom Level Rarities", "Secret LabsLevel:150", "Rarities for modded levels. Same formatting as level rarities.");
             configTargetAllPlayers = Config.Bind("SCP-956", "Target All Players", false, "Set to true if you want 956 to target all players regardless of conditions.");
-            config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 15f, "The radius in which SCP-956 will target players that meet the required conditions.");
+            config956ActivationRadius = Config.Bind("SCP-956", "Activation Radius", 10f, "The radius in which SCP-956 will target players that meet the required conditions.");
             configWarningSoundVolume = Config.Bind("SCP-956", "Warning Sound Volume", 1f, "The volume of SCP-956's warning sound. Range from 0 to 1");
             configHeadbuttDamage = Config.Bind("SCP-956", "Headbutt Damage", 50, "The amount of damage SCP-956 will do when using his headbutt attack.");
             configMaxTimeToKillPlayer = Config.Bind("SCP-956", "Max Time To Kill Player", 60f, "If SCP-956 doesnt kill a player in this amount of time, the player will die. (in lore people exposed to SCP-956 and moved away die from candy growing in their guts)");
 
             config956TeleportTime = Config.Bind("SCP-956", "Teleport Time", 60, "Time in seconds it takes for SCP-956 to teleport somewhere else when nobody is looking at it.");
             config956TeleportRange = Config.Bind("SCP-956", "Teleport Range", 300, "Max range around SCP-956 in which he will teleport.");
-            config956TeleportNearPlayers = Config.Bind("SCP-956", "Teleport Near Players", true, "Should SCP-956 teleport around players?");
+            config956TeleportNearPlayers = Config.Bind("SCP-956", "Teleport Near Players", false, "Should SCP-956 teleport around players?");
 
             configMinAge = Config.Bind("Player Age", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
             configMaxAge = Config.Bind("Player Age", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
@@ -146,8 +145,8 @@ namespace SCP956
             
             // SCP-559 Configs
             configEnable559 = Config.Bind("SCP-559", "Enable SCP-559", true, "Set to false to disable spawning SCP-559.");
-            config559LevelRarities = Config.Bind("SCP-559 Rarities", "Level Rarities", "ExperimentationLevel:25, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:60, EmbrionLevel:25, All:40, Modded:40", "Rarities for each level. See default for formatting.");
-            config559CustomLevelRarities = Config.Bind("SCP-559 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
+            config559LevelRarities = Config.Bind("SCP-559 Rarities", "Level Rarities", "ExperimentationLevel:25, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:60, EmbrionLevel:25, Modded:40", "Rarities for each level. See default for formatting.");
+            config559CustomLevelRarities = Config.Bind("SCP-559 Rarities", "Custom Level Rarities", "Secret LabsLevel:100", "Rarities for modded levels. Same formatting as level rarities.");
             config559MinValue = Config.Bind("SCP-559", "SCP-559 Min Value", 50, "The minimum scrap value of SCP-559.");
             config559MaxValue = Config.Bind("SCP-559", "SCP-559 Max Value", 150, "The maximum scrap value of SCP-559.");
             config559HealAmount = Config.Bind("SCP-559", "Heal Amount", 10, "The amount of health SCP-559 will heal when eaten.");
@@ -156,13 +155,15 @@ namespace SCP956
 
             // SCP-330 Configs
             configEnable330 = Config.Bind("SCP-330", "Enable SCP-330", true, "Set to false to disable spawning SCP-330.");
-            config330LevelRarities = Config.Bind("SCP-330 Rarities", "Level Rarities", "ExperimentationLevel:30, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:80, EmbrionLevel:45, All:30, Modded:30", "Rarities for each level. See default for formatting.");
-            config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
+            config330LevelRarities = Config.Bind("SCP-330 Rarities", "Level Rarities", "ExperimentationLevel:30, AssuranceLevel:30, VowLevel:30, OffenseLevel:40, AdamanceLevel:45, MarchLevel:40, RendLevel:100, DineLevel:100, TitanLevel:50, ArtificeLevel:80, EmbrionLevel:45, Modded:30", "Rarities for each level. See default for formatting.");
+            config330CustomLevelRarities = Config.Bind("SCP-330 Rarities", "Custom Level Rarities", "Secret LabsLevel:100", "Rarities for modded levels. Same formatting as level rarities.");
+            config330ShowNoArmsWhenHandsCut = Config.Bind("SCP-330", "Show No Arms When Hands Cut", true, "When the players hands are cut off, should they be able to see their arms? Can cause visual bugs, if so turn this off.");
+            config330AllowPickingUpWhenCrouched = Config.Bind("SCP-330", "Allow Picking Up When Crouched", true, "Should players be able to pick up SCP-330 when crouched?");
 
             // SCP-458 Configs
             configEnable458 = Config.Bind("SCP-458", "Enable SCP-458", true, "Set to false to disable spawning SCP-458.");
-            config458LevelRarities = Config.Bind("SCP-458 Rarities", "Level Rarities", "ExperimentationLevel:3, AssuranceLevel:4, VowLevel:4, OffenseLevel:7, AdamanceLevel:7, MarchLevel:7, RendLevel:20, DineLevel:25, TitanLevel:10, ArtificeLevel:13, EmbrionLevel:15, All:5, Modded:5", "Rarities for each level. See default for formatting.");
-            config458CustomLevelRarities = Config.Bind("SCP-458 Rarities", "Custom Level Rarities", "", "Rarities for modded levels. Same formatting as level rarities.");
+            config458LevelRarities = Config.Bind("SCP-458 Rarities", "Level Rarities", "ExperimentationLevel:3, AssuranceLevel:4, VowLevel:4, OffenseLevel:7, AdamanceLevel:7, MarchLevel:7, RendLevel:20, DineLevel:25, TitanLevel:10, ArtificeLevel:13, EmbrionLevel:15, Modded:5", "Rarities for each level. See default for formatting.");
+            config458CustomLevelRarities = Config.Bind("SCP-458 Rarities", "Custom Level Rarities", "Secret LabsLevel:20", "Rarities for modded levels. Same formatting as level rarities.");
             config458MinValue = Config.Bind("SCP-458", "SCP-458 Min Value", 1, "The minimum scrap value of SCP-458.");
             config458MaxValue = Config.Bind("SCP-458", "SCP-458 Max Value", 750, "The maximum scrap value of SCP-458.");
 
@@ -329,7 +330,7 @@ namespace SCP956
             }
             
             // Finished
-            Logger.LogInfo($"{PLUGIN_GUID} v{PLUGIN_VERSION} has loaded!");
+            Logger.LogInfo($"{MyPluginInfo.PLUGIN_GUID} v{MyPluginInfo.PLUGIN_VERSION} has loaded!");
         }
 
         public Dictionary<Levels.LevelTypes, int> GetLevelRarities(string levelsString)
@@ -429,7 +430,7 @@ namespace SCP956
             FreezeLocalPlayer(false);
             StatusEffectController.Instance.bulletProofMultiplier = 0;
             SCP330Behavior.noHands = false;
-            if (localPlayer.thisPlayerModelArms.enabled == false)
+            if (localPlayer.thisPlayerModelArms.enabled == false && config330ShowNoArmsWhenHandsCut.Value)
             {
                 NetworkHandler.Instance.SetPlayerArmsVisibleServerRpc(localPlayer.actualClientId, true);
             }

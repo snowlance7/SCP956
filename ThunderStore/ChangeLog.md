@@ -1,3 +1,10 @@
+## 2.0.3
+- You can now pick up SCP-330 if it doesnt spawn with its pedestal.
+- Changed default level spawns
+
+## 2.0.2
+- Readding this changelog, idk why it wasnt added
+
 ## 2.0.1
 - Fixed bug where confetti sounds would play when going into orbit and you werent a child changing back
 

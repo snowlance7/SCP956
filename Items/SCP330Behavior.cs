@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging;
 using GameNetcodeStuff;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
@@ -8,9 +9,12 @@ using static SCP956.Plugin;
 
 namespace SCP956.Items
 {
-    internal class SCP330Behavior : PhysicsProp
+    internal class SCP330Behavior : PhysicsProp 
+        // bowl with pedestal: 
+        // bowl: -0.21 0.12 -0.3
     {
         private static ManualLogSource logger = LoggerInstance;
+        public static SCP330Behavior? Instance { get; private set; }
 
         private Dictionary<PlayerControllerB, int> PlayersCandyTaken = new Dictionary<PlayerControllerB, int>();
         public static bool noHands = false;
@@ -22,14 +26,55 @@ namespace SCP956.Items
         public ScanNodeProperties ScanNode = null!;
 #pragma warning restore 0649
 
+        const string standingGrabTooltip = "Take a piece of candy";
+        const string crouchingGrabTooltip = "Pickup bowl of candy";
+
         public override void Start()
         {
             base.Start();
-            ScanNode.subText = "Take two pieces of candy";
+            ScanNode.subText = "Take no more than two please!!";
+        }
+
+        IEnumerator DelayedStart()
+        {
+            yield return new WaitUntil(() => NetworkObject.IsSpawned);
+
+            if (Instance != null && NetworkObject.IsSpawned)
+            {
+                if (IsServerOrHost)
+                {
+                    logger.LogDebug("There is already a SCP-330 in the scene. Removing this one.");
+                    NetworkObject.Despawn(true);
+                }
+            }
+            else
+            {
+                Instance = this;
+            }
+        }
+
+        public override void Update()
+        {
+            base.Update();
+
+            if (itemProperties.name != "CandyBowlPItem")
+            {
+                if (localPlayer.isCrouching && config330AllowPickingUpWhenCrouched.Value)
+                {
+                    grabbable = true;
+                    customGrabTooltip = crouchingGrabTooltip;
+                }
+                else
+                {
+                    grabbable = false;
+                    customGrabTooltip = standingGrabTooltip;
+                }
+            }
         }
 
         public override void InteractItem()
         {
+            if (config330AllowPickingUpWhenCrouched.Value && localPlayer.isCrouching) { return; }
             logger.LogDebug("Interacting with SCP-330");
 
             localPlayerCandyTaken += 1;
@@ -51,7 +96,11 @@ namespace SCP956.Items
                 ItemSFX.Play();
                 HUDManager.Instance.DisplayTip("Took too much candy", "You feel a sharp pain where your hands should be. They've been severed by an unknown force.");
                 localPlayer.JumpToFearLevel(1f);
-                NetworkHandler.Instance.SetPlayerArmsVisibleServerRpc(localPlayer.actualClientId, false);
+                
+                if (config330ShowNoArmsWhenHandsCut.Value)
+                {
+                    NetworkHandler.Instance.SetPlayerArmsVisibleServerRpc(localPlayer.actualClientId, false);
+                }
 
                 StatusEffectController.Instance.DamagePlayerOverTime(5, 2, true);
 
