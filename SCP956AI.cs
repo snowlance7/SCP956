@@ -29,18 +29,28 @@ namespace SCP956
         public AudioClip PlayerDeathSFX = null!;
         public AudioClip WarningShortSFX = null!;
         public AudioClip WarningLongSFX = null!;
+        public AudioClip metalDoorSmashSFX = null!;
+        public AudioClip bashSFX = null!;
+        public DoorCollisionDetect doorCollisionDetectScript = null!;
 #pragma warning restore 0649
 
-        float timeSinceNewPos;
         float timeSinceRandTeleport;
-        float activationRadius;
         bool firstTimeTeleport;
+        bool bashingDoor;
 
         public static List<PlayerControllerB> YoungPlayers = new List<PlayerControllerB>();
         public static List<PlayerControllerB> PlayersRecievedWarning = new List<PlayerControllerB>();
         public static List<PlayerControllerB> FrozenPlayers = new List<PlayerControllerB>();
 
-        enum State
+        DoorLock doorLock = null!;
+
+        // Config Values
+        float activationRadius;
+        float doorBashForce;
+        bool despawnDoorAfterBash;
+        float despawnDoorAfterBashTime;
+
+        public enum State
         {
             Dormant,
             MovingTowardsPlayer,
@@ -50,8 +60,12 @@ namespace SCP956
         public override void Start()
         {
             base.Start();
-            logger.LogDebug("SCP-956 Spawned");
+            LogIfDebug("SCP-956 Spawned");
+
             activationRadius = config956ActivationRadius.Value;
+            doorBashForce = config956DoorBashForce.Value;
+            despawnDoorAfterBash = config956DespawnDoorAfterBash.Value;
+            despawnDoorAfterBashTime = config956DespawnDoorAfterBashTime.Value;
 
             SetOutsideOrInside();
             //SetEnemyOutsideClientRpc(true);
@@ -64,31 +78,28 @@ namespace SCP956
         {
             base.Update();
 
-            timeSinceNewPos += Time.deltaTime;
             timeSinceRandTeleport += Time.deltaTime;
-            //logger.LogDebug($"Time since rand teleport: {timeSinceRandTeleport}");
+            //LogIfDebug($"Time since rand teleport: {timeSinceRandTeleport}");
 
-            if (targetPlayer != null)
+            if (currentBehaviourStateIndex == (int)State.MovingTowardsPlayer)
             {
-                if (currentBehaviourStateIndex == (int)State.MovingTowardsPlayer)
+                if (localPlayer.HasLineOfSightToPosition(transform.position, 60f))
                 {
-                    if (localPlayer.HasLineOfSightToPosition(transform.position, 60f))
-                    {
-                        localPlayer.IncreaseFearLevelOverTime(0.2f);
-                    }
+                    localPlayer.IncreaseFearLevelOverTime(0.2f);
                 }
-                else if (currentBehaviourStateIndex == (int)State.HeadButtAttackInProgress)
-                {
-                    agent.speed = 0f;
-                    turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
-                    transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
-                }
+            }
+
+            if (targetPlayer != null && currentBehaviourStateIndex == (int)State.HeadButtAttackInProgress)
+            {
+                agent.speed = 0f;
+                turnCompass.LookAt(targetPlayer.gameplayCamera.transform.position);
+                transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.Euler(new Vector3(0f, turnCompass.eulerAngles.y, 0f)), 10f * Time.deltaTime);
             }
         }
         
         public override void DoAIInterval()
         {
-            //logger.LogDebug("Do AI Interval");
+            //LogIfDebug("Do AI Interval");
             base.DoAIInterval();
             if (isEnemyDead || StartOfRound.Instance.allPlayersDead)
             {
@@ -108,13 +119,13 @@ namespace SCP956
                     agent.speed = 0f;
                     if (TargetFrozenPlayerInRange(activationRadius))
                     {
-                        logger.LogDebug("Start Killing Player");
+                        LogIfDebug("Start Killing Player");
                         SwitchToBehaviourClientRpc((int)State.MovingTowardsPlayer);
                         return;
                     }
                     if (timeSinceRandTeleport > config956TeleportTime.Value || (timeSinceRandTeleport > 30f && !firstTimeTeleport))
                     {
-                        logger.LogDebug("Teleporting");
+                        LogIfDebug("Teleporting");
                         firstTimeTeleport = true;
                         if (config956TeleportNearPlayers.Value)
                         {
@@ -123,6 +134,7 @@ namespace SCP956
                         else
                         {
                             Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+                            pos = RoundManager.Instance.GetClosestNode(pos, isOutside).transform.position;
                             Teleport(pos);
                         }
                         timeSinceRandTeleport = 0;
@@ -135,7 +147,7 @@ namespace SCP956
                     timeSinceRandTeleport = 0;
                     if (!TargetFrozenPlayerInRange(config956ActivationRadius.Value))
                     {
-                        logger.LogDebug("Stop Killing Players");
+                        LogIfDebug("Stop Killing Players");
                         SwitchToBehaviourClientRpc((int)State.Dormant);
                         return;
                     }
@@ -149,21 +161,109 @@ namespace SCP956
             }
         }
 
+        public void BeginBashDoor(DoorLock _doorLock)
+        {
+            logger.LogDebug("BeginBashDoor called");
+            inSpecialAnimation = true;
+            doorLock = _doorLock;
+            bashingDoor = true;
+            creatureAnimator.SetTrigger("headButt");
+        }
+
+        public void BashDoor()
+        {
+            if (!bashingDoor) { return; }
+            bashingDoor = false;
+
+            var steelDoorObj = doorLock.transform.parent.transform.parent.gameObject;
+            var doorMesh = steelDoorObj.transform.Find("DoorMesh").gameObject;
+
+            GameObject flyingDoorPrefab = new GameObject("FlyingDoor");
+            BoxCollider tempCollider = flyingDoorPrefab.AddComponent<BoxCollider>();
+            tempCollider.isTrigger = true;
+            tempCollider.size = new Vector3(1f, 1.5f, 3f);
+
+            flyingDoorPrefab.AddComponent<DoorPlayerCollisionDetect>();
+
+            AudioSource tempAS = flyingDoorPrefab.AddComponent<AudioSource>();
+            tempAS.spatialBlend = 1;
+            tempAS.maxDistance = 60;
+            tempAS.rolloffMode = AudioRolloffMode.Linear;
+            tempAS.volume = 1f;
+
+            var flyingDoor = UnityEngine.Object.Instantiate(flyingDoorPrefab, doorLock.transform.position, doorLock.transform.rotation);
+            doorMesh.transform.SetParent(flyingDoor.transform);
+
+            GameObject.Destroy(flyingDoorPrefab);
+
+            Rigidbody rb = flyingDoor.AddComponent<Rigidbody>();
+            rb.mass = 1f;
+            rb.useGravity = true;
+            rb.isKinematic = true;
+
+            // Determine which direction to apply the force
+            Vector3 doorForward = flyingDoor.transform.position + flyingDoor.transform.right * 2f;
+            Vector3 doorBackward = flyingDoor.transform.position - flyingDoor.transform.right * 2f;
+            Vector3 direction;
+
+            if (Vector3.Distance(doorForward, transform.position) < Vector3.Distance(doorBackward, transform.position))
+            {
+                direction = (doorBackward - doorForward).normalized;
+                flyingDoor.transform.position = flyingDoor.transform.position - flyingDoor.transform.right;
+            }
+            else
+            {
+                direction = (doorForward - doorBackward).normalized;
+                flyingDoor.transform.position = flyingDoor.transform.position + flyingDoor.transform.right;
+            }
+
+            Vector3 upDirection = transform.TransformDirection(Vector3.up).normalized * 0.1f;
+            Vector3 playerHitDirection = (direction + upDirection).normalized;
+            flyingDoor.GetComponent<DoorPlayerCollisionDetect>().force = playerHitDirection * doorBashForce;
+
+            // Release the Rigidbody from kinematic state
+            rb.isKinematic = false;
+
+            // Add an impulse force to the door
+            rb.AddForce(direction * doorBashForce, ForceMode.Impulse);
+
+            AudioSource doorAudio = flyingDoor.GetComponent<AudioSource>();
+            doorAudio.PlayOneShot(bashSFX, 1f);
+
+            string flowType = RoundManager.Instance.dungeonGenerator.Generator.DungeonFlow.name;
+            if (flowType == "Level1Flow" || flowType == "Level1FlowExtraLarge" || flowType == "Level1Flow3Exits" || flowType == "Level3Flow")
+            {
+                doorAudio.PlayOneShot(metalDoorSmashSFX, 0.8f);
+            }
+
+            doorCollisionDetectScript.triggering = false;
+            doorLock = null!;
+            inSpecialAnimation = false;
+
+            if (despawnDoorAfterBash)
+            {
+                Destroy(flyingDoor, despawnDoorAfterBashTime);
+            }
+        }
+
         public void SetOutsideOrInside()
         {
-            GameObject closestOutsideNode = GetClosestAINode(RoundManager.Instance.outsideAINodes.ToList());
-            GameObject closestInsideNode = GetClosestAINode(RoundManager.Instance.insideAINodes.ToList());
+            GameObject closestOutsideNode = GetClosestAINode(GameObject.FindGameObjectsWithTag("OutsideAINode").ToList());
+            GameObject closestInsideNode = GetClosestAINode(GameObject.FindGameObjectsWithTag("AINode").ToList());
 
             if (Vector3.Distance(transform.position, closestOutsideNode.transform.position) < Vector3.Distance(transform.position, closestInsideNode.transform.position))
             {
+                LogIfDebug("Setting enemy outside");
                 SetEnemyOutsideClientRpc(true);
+                return;
             }
+            LogIfDebug("Setting enemy inside");
         }
 
         public GameObject GetClosestAINode(List<GameObject> nodes)
         {
             float closestDistance = Mathf.Infinity;
-            GameObject closestNode = null;
+            GameObject closestNode = null!;
             foreach (GameObject node in nodes)
             {
                 float distanceToNode = Vector3.Distance(transform.position, node.transform.position);
@@ -180,7 +280,7 @@ namespace SCP956
         {
             foreach (var player in StartOfRound.Instance.allPlayerScripts)
             {
-                if (!player.isPlayerControlled || player.isPlayerDead)
+                if (!PlayerIsTargetable(player, false, true))
                 {
                     continue;
                 }
@@ -189,23 +289,23 @@ namespace SCP956
                 {
                     if (PlayersRecievedWarning.Contains(player))
                     {
-                        //logger.LogDebug($"Skipping player {player.actualClientId}: Player has already received a warning.");
+                        //LogIfDebug($"Skipping player {player.actualClientId}: Player has already received a warning.");
                         continue;
                     }
 
                     if (FrozenPlayers.Contains(player))
                     {
-                        //logger.LogDebug($"Skipping player {player.actualClientId}: Player is already frozen.");
+                        //LogIfDebug($"Skipping player {player.actualClientId}: Player is already frozen.");
                         continue;
                     }
 
                     bool holdingCandy = IsPlayerHoldingCandy(player);
 
-                    bool young = YoungPlayers.Contains(player);
+                    bool young = IsPlayerYoung(player);
 
                     if (young || holdingCandy)
                     {
-                        logger.LogDebug($"Warning player {player.actualClientId}. Young: {young}, Radius: {activationRadius}");
+                        LogIfDebug($"Warning player {player.actualClientId}. Young: {young}, Radius: {activationRadius}");
                         WarnPlayerClientRpc(player.actualClientId, young, activationRadius);
                         PlayersRecievedWarning.Add(player);
                     }
@@ -213,13 +313,12 @@ namespace SCP956
             }
         }
 
-
         public void TeleportToRandomPlayer()
         {
             List<PlayerControllerB> players = new List<PlayerControllerB>();
             foreach (var player in StartOfRound.Instance.allPlayerScripts)
             {
-                if (YoungPlayers.Contains(player) || IsPlayerHoldingCandy(player))
+                if (IsPlayerYoung(player) || IsPlayerHoldingCandy(player))
                 {
                     players.Add(player);
                 }
@@ -228,6 +327,7 @@ namespace SCP956
             int randomIndex = UnityEngine.Random.Range(0, players.Count);
             PlayerControllerB player2 = players[randomIndex];
             Vector3 pos = RoundManager.Instance.GetRandomNavMeshPositionInBoxPredictable(player2.transform.position, config956TeleportRange.Value, RoundManager.Instance.navHit, RoundManager.Instance.AnomalyRandom);
+            pos = RoundManager.Instance.GetClosestNode(pos, isOutside).transform.position;
             Teleport(pos);
         }
 
@@ -238,11 +338,11 @@ namespace SCP956
             Vector3 playerPos = player.transform.position;
 
             yield return new WaitForSeconds(3f);
-            logger.LogDebug("Headbutting");
+            LogIfDebug("Headbutting");
             DoAnimationClientRpc("headButt");
             
             yield return new WaitForSeconds(0.5f);
-            logger.LogDebug($"Damaging player: {targetPlayer.playerUsername}");
+            LogIfDebug($"Damaging player: {targetPlayer.playerUsername}");
             DamagePlayerServerRpc(player.actualClientId);
             creatureSFX.PlayOneShot(BoneCrackSFX, 1f);
 
@@ -252,7 +352,7 @@ namespace SCP956
             { 
                 creatureVoice.PlayOneShot(PlayerDeathSFX, 1f);
 
-                logger.LogDebug("Player died, spawning candy");
+                LogIfDebug("Player died, spawning candy");
                 int candiesCount = UnityEngine.Random.Range(configCandyMinSpawn.Value, configCandyMaxSpawn.Value);
 
                 for (int i = 0; i < candiesCount; i++)
@@ -295,32 +395,21 @@ namespace SCP956
 
             if (Vector3.Distance(transform.position, targetPlayer.transform.position) <= 3f)
             {
-                logger.LogDebug("Headbutt Attack");
+                LogIfDebug("Headbutt Attack");
                 StartCoroutine(HeadbuttAttack());
                 return;
             }
 
-            if (timeSinceNewPos > 1.5f)
-            {
-                timeSinceNewPos = 0;
-                SetDestinationToPosition(targetPlayer.transform.position);
-            }
-        }
-
-        public override void OnCollideWithPlayer(Collider other)
-        {
-            return;
+            SetDestinationToPosition(targetPlayer.transform.position);
         }
 
         public override void HitFromExplosion(float distance)
         {
             base.HitFromExplosion(distance);
-            KillEnemy(true);
-        }
-
-        public override void HitEnemy(int force = 0, PlayerControllerB playerWhoHit = null, bool playHitSFX = true, int hitID = -1)
-        {
-            base.HitEnemy(0, playerWhoHit, playHitSFX, hitID);
+            if (!inSpecialAnimation && !isEnemyDead)
+            {
+                KillEnemy(true);
+            }
         }
 
         public void Teleport(Vector3 teleportPos)
@@ -347,25 +436,25 @@ namespace SCP956
         {
             bool outOfRange = false;
             bool wasHoldingCandy = false;
-            logger.LogDebug($"Starting PlayWarningCoroutine. Young: {young}, Radius: {radius}");
+            LogIfDebug($"Starting PlayWarningCoroutine. Young: {young}, Radius: {radius}");
 
             if (young)
             {
                 creatureVoice.clip = WarningShortSFX;
-                logger.LogDebug("Set creature voice to WarningShortSFX.");
+                LogIfDebug("Set creature voice to WarningShortSFX.");
             }
             else
             {
                 creatureVoice.clip = WarningLongSFX;
                 wasHoldingCandy = true;
-                logger.LogDebug("Set creature voice to WarningLongSFX.");
+                LogIfDebug("Set creature voice to WarningLongSFX.");
             }
 
             creatureVoice.volume = configWarningSoundVolume.Value;
-            logger.LogDebug($"Set creature voice volume to {creatureVoice.volume}.");
+            LogIfDebug($"Set creature voice volume to {creatureVoice.volume}.");
 
             creatureVoice.Play();
-            logger.LogDebug("Playing creature voice sound.");
+            LogIfDebug("Playing creature voice sound.");
 
             while (creatureVoice.isPlaying)
             {
@@ -375,7 +464,7 @@ namespace SCP956
                 {
                     outOfRange = true;
                     creatureVoice.Stop();
-                    logger.LogDebug("Player out of range. Stopping creature voice.");
+                    LogIfDebug("Player out of range. Stopping creature voice.");
                     break;
                 }
 
@@ -384,12 +473,12 @@ namespace SCP956
 
             if (outOfRange)
             {
-                logger.LogDebug($"Player is out of range. Removing player with ID {localPlayer.actualClientId} from being warned.");
+                LogIfDebug($"Player is out of range. Removing player with ID {localPlayer.actualClientId} from being warned.");
                 RemoveFromPlayersBeingWarnedServerRpc(localPlayer.actualClientId);
             }
             else
             {
-                logger.LogDebug("Player is in range. Freezing local player and initiating kill after delay.");
+                LogIfDebug("Player is in range. Freezing local player and initiating kill after delay.");
                 FreezeLocalPlayer(true);
                 StatusEffectController.Instance.KillLocalPlayerAfterDelay(configMaxTimeToKillPlayer.Value);
                 AddPlayerToFrozenPlayersServerRpc(localPlayer.actualClientId);
@@ -400,7 +489,7 @@ namespace SCP956
         // RPC's
 
         [ServerRpc(RequireOwnership = false)]
-        private void DamagePlayerServerRpc(ulong clientId)
+        private void DamagePlayerServerRpc(ulong clientId) // TODO: May be unneeded
         {
             if (localPlayer.actualClientId == clientId)
             {
@@ -417,7 +506,7 @@ namespace SCP956
         [ClientRpc]
         private void DoAnimationClientRpc(string animationName)
         {
-            logger.LogDebug($"Doing animation: {animationName}");
+            LogIfDebug($"Doing animation: {animationName}");
             creatureAnimator.SetTrigger(animationName);
         }
 
@@ -446,7 +535,10 @@ namespace SCP956
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 PlayerControllerB player = NetworkHandler.PlayerFromId(clientId);
-                FrozenPlayers.Add(player);
+                if (!FrozenPlayers.Contains(player))
+                {
+                    FrozenPlayers.Add(player);
+                }
                 PlayersRecievedWarning.Remove(player);
             }
         }

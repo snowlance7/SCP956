@@ -9,6 +9,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using static SCP956.Plugin;
 
 namespace SCP956.Items.CandyBag
 {
@@ -34,24 +35,24 @@ namespace SCP956.Items.CandyBag
 
         private void Start()
         {
-            logger.LogDebug("UIController: Start()");
+            LogIfDebug("UIController: Start()");
 
             // Get UIDocument
-            logger.LogDebug("Getting UIDocument");
+            LogIfDebug("Getting UIDocument");
             UIDocument uiDocument = GetComponent<UIDocument>();
             if (uiDocument == null) { logger.LogError("uiDocument not found."); return; }
 
             // Get VisualTreeAsset
-            logger.LogDebug("Getting visual tree asset");
+            LogIfDebug("Getting visual tree asset");
             if (uiDocument.visualTreeAsset == null) { logger.LogError("visualTreeAsset not found."); return; }
 
             // Instantiate root
             VisualElement root = uiDocument.visualTreeAsset.Instantiate();
             if (root == null) { logger.LogError("root is null!"); return; }
-            logger.LogDebug("Adding root");
+            LogIfDebug("Adding root");
             uiDocument.rootVisualElement.Add(root);
             if (uiDocument.rootVisualElement == null) { logger.LogError("uiDocument.rootVisualElement not found."); return; }
-            logger.LogDebug("Got root");
+            LogIfDebug("Got root");
             root = uiDocument.rootVisualElement;
 
             veMain = uiDocument.rootVisualElement.Q<VisualElement>("veMain");
@@ -84,7 +85,7 @@ namespace SCP956.Items.CandyBag
             btnBlack = root.Q<Button>("btnBlack");
             if (btnBlack == null) { logger.LogError("btnBlack not found."); return; }
 
-            logger.LogDebug("Got Controls for UI");
+            LogIfDebug("Got Controls for UI");
 
             // Add event handlers
             btnBlue.clickable.clicked += () => ButtonClicked("BlueCandyItem");
@@ -160,7 +161,7 @@ namespace SCP956.Items.CandyBag
                 }
             });
 
-            logger.LogDebug("UIControllerScript: Start() complete");
+            LogIfDebug("UIControllerScript: Start() complete");
         }
 
         public void Update()
@@ -170,7 +171,7 @@ namespace SCP956.Items.CandyBag
 
         public void ShowUI(Dictionary<string, int> CandyBag)
         {
-            logger.LogDebug("Showing UI");
+            LogIfDebug("Showing UI");
             Instance = this;
             veMain.style.display = DisplayStyle.Flex;
 
@@ -192,7 +193,7 @@ namespace SCP956.Items.CandyBag
 
         public void HideUI()
         {
-            logger.LogDebug("Hiding UI");
+            LogIfDebug("Hiding UI");
             Instance = null;
             veMain.style.display = DisplayStyle.None;
 
@@ -205,7 +206,7 @@ namespace SCP956.Items.CandyBag
 
         private void ButtonClicked(string name)
         {
-            logger.LogDebug("Button clicked");
+            LogIfDebug("Button clicked");
 
             GetComponent<CandyBagBehavior>().CandySelected(name, false);
             HideUI();
@@ -213,14 +214,14 @@ namespace SCP956.Items.CandyBag
 
         private void ButtonRightClicked(string name)
         {
-            logger.LogDebug("Button right clicked");
+            LogIfDebug("Button right clicked");
 
             GetComponent<CandyBagBehavior>().CandySelected(name, true);
             HideUI();
         }
     }
     [HarmonyPatch]
-    internal class Patches
+    internal class PatchesCopy
     {
         private static ManualLogSource logger = Plugin.LoggerInstance;
 

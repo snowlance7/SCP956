@@ -5,7 +5,7 @@
         <AssemblyName>Snowlance.SCP956</AssemblyName>
         <Product>SCP956</Product>
         <!-- Change to whatever version you're currently on. -->
-        <Version>2.0.3</Version>
+        <Version>2.1.0</Version>
     </PropertyGroup>
 
     <!-- Project Properties -->

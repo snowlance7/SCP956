@@ -100,7 +100,7 @@ namespace SCP956
                     effectMethods[method.Name] = method;
                 }
             }
-            logger.LogDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
+            LogIfDebug($"Effect methods: {string.Join(", ", effectMethods.Keys)}");
         }
 
         public void PizzaHealing()
@@ -202,7 +202,7 @@ namespace SCP956
 
         public void HealPlayer(int amount, bool overHeal = false) // TODO: Bug: when you heal over 100, if you take damage, it just resets to 100 rather than subtracting the damage. ex 150 health and you take 25 damage, it resets to 100
         {
-            logger.LogDebug("Healing: " + amount);
+            LogIfDebug("Healing: " + amount);
             PlayerControllerB player = localPlayer;
 
             player.MakeCriticallyInjured(false);
@@ -307,7 +307,7 @@ namespace SCP956
             statusNegationSeconds = seconds;
             while (statusNegationSeconds > 0)
             {
-                logger.LogDebug("Status Negation: " + statusNegationSeconds);
+                LogIfDebug("Status Negation: " + statusNegationSeconds);
                 statusNegationSeconds--;
                 yield return new WaitForSecondsRealtime(1f);
             }
@@ -321,7 +321,7 @@ namespace SCP956
             damageReductionPercent = percent;
             while (damageReductionSeconds > 0)
             {
-                logger.LogDebug("Damage Reduction: " + damageReductionPercent + " " + damageReductionSeconds);
+                LogIfDebug("Damage Reduction: " + damageReductionPercent + " " + damageReductionSeconds);
                 damageReductionSeconds--;
                 yield return new WaitForSecondsRealtime(1f);
             }
@@ -337,7 +337,7 @@ namespace SCP956
             while (infiniteSprintSeconds > 0)
             {
                 infiniteSprintSeconds--;
-                logger.LogDebug("Infinite sprint: " + infiniteSprintSeconds);
+                LogIfDebug("Infinite sprint: " + infiniteSprintSeconds);
                 yield return new WaitForSecondsRealtime(1f);
             }
             infiniteSprintSeconds = 0;
@@ -354,7 +354,7 @@ namespace SCP956
                 float movementSpeedMultiplier = 1 + (increasedMovementSpeedPercent / 100.0f);
                 localPlayer.movementSpeed = baseMovementSpeed * movementSpeedMultiplier;
                 increasedMovementSpeedSeconds--;
-                logger.LogDebug("Increased movement speed: " + increasedMovementSpeedPercent + "% " + increasedMovementSpeedSeconds);
+                LogIfDebug("Increased movement speed: " + increasedMovementSpeedPercent + "% " + increasedMovementSpeedSeconds);
                 yield return new WaitForSecondsRealtime(1f);
             }
             increasedMovementSpeedPercent = 0;
@@ -398,14 +398,14 @@ namespace SCP956
         private IEnumerator TransformPlayerCoroutine(PlayerControllerB player) // TODO: Bring back pinata candy somehow so i can use this
         {
             player.KillPlayer(new Vector3(), true, CauseOfDeath.Unknown, 3);
-            logger.LogDebug("Killed player");
+            LogIfDebug("Killed player");
 
             yield return new WaitForSecondsRealtime(7f);
 
             Vector3 playerPos = player.deadBody.transform.position;
-            logger.LogDebug("Removing dead body");
-            NetworkHandler.Instance.DespawnDeadPlayerServerRpc(player.actualClientId);
-            logger.LogDebug("Spawning pinata");
+            LogIfDebug("Removing dead body");
+            NetworkHandler.Instance.DeactivateDeadPlayerServerRpc(player.actualClientId);
+            LogIfDebug("Spawning pinata");
             NetworkHandler.Instance.SpawnPinataServerRpc(playerPos);
         }
     }

@@ -43,7 +43,7 @@ namespace SCP956.Items
             {
                 if (IsServerOrHost)
                 {
-                    logger.LogDebug("There is already a SCP-330 in the scene. Removing this one.");
+                    LogIfDebug("There is already a SCP-330 in the scene. Removing this one.");
                     NetworkObject.Despawn(true);
                 }
             }
@@ -75,10 +75,10 @@ namespace SCP956.Items
         public override void InteractItem()
         {
             if (config330AllowPickingUpWhenCrouched.Value && localPlayer.isCrouching) { return; }
-            logger.LogDebug("Interacting with SCP-330");
+            LogIfDebug("Interacting with SCP-330");
 
             localPlayerCandyTaken += 1;
-            logger.LogDebug("Candy taken: " + localPlayerCandyTaken);
+            LogIfDebug("Candy taken: " + localPlayerCandyTaken);
 
             if (!PlayersCandyTaken.ContainsKey(localPlayer))
             {
@@ -87,7 +87,7 @@ namespace SCP956.Items
 
             if (PlayersCandyTaken[localPlayer] >= 4 || (!localPlayerIsYoung && PlayersCandyTaken[localPlayer] >= 2))
             {
-                logger.LogDebug("Player took too much candy!");
+                LogIfDebug("Player took too much candy!");
                 localPlayer.DamagePlayer(10);
                 HUDManager.Instance.UpdateHealthUI(localPlayer.health, true);
                 localPlayer.MakeCriticallyInjured(true);
@@ -108,9 +108,9 @@ namespace SCP956.Items
             }
 
             NetworkHandler.Instance.SpawnItemServerRpc(localPlayer.actualClientId, CandyNames[UnityEngine.Random.Range(0, CandyNames.Count)], 0, transform.position, Quaternion.identity, true);
-            logger.LogDebug("Spawned candy");
+            LogIfDebug("Spawned candy");
             PlayersCandyTaken[localPlayer] += 1;
-            logger.LogDebug("Candy taken: " + PlayersCandyTaken[localPlayer]);
+            LogIfDebug("Candy taken: " + PlayersCandyTaken[localPlayer]);
         }
     }
 }

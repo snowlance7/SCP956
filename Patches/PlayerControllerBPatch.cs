@@ -57,11 +57,11 @@ namespace SCP956.Patches
             {
                 if (StatusEffectController.Instance.damageReductionSeconds > 0)
                 {
-                    logger.LogDebug("Applying " + StatusEffectController.Instance.damageReductionPercent + "% damage reduction");
+                    LogIfDebug("Applying " + StatusEffectController.Instance.damageReductionPercent + "% damage reduction");
                     float reductionPercent = StatusEffectController.Instance.damageReductionPercent / 100.0f;
                     int reductionAmount = Convert.ToInt32(damageNumber * reductionPercent);
                     int damageAfterReduction = damageNumber - reductionAmount;
-                    logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                    LogIfDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
                     damageNumber = damageAfterReduction;
                 }
                 if (StatusEffectController.Instance.bulletProofMultiplier != 0 && causeOfDeath == CauseOfDeath.Gunshots)
@@ -69,7 +69,7 @@ namespace SCP956.Patches
                     float reductionPercent = StatusEffectController.Instance.bulletProofMultiplier * .10f;
                     int reductionAmount = (int)(damageNumber * reductionPercent);
                     int damageAfterReduction = damageNumber - reductionAmount;
-                    logger.LogDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
+                    LogIfDebug($"Initial damage: {damageNumber}, Damage reduction: {reductionAmount}, damage after reduction: {damageAfterReduction}");
                     damageNumber = damageAfterReduction;
                 }
             }
@@ -84,8 +84,10 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.KillPlayer))]
         private static void KillPlayerPostfix(PlayerControllerB __instance)
         {
-            logger.LogDebug("killing player");
-            ResetConditions();
+            if (__instance == localPlayer)
+            {
+                ResetConditions();
+            }
         }
 
         [HarmonyPrefix]
@@ -112,7 +114,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(PlayerControllerB.ConnectClientToPlayerObject))]
         private static void ConnectClientToPlayerObjectPostfix()
         {
-            logger.LogDebug("Getting age from server");
+            LogIfDebug("Getting age from server");
             NetworkHandler.Instance.GetAgeServerRpc(localPlayer.actualClientId);
         }
     }

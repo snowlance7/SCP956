@@ -22,7 +22,7 @@ namespace SCP956.Items.Cake
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                logger.LogDebug("Eating cake");
+                LogIfDebug("Eating cake");
                 playerHeldBy.itemAudio.PlayOneShot(CakeEatSFX, 0.5f);
                 StatusEffectController.Instance.HealPlayer(config559HealAmount.Value);
 

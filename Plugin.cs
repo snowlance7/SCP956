@@ -43,6 +43,9 @@ namespace SCP956
         public static int PlayerAge = 13;
         public static int PlayerOriginalAge;
 
+        // Debugging
+        public static ConfigEntry<bool> configEnableDebug;
+
         // SCP-956 Configs
         public static ConfigEntry<bool> configEnablePinata;
         public static ConfigEntry<string> config956LevelRarities;
@@ -60,6 +63,12 @@ namespace SCP956
         public static ConfigEntry<int> configMinAge;
         public static ConfigEntry<int> configMaxAge;
         public static ConfigEntry<bool> configRandomizeAgeAfterRound;
+        public static ConfigEntry<bool> configUsePlayerSizeToDetermineAge;
+        public static ConfigEntry<float> configSizeToBeConsideredYoung;
+
+        public static ConfigEntry<float> config956DoorBashForce;
+        public static ConfigEntry<bool> config956DespawnDoorAfterBash;
+        public static ConfigEntry<float> config956DespawnDoorAfterBashTime;
 
         // Candy Configs
         public static ConfigEntry<int> configCandyMinSpawn;
@@ -120,6 +129,9 @@ namespace SCP956
 
             // Configs
 
+            // Debugging
+            configEnableDebug = Config.Bind("Debugging", "Enable Logging", false, "Set to true to enable debug logs.");
+
             // SCP-956 Configs
             configEnablePinata = Config.Bind("SCP-956", "Enable SCP-956", true, "Set to false to disable spawning SCP-956.");
             config956LevelRarities = Config.Bind("SCP-956 Rarities", "Level Rarities", "ExperimentationLevel:10, AssuranceLevel:10, VowLevel:10, OffenseLevel:30, AdamanceLevel:50, MarchLevel:50, RendLevel:50, DineLevel:50, TitanLevel:80, ArtificeLevel:80, EmbrionLevel:100, Modded:30", "Rarities for each level. See default for formatting.");
@@ -137,6 +149,12 @@ namespace SCP956
             configMinAge = Config.Bind("Player Age", "Min Age", 18, "The minimum age of a player that is decided at the beginning of a game.");
             configMaxAge = Config.Bind("Player Age", "Max Age", 70, "The maximum age of a player that is decided at the beginning of a game.");
             configRandomizeAgeAfterRound = Config.Bind("Player Age", "Randomize Age After Round", false, "Should the age of players be randomized after each round?");
+            configUsePlayerSizeToDetermineAge = Config.Bind("Player Age", "Use Player Size To Determine Age", true, "Should the age of players be determined by their size?");
+            configSizeToBeConsideredYoung = Config.Bind("Player Age", "Size To Be Considered Young", 0.7f, "The size that SCP-956 will check for to consider a player to be a child. Value must be between 0 and 1.");
+            
+            config956DoorBashForce = Config.Bind("SCP-956", "Door Bash Force", 10f, "The force applied to a door when bashed by SCP-956.");
+            config956DespawnDoorAfterBash = Config.Bind("SCP-956", "Despawn Door After Bash", true, "Should the door be despawned after it has been bashed by SCP-956.");
+            config956DespawnDoorAfterBashTime = Config.Bind("SCP-956", "Despawn Door After Bash Time", 2f, "The time in seconds it takes for a door to despawn after it has been bashed by SCP-956.");
 
             // Candy Configs
             configCandyMinSpawn = Config.Bind("Candy", "Min Candy Spawn", 5, "The minimum amount of candy to spawn when player dies to SCP-956");
@@ -405,11 +423,54 @@ namespace SCP956
             }
         }
 
+        public static void GrabGrabbableObjectOnClient(GrabbableObject obj)
+        {
+            localPlayer.currentlyGrabbingObject = obj;
+            localPlayer.currentlyGrabbingObject.InteractItem();
+            if (localPlayer.currentlyGrabbingObject.grabbable && localPlayer.FirstEmptyItemSlot() != -1)
+            {
+                localPlayer.playerBodyAnimator.SetBool("GrabInvalidated", value: false);
+                localPlayer.playerBodyAnimator.SetBool("GrabValidated", value: false);
+                localPlayer.playerBodyAnimator.SetBool("cancelHolding", value: false);
+                localPlayer.playerBodyAnimator.ResetTrigger("Throw");
+                //localPlayer.SetSpecialGrabAnimationBool(setTrue: true);
+                //localPlayer.isGrabbingObjectAnimation = true;
+                localPlayer.cursorIcon.enabled = false;
+                localPlayer.cursorTip.text = "";
+                localPlayer.twoHanded = localPlayer.currentlyGrabbingObject.itemProperties.twoHanded;
+                localPlayer.carryWeight = Mathf.Clamp(localPlayer.carryWeight + (localPlayer.currentlyGrabbingObject.itemProperties.weight - 1f), 1f, 10f);
+                if (localPlayer.currentlyGrabbingObject.itemProperties.grabAnimationTime > 0f)
+                {
+                    localPlayer.grabObjectAnimationTime = localPlayer.currentlyGrabbingObject.itemProperties.grabAnimationTime;
+                }
+                /*else
+                {
+                    localPlayer.grabObjectAnimationTime = 0.4f;
+                }*/
+
+                localPlayer.GrabObjectServerRpc(obj.NetworkObject);
+
+                if (localPlayer.grabObjectCoroutine != null)
+                {
+                    localPlayer.StopCoroutine(localPlayer.grabObjectCoroutine);
+                }
+                localPlayer.grabObjectCoroutine = localPlayer.StartCoroutine(localPlayer.GrabObject());
+            }
+        }
+
         /*public static void DespawnItemInSlotOnClient(int itemSlot)
         {
             HUDManager.Instance.itemSlotIcons[itemSlot].enabled = false;
             localPlayer.DestroyItemInSlotAndSync(itemSlot);
         }*/
+
+        public static void LogIfDebug(string message)
+        {
+            if (configEnableDebug.Value)
+            {
+                LoggerInstance.LogDebug(message);
+            }
+        }
 
         public static bool IsPlayerHoldingCandy(PlayerControllerB player)
         {
@@ -421,6 +482,20 @@ namespace SCP956
                     return true;
                 }
             }
+            return false;
+        }
+
+        public static bool IsPlayerYoung(PlayerControllerB player)
+        {
+            if (SCP956AI.YoungPlayers.Contains(player))
+            {
+                return true;
+            }
+            if (configUsePlayerSizeToDetermineAge.Value && player.thisPlayerBody.localScale.y <= configSizeToBeConsideredYoung.Value)
+            {
+                return true;
+            }
+
             return false;
         }
 
@@ -446,11 +521,17 @@ namespace SCP956
                 ChangePlayerAge(PlayerOriginalAge);
             }
 
-            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && endOfRound)
+            if (IsServerOrHost && endOfRound)
             {
                 SCP956AI.FrozenPlayers.Clear();
                 SCP956AI.YoungPlayers.Clear();
                 SCP956AI.PlayersRecievedWarning.Clear();
+            }
+            else
+            {
+                SCP956AI.FrozenPlayers.Remove(localPlayer);
+                SCP956AI.YoungPlayers.Remove(localPlayer);
+                SCP956AI.PlayersRecievedWarning.Remove(localPlayer);
             }
         }
 

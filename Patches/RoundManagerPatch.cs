@@ -26,7 +26,7 @@ namespace SCP956.Patches
         [HarmonyPatch("DespawnPropsAtEndOfRound")]
         private static void DespawnPropsAtEndOfRoundPostfix() // TODO: Check if this is run for all clients
         {
-            logger.LogDebug("In DespawnPropsAtEndOfRoundPatch");
+            LogIfDebug("In DespawnPropsAtEndOfRoundPatch");
             ResetConditions(endOfRound: true);
             firstTime = true;
         }

@@ -24,8 +24,11 @@ namespace SCP956
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                Instance?.gameObject.GetComponent<NetworkObject>().Despawn();
-                logger.LogDebug("Despawned network object");
+                if (Instance != null)
+                {
+                    Instance.gameObject.GetComponent<NetworkObject>().Despawn();
+                    logger.LogDebug("Despawned network object");
+                }
             }
 
             Instance = this;
@@ -37,7 +40,7 @@ namespace SCP956
         [ServerRpc(RequireOwnership = false)]
         public void SpawnPinataServerRpc(Vector3 pos = default)
         {
-            if ((NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer) && Plugin.configEnablePinata.Value)
+            if ((IsServerOrHost) && Plugin.configEnablePinata.Value)
             {
                 SpawnableEnemyWithRarity enemy = RoundManager.Instance.currentLevel.Enemies.Where(x => x.enemyType.name == "Pinata").FirstOrDefault();
                 if (enemy == null) { logger.LogError("Pinata enemy not found"); return; }
@@ -45,23 +48,23 @@ namespace SCP956
 
                 if (pos != default)
                 {
-                    logger.LogDebug("Spawning SCP-956 at: " + pos);
+                    LogIfDebug("Spawning SCP-956 at: " + pos);
                     RoundManager.Instance.SpawnEnemyOnServer(pos, Quaternion.identity.y, index);
                     return;
                 }
 
                 List<EnemyVent> vents = RoundManager.Instance.allEnemyVents.ToList();
-                logger.LogDebug("Found vents: " + vents.Count);
+                LogIfDebug("Found vents: " + vents.Count);
 
                 EnemyVent vent = vents[UnityEngine.Random.Range(0, vents.Count - 1)];
-                logger.LogDebug("Selected vent: " + vent);
+                LogIfDebug("Selected vent: " + vent);
 
                 vent.enemyTypeIndex = index;
                 vent.enemyType = enemy.enemyType;
-                logger.LogDebug("Updated vent with enemy type index: " + vent.enemyTypeIndex + " and enemy type: " + vent.enemyType);
+                LogIfDebug("Updated vent with enemy type index: " + vent.enemyTypeIndex + " and enemy type: " + vent.enemyType);
 
                 RoundManager.Instance.SpawnEnemyFromVent(vent);
-                logger.LogDebug("Spawning SCP-956 from vent");
+                LogIfDebug("Spawning SCP-956 from vent");
             }
         }
 
@@ -103,18 +106,18 @@ namespace SCP956
             }
         }
 
-        [ServerRpc(RequireOwnership = false)]
+        /*[ServerRpc(RequireOwnership = false)]
         public void SpawnItemServerRpc(ulong clientId, string name, int newValue = 0, Vector3 pos = default, UnityEngine.Quaternion rot = default, bool grabItem = false)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
                 Item item = StartOfRound.Instance.allItemsList.itemsList.Where(x => x.name == name).FirstOrDefault();
-                logger.LogDebug("Got item");
+                LogIfDebug("Got item");
 
                 GameObject obj = UnityEngine.Object.Instantiate(item.spawnPrefab, pos, rot, StartOfRound.Instance.propsContainer);
                 obj.GetComponent<GrabbableObject>().fallTime = 0;
                 if (newValue != 0) { obj.GetComponent<GrabbableObject>().SetScrapValue(newValue); }
-                //logger.LogDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
+                //LogIfDebug($"Spawning item with weight: {obj.GetComponent<GrabbableObject>().itemProperties.weight}");
                 obj.GetComponent<NetworkObject>().Spawn();
 
                 if (grabItem)
@@ -132,26 +135,32 @@ namespace SCP956
                 if (localPlayer.ItemSlots.Where(x => x == null).Any())
                 {
                     GrabbableObject grabbableItem = NetworkManager.Singleton.SpawnManager.SpawnedObjects[id].gameObject.GetComponent<GrabbableObject>();
-                    //logger.LogDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
+                    //LogIfDebug($"Grabbing item with weight: {grabbableItem.itemProperties.weight}");
 
                     localPlayer.GrabObjectServerRpc(grabbableItem.NetworkObject);
                     grabbableItem.parentObject = localPlayer.localItemHolder;
                     grabbableItem.GrabItemOnClient();
-                    logger.LogDebug("Grabbed item");
+                    LogIfDebug("Grabbed item");
                 }
             }
-        }
+        }*/
 
         [ServerRpc(RequireOwnership = false)]
-        public void DespawnDeadPlayerServerRpc(ulong clientId)
+        public void DeactivateDeadPlayerServerRpc(ulong clientId)
         {
             if (NetworkManager.Singleton.IsHost || NetworkManager.Singleton.IsServer)
             {
-                PlayerControllerB player = PlayerFromId(clientId);
-                if (player == null) { return; }
-
-                UnityEngine.Object.Destroy(player.deadBody.gameObject);
+                DeactivateDeadPlayerClientRpc(clientId);
             }
+        }
+
+        [ClientRpc]
+        public void DeactivateDeadPlayerClientRpc(ulong clientId)
+        {
+            PlayerControllerB player = PlayerFromId(clientId);
+            if (player == null) { return; }
+
+            player.deadBody.DeactivateBody(false);
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -200,17 +209,17 @@ namespace SCP956
         [HarmonyPostfix, HarmonyPatch(typeof(GameNetworkManager), nameof(GameNetworkManager.Start))]
         public static void Init()
         {
-            logger.LogDebug("Initializing network prefab...");
+            LogIfDebug("Initializing network prefab...");
             if (networkPrefab != null)
                 return;
 
             networkPrefab = (GameObject)Plugin.ModAssets.LoadAsset("Assets/ModAssets/Pinata/NetworkHandlerSCP956.prefab");
-            logger.LogDebug("Got networkPrefab");
+            LogIfDebug("Got networkPrefab");
             //networkPrefab.AddComponent<NetworkHandler>();
-            //logger.LogDebug("Added component");
+            //LogIfDebug("Added component");
 
             NetworkManager.Singleton.AddNetworkPrefab(networkPrefab);
-            logger.LogDebug("Added networkPrefab");
+            LogIfDebug("Added networkPrefab");
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(StartOfRound), nameof(StartOfRound.Awake))]

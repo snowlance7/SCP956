@@ -1,3 +1,11 @@
+## 2.1.0
+- SCP-956 can now break down locked doors to get to you
+- Added an option to disable debug logging
+- SCP-956 detects younger players based on their local scale
+
+## 2.0.4
+- Fixed weight bug with candy bowl
+
 ## 2.0.3
 - You can now pick up SCP-330 if it doesnt spawn with its pedestal.
 - Changed default level spawns

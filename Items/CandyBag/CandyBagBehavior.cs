@@ -90,7 +90,7 @@ namespace SCP956.Items.CandyBag
 
                 if (UIController.veMain.style.display == DisplayStyle.None)
                 {
-                    logger.LogDebug("Showing UI");
+                    LogIfDebug("Showing UI");
                     UIController.ShowUI(CandyInBag);
                 }
             }
@@ -109,18 +109,18 @@ namespace SCP956.Items.CandyBag
 
         public void CandySelected(string name, bool right)
         {
-            logger.LogDebug("Selecting candy: " + name);
+            LogIfDebug("Selecting candy: " + name);
             if (CandyInBag[name] == 0) { return; }
 
             if (right)
             {
-                logger.LogDebug("Taking candy out of bag");
+                LogIfDebug("Taking candy out of bag");
 
                 RemoveCandyFromBag(name, true);
             }
             else
             {
-                logger.LogDebug("Eating candy from bag");
+                LogIfDebug("Eating candy from bag");
 
                 RemoveCandyFromBag(name, false);
 
@@ -202,7 +202,7 @@ namespace SCP956.Items.CandyBag
 
             if (spawnCandy)
             {
-                NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, name, 0, default, default, true);
+                //NetworkHandler.Instance.SpawnItemServerRpc(playerHeldBy.actualClientId, name, 0, default, default, true);
             }
         }
 

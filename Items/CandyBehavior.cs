@@ -50,7 +50,7 @@ namespace SCP956.Items
             if (right) { return; }
             if (configEnableCandyBag.Value)
             {
-                logger.LogDebug("Putting candy in bag");
+                LogIfDebug("Putting candy in bag");
 
                 PlayerControllerB player = playerHeldBy;
                 string name = itemProperties.name;
@@ -88,11 +88,11 @@ namespace SCP956.Items
 
         public override void ItemActivate(bool used, bool buttonDown = true)
         {
-            logger.LogDebug("Item activate used");
+            LogIfDebug("Item activate used");
             base.ItemActivate(used, buttonDown);
             if (buttonDown)
             {
-                logger.LogDebug("Eating candy");
+                LogIfDebug("Eating candy");
                 playerHeldBy.itemAudio.PlayOneShot(CandyCrunchSFX, 1f);
                 playerHeldBy.DespawnHeldObject();
                 ActivateCandy(itemProperties.name);
@@ -101,12 +101,12 @@ namespace SCP956.Items
 
         public static void ActivateCandy(string name)
         {
-            logger.LogDebug("Activating candy effects...");
+            LogIfDebug("Activating candy effects...");
 
             switch (name)
             {
                 case "BlueCandyItem":
-                    logger.LogDebug("Candy blue");
+                    LogIfDebug("Candy blue");
                     if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyBlueEffects.Value); }
                     else
                     {
@@ -114,7 +114,7 @@ namespace SCP956.Items
                     }
                     break;
                 case "GreenCandyItem":
-                    logger.LogDebug("Candy green");
+                    LogIfDebug("Candy green");
                     if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyGreenEffects.Value); }
                     else
                     {
@@ -123,7 +123,7 @@ namespace SCP956.Items
                     }
                     break;
                 case "PurpleCandyItem":
-                    logger.LogDebug("Candy purple");
+                    LogIfDebug("Candy purple");
                     if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyPurpleEffects.Value); }
                     else
                     {
@@ -132,7 +132,7 @@ namespace SCP956.Items
                     }
                     break;
                 case "RedCandyItem":
-                    logger.LogDebug("Candy red");
+                    LogIfDebug("Candy red");
                     if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyRedEffects.Value); }
                     else
                     {
@@ -140,7 +140,7 @@ namespace SCP956.Items
                     }
                     break;
                 case "YellowCandyItem":
-                    logger.LogDebug("Candy yellow");
+                    LogIfDebug("Candy yellow");
                     if (configEnableCustomStatusEffects.Value) { StatusEffectController.Instance.ApplyCandyEffects(configCandyYellowEffects.Value); }
                     else
                     {
@@ -150,11 +150,11 @@ namespace SCP956.Items
                     }
                     break;
                 case "PinkCandyItem":
-                    logger.LogDebug("Candy pink");
+                    LogIfDebug("Candy pink");
                     Landmine.SpawnExplosion(localPlayer.transform.position, true, 3, 3);
                     break;
                 case "RainbowCandyItem":
-                    logger.LogDebug("Candy rainbow");
+                    LogIfDebug("Candy rainbow");
                     StatusEffectController.Instance.HealPlayer(15);
                     StatusEffectController.Instance.InfiniteSprint(5, true);
                     StatusEffectController.Instance.bulletProofMultiplier += 1;
@@ -162,11 +162,11 @@ namespace SCP956.Items
                     StatusEffectController.Instance.HealPlayer(20, true);
                     break;
                 case "BlackCandyItem":
-                    logger.LogDebug("Candy black");
+                    LogIfDebug("Candy black");
                     ActivateCandy(CandyNames.Where(x => x != "BlackCandyItem").ToList()[UnityEngine.Random.Range(0, CandyNames.Count - 1)]);
                     break;
                 default:
-                    logger.LogDebug("Candy not found");
+                    LogIfDebug("Candy not found");
                     break;
             }
         }

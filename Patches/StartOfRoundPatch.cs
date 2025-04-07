@@ -19,7 +19,7 @@ namespace SCP956.Patches
         [HarmonyPatch(nameof(StartOfRound.firstDayAnimation))]
         public static void firstDayAnimationPostfix()
         {
-            logger.LogDebug("First day started");
+            LogIfDebug("First day started");
 
             // Setting up itemgroups
 
@@ -27,11 +27,11 @@ namespace SCP956.Patches
             {
                 ItemGroup TabletopItems = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "TabletopItems").First();
                 ItemGroup GeneralItemClass = Resources.FindObjectsOfTypeAll<ItemGroup>().Where(x => x.name == "GeneralItemClass").First();
-                logger.LogDebug("Got itemgroups");
+                LogIfDebug("Got itemgroups");
 
                 Item scp330 = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlItem").First();
                 Item scp330p = LethalLib.Modules.Items.LethalLibItemList.Where(x => x.name == "CandyBowlPItem").First();
-                logger.LogDebug("Got items");
+                LogIfDebug("Got items");
 
                 scp330.spawnPositionTypes.Clear();
                 scp330p.spawnPositionTypes.Clear();

@@ -28,7 +28,7 @@ namespace SCP956.Patches
         {
             string msg = __instance.chatTextField.text;
             string[] args = msg.Split(" ");
-            logger.LogDebug(msg);
+            LogIfDebug(msg);
 
 
             // Comment these out
@@ -43,7 +43,7 @@ namespace SCP956.Patches
 
         public static List<SpawnableEnemyWithRarity> GetEnemies()
         {
-            logger.LogDebug("Getting enemies");
+            LogIfDebug("Getting enemies");
             List<SpawnableEnemyWithRarity> enemies = new List<SpawnableEnemyWithRarity>();
             enemies = GameObject.Find("Terminal")
                 .GetComponentInChildren<Terminal>()
@@ -53,7 +53,7 @@ namespace SCP956.Patches
                 .GroupBy(x => x.enemyType.name, (k, v) => v.First())
                 .ToList();
 
-            logger.LogDebug($"Enemy types: {enemies.Count}");
+            LogIfDebug($"Enemy types: {enemies.Count}");
             return enemies;
         }
     }
