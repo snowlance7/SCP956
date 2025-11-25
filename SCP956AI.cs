@@ -17,6 +17,8 @@ using System.Drawing;
 using Unity.Netcode.Components;
 using LethalLib.Modules;
 
+// TODO: Add killforme function like i did with SCP-2006 >:3
+
 namespace SCP956
 {
     class SCP956AI : EnemyAI
